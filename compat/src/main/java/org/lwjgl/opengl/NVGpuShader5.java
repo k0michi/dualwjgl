@@ -1,0 +1,208 @@
+package org.lwjgl.opengl;
+
+import java.nio.LongBuffer;
+
+public final class NVGpuShader5 {
+	public static final int GL_INT64_NV = 0x140E;
+	public static final int GL_UNSIGNED_INT64_NV = 0x140F;
+	public static final int GL_INT8_NV = 0x8FE0;
+	public static final int GL_INT8_VEC2_NV = 0x8FE1;
+	public static final int GL_INT8_VEC3_NV = 0x8FE2;
+	public static final int GL_INT8_VEC4_NV = 0x8FE3;
+	public static final int GL_INT16_NV = 0x8FE4;
+	public static final int GL_INT16_VEC2_NV = 0x8FE5;
+	public static final int GL_INT16_VEC3_NV = 0x8FE6;
+	public static final int GL_INT16_VEC4_NV = 0x8FE7;
+	public static final int GL_INT64_VEC2_NV = 0x8FE9;
+	public static final int GL_INT64_VEC3_NV = 0x8FEA;
+	public static final int GL_INT64_VEC4_NV = 0x8FEB;
+	public static final int GL_UNSIGNED_INT8_NV = 0x8FEC;
+	public static final int GL_UNSIGNED_INT8_VEC2_NV = 0x8FED;
+	public static final int GL_UNSIGNED_INT8_VEC3_NV = 0x8FEE;
+	public static final int GL_UNSIGNED_INT8_VEC4_NV = 0x8FEF;
+	public static final int GL_UNSIGNED_INT16_NV = 0x8FF0;
+	public static final int GL_UNSIGNED_INT16_VEC2_NV = 0x8FF1;
+	public static final int GL_UNSIGNED_INT16_VEC3_NV = 0x8FF2;
+	public static final int GL_UNSIGNED_INT16_VEC4_NV = 0x8FF3;
+	public static final int GL_UNSIGNED_INT64_VEC2_NV = 0x8FF5;
+	public static final int GL_UNSIGNED_INT64_VEC3_NV = 0x8FF6;
+	public static final int GL_UNSIGNED_INT64_VEC4_NV = 0x8FF7;
+	public static final int GL_FLOAT16_NV = 0x8FF8;
+	public static final int GL_FLOAT16_VEC2_NV = 0x8FF9;
+	public static final int GL_FLOAT16_VEC3_NV = 0x8FFA;
+	public static final int GL_FLOAT16_VEC4_NV = 0x8FFB;
+	public static final int GL_PATCHES = 14;
+
+	private NVGpuShader5() {
+	}
+
+	public static void glUniform1i64NV(int location, long x) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform2i64NV(int location, long x, long y) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform3i64NV(int location, long x, long y, long z) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform4i64NV(int location, long x, long y, long z, long w) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform1NV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform2NV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform3NV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform4NV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform1ui64NV(int location, long x) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform2ui64NV(int location, long x, long y) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform3ui64NV(int location, long x, long y, long z) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform4ui64NV(int location, long x, long y, long z, long w) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform1uNV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform2uNV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform3uNV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glUniform4uNV(int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glGetUniformNV(int program, int location, LongBuffer params) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glGetUniformuNV(int program, int location, LongBuffer params) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform1i64NV(int program, int location, long x) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform2i64NV(int program, int location, long x, long y) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform3i64NV(int program, int location, long x, long y, long z) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform4i64NV(int program, int location, long x, long y, long z, long w) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform1NV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform2NV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform3NV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform4NV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform1ui64NV(int program, int location, long x) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform2ui64NV(int program, int location, long x, long y) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform3ui64NV(int program, int location, long x, long y, long z) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform4ui64NV(int program, int location, long x, long y, long z, long w) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform1uNV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform2uNV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform3uNV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+
+	public static void glProgramUniform4uNV(int program, int location, LongBuffer value) {
+		// TODO(gl)
+		throw new UnsupportedOperationException();
+	}
+}
