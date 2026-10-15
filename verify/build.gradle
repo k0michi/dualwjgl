@@ -1,0 +1,64 @@
+// Link tests. Each test source tree is compiled twice and always run against the patched jars:
+//   lwjgl2Test / lwjgl3Test             compiled against the ORIGINAL LWJGL 2.9.3 / 3.4.3 -> binary compatibility
+//   lwjgl2SourceTest / lwjgl3SourceTest compiled against the PATCHED jars             -> source compatibility
+
+plugins {
+    id 'java'
+}
+
+evaluationDependsOn(':dist')
+
+def mergeJars = project(':dist').tasks.named('mergeJars')
+def patched = files(project(':dist').layout.buildDirectory.dir('patched').map {
+    it.asFileTree.matching { include '*.jar' }
+}).builtBy(mergeJars)
+
+def nativesClassifier = {
+    String os = System.getProperty('os.name').toLowerCase()
+    boolean arm = System.getProperty('os.arch') in ['aarch64', 'arm64']
+    if (os.contains('mac')) return arm ? 'natives-macos-arm64' : 'natives-macos'
+    if (os.contains('win')) return arm ? 'natives-windows-arm64' : 'natives-windows'
+    return arm ? 'natives-linux-arm64' : 'natives-linux'
+}()
+
+configurations {
+    lwjgl2Api { transitive = false }
+    lwjgl3Api { transitive = false }
+    natives { transitive = false }
+}
+
+dependencies {
+    lwjgl2Api libs.lwjgl2.core
+    lwjgl3Api libs.lwjgl3.core
+    natives(variantOf(libs.lwjgl3.core) { classifier(nativesClassifier) })
+}
+
+def registerSuite = { String suite, String sources, FileCollection compileAgainst ->
+    def ss = sourceSets.create(suite) {
+        java.srcDir sources
+        compileClasspath += compileAgainst
+    }
+    ss.runtimeClasspath = ss.output + patched + configurations.natives + ss.runtimeClasspath
+    dependencies {
+        add(ss.implementationConfigurationName, platform(libs.junit.bom))
+        add(ss.implementationConfigurationName, libs.junit.jupiter)
+        add(ss.runtimeOnlyConfigurationName, libs.junit.launcher)
+    }
+    def test = tasks.register(suite, Test) {
+        group = 'verification'
+        testClassesDirs = ss.output.classesDirs
+        classpath = ss.runtimeClasspath
+        useJUnitPlatform()
+    }
+    tasks.named('check') { dependsOn test }
+}
+
+registerSuite('lwjgl2Test', 'src/lwjgl2Test/java', configurations.lwjgl2Api)
+registerSuite('lwjgl3Test', 'src/lwjgl3Test/java', configurations.lwjgl3Api)
+registerSuite('lwjgl2SourceTest', 'src/lwjgl2Test/java', patched)
+registerSuite('lwjgl3SourceTest', 'src/lwjgl3Test/java', patched)
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+    options.compilerArgs << '-Xlint:-options'
+}

@@ -1,0 +1,44 @@
+// Runs the merger: LWJGL 3 jars + compat -> patched jars in build/patched.
+
+plugins {
+    id 'base'
+}
+
+evaluationDependsOn(':compat')
+
+configurations {
+    lwjgl3 { transitive = false }
+    mergerTool
+}
+
+dependencies {
+    lwjgl3 libs.lwjgl3.core
+    mergerTool project(':merger')
+}
+
+def compatMain = project(':compat').sourceSets.main.output.classesDirs
+def compatInject = project(':compat').sourceSets.inject.output.classesDirs
+
+def mergeJars = tasks.register('mergeJars', JavaExec) {
+    group = 'build'
+    description = 'Merges the LWJGL 2 compat layer into the LWJGL 3 jars.'
+
+    def outDir = layout.buildDirectory.dir('patched')
+    inputs.files(configurations.lwjgl3, compatMain, compatInject)
+    outputs.dir(outDir)
+
+    classpath = configurations.mergerTool
+    mainClass = 'com.koyomiji.lwjgl2w3.merger.Merger'
+    argumentProviders.add({
+        File out = outDir.get().asFile
+        List<String> args = []
+        configurations.lwjgl3.files.each { args += ['--jar', "${it.absolutePath}=${new File(out, it.name).absolutePath}".toString()] }
+        compatInject.files.each { args += ['--inject', it.absolutePath] }
+        compatMain.files.each { args += ['--add', it.absolutePath] }
+        args += ['--extra', new File(out, 'lwjgl2w3-extra.jar').absolutePath]
+        args
+    } as CommandLineArgumentProvider)
+    doFirst { outDir.get().asFile.deleteDir() }
+}
+
+tasks.named('assemble') { dependsOn mergeJars }

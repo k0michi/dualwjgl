@@ -1,0 +1,17 @@
+plugins {
+    id 'application'
+}
+
+dependencies {
+    implementation libs.asm
+    implementation libs.asm.tree
+    implementation libs.asm.commons
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+application {
+    mainClass = 'com.koyomiji.lwjgl2w3.merger.Merger'
+}

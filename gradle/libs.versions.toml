@@ -1,0 +1,15 @@
+[versions]
+lwjgl3 = "3.4.3"
+lwjgl2 = "2.9.3"
+asm = "9.7.1"
+junit = "5.11.4"
+
+[libraries]
+lwjgl3-core = { module = "org.lwjgl:lwjgl", version.ref = "lwjgl3" }
+lwjgl2-core = { module = "org.lwjgl.lwjgl:lwjgl", version.ref = "lwjgl2" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }

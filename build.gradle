@@ -1,0 +1,10 @@
+allprojects {
+    group = 'com.koyomiji.lwjgl2w3'
+    version = '0.1.0-SNAPSHOT'
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+    }
+}

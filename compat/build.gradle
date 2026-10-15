@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+}
+
+// main:   LWJGL 2-only classes, in their real packages (added to the LWJGL 3 jar that owns the package)
+// inject: members to merge into existing LWJGL 3 classes; com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>
+sourceSets {
+    inject
+}
+
+dependencies {
+    compileOnly libs.lwjgl3.core
+
+    injectCompileOnly libs.lwjgl3.core
+    injectCompileOnly project(':inject-api')
+    injectCompileOnly sourceSets.main.output
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+    options.compilerArgs << '-Xlint:-options'
+}

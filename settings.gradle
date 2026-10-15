@@ -1,0 +1,3 @@
+rootProject.name = 'lwjgl2w3'
+
+include 'inject-api', 'compat', 'merger', 'dist', 'verify'
