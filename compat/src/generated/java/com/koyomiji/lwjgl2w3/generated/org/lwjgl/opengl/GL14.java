@@ -7,13 +7,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class GL14 {
-	@Todo("gl")
 	public static void glFogCoordPointer(int stride, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL14.nglFogCoordPointer(5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
-	@Todo("gl")
 	public static void glFogCoordPointer(int stride, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL14.nglFogCoordPointer(5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
 	public static void glPointParameter(int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL14.glPointParameteriv(pname, params);
@@ -21,13 +19,11 @@ public final class GL14 {
 	public static void glPointParameter(int pname, FloatBuffer params) {
 		org.lwjgl.opengl.GL14.glPointParameterfv(pname, params);
 	}
-	@Todo("gl")
 	public static void glSecondaryColorPointer(int size, int stride, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL14.nglSecondaryColorPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
-	@Todo("gl")
 	public static void glSecondaryColorPointer(int size, int stride, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL14.nglSecondaryColorPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
 	@Todo("gl")
 	public static void glSecondaryColorPointer(int size, boolean unsigned, int stride, ByteBuffer data) {

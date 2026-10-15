@@ -8,21 +8,17 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 public final class NVVertexArrayRange {
-	@Todo("gl")
 	public static void glVertexArrayRangeNV(DoubleBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVVertexArrayRange.nglVertexArrayRangeNV((org.lwjgl.system.Checks.remainingSafe(pPointer) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
-	@Todo("gl")
 	public static void glVertexArrayRangeNV(FloatBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVVertexArrayRange.nglVertexArrayRangeNV((org.lwjgl.system.Checks.remainingSafe(pPointer) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
-	@Todo("gl")
 	public static void glVertexArrayRangeNV(IntBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVVertexArrayRange.nglVertexArrayRangeNV((org.lwjgl.system.Checks.remainingSafe(pPointer) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
-	@Todo("gl")
 	public static void glVertexArrayRangeNV(ShortBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVVertexArrayRange.nglVertexArrayRangeNV((org.lwjgl.system.Checks.remainingSafe(pPointer) << 1), org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
 	@Todo("gl")
 	public static ByteBuffer glAllocateMemoryNV(int size, float readFrequency, float writeFrequency, float priority) {

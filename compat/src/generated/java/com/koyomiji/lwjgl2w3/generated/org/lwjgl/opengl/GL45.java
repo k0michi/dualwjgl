@@ -22,9 +22,8 @@ public final class GL45 {
 	public static void glGetTransformFeedback(int xfb, int pname, int index, LongBuffer param) {
 		org.lwjgl.opengl.GL45.glGetTransformFeedbacki64_v(xfb, pname, index, param);
 	}
-	@Todo("gl")
 	public static void glNamedBufferStorage(int buffer, LongBuffer data, int flags) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL45.nglNamedBufferStorage(buffer, ((long)org.lwjgl.system.Checks.remainingSafe(data) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(data), flags);
 	}
 	public static void glGetNamedBufferParameter(int buffer, int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL45.glGetNamedBufferParameteriv(buffer, pname, params);
@@ -68,9 +67,8 @@ public final class GL45 {
 	public static int glGetNamedRenderbufferParameter(int renderbuffer, int pname) {
 		return org.lwjgl.opengl.GL45.glGetNamedRenderbufferParameteri(renderbuffer, pname);
 	}
-	@Todo("gl")
 	public static void glCompressedTextureSubImage3D(int texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL45.nglCompressedTextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
 	public static void glTextureParameter(int texture, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.GL45.glTextureParameterfv(texture, pname, params);
@@ -84,13 +82,11 @@ public final class GL45 {
 	public static void glTextureParameter(int texture, int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL45.glTextureParameteriv(texture, pname, params);
 	}
-	@Todo("gl")
 	public static void glGetCompressedTextureImage(int texture, int level, IntBuffer pixels) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL45.nglGetCompressedTextureImage(texture, level, (org.lwjgl.system.Checks.remainingSafe(pixels) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
-	@Todo("gl")
 	public static void glGetCompressedTextureImage(int texture, int level, ShortBuffer pixels) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL45.nglGetCompressedTextureImage(texture, level, (org.lwjgl.system.Checks.remainingSafe(pixels) << 1), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
 	public static void glGetTextureLevelParameter(int texture, int level, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.GL45.glGetTextureLevelParameterfv(texture, level, pname, params);
@@ -110,9 +106,8 @@ public final class GL45 {
 	public static void glGetTextureParameter(int texture, int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL45.glGetTextureParameteriv(texture, pname, params);
 	}
-	@Todo("gl")
 	public static void glVertexArrayVertexBuffers(int vaobj, int first, int count, IntBuffer buffers, PointerBuffer offsets, IntBuffer strides) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL45.nglVertexArrayVertexBuffers(vaobj, first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(buffers), org.lwjgl.system.MemoryUtil.memAddressSafe(offsets), org.lwjgl.system.MemoryUtil.memAddressSafe(strides));
 	}
 	public static void glGetVertexArray(int vaobj, int pname, IntBuffer param) {
 		org.lwjgl.opengl.GL45.glGetVertexArrayiv(vaobj, pname, param);
@@ -129,9 +124,8 @@ public final class GL45 {
 	public static void glGetVertexArrayIndexed64i(int vaobj, int index, int pname, LongBuffer param) {
 		org.lwjgl.opengl.GL45.glGetVertexArrayIndexed64iv(vaobj, index, pname, param);
 	}
-	@Todo("gl")
 	public static void glReadnPixels(int x, int y, int width, int height, int format, int type, DoubleBuffer pixels) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL45.nglReadnPixels(x, y, width, height, format, type, (org.lwjgl.system.Checks.remainingSafe(pixels) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
 	public static void glGetnUniform(int program, int location, FloatBuffer params) {
 		org.lwjgl.opengl.GL45.glGetnUniformfv(program, location, params);

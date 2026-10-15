@@ -1,15 +1,12 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.LongBuffer;
 
 public final class ARBClearTexture {
-	@Todo("gl")
 	public static void glClearTexImage(int texture, int level, int format, int type, LongBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBClearTexture.nglClearTexImage(texture, level, format, type, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
-	@Todo("gl")
 	public static void glClearTexSubImage(int texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, LongBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBClearTexture.nglClearTexSubImage(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
 }

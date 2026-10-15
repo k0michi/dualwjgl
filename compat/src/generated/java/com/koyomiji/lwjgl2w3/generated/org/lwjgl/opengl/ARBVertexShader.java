@@ -8,13 +8,11 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 public final class ARBVertexShader {
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean normalized, int stride, DoubleBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexShader.nglVertexAttribPointerARB(index, size, 5130, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean normalized, int stride, FloatBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexShader.nglVertexAttribPointerARB(index, size, 5126, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
 	}
 	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ByteBuffer buffer) {

@@ -13,21 +13,18 @@ public final class GL11 {
 	public static final int GL_CONSTANT_ALPHA = 0x8003;
 	public static final int GL_ONE_MINUS_CONSTANT_ALPHA = 0x8004;
 	public static final int GL_ALL_CLIENT_ATTRIB_BITS = 0xFFFFFFFF;
-	@Todo("gl")
 	public static void glColorPointer(int size, int stride, DoubleBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglColorPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glColorPointer(int size, int stride, FloatBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglColorPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
 	@Todo("gl")
 	public static void glColorPointer(int size, boolean unsigned, int stride, ByteBuffer pointer) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static void glDrawElements(int mode, int count, int type, ByteBuffer indices) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglDrawElements(mode, count, type, org.lwjgl.system.MemoryUtil.memAddressSafe(indices));
 	}
 	public static void glGetPixelMap(int map, FloatBuffer values) {
 		org.lwjgl.opengl.GL11.glGetPixelMapfv(map, values);
@@ -141,21 +138,17 @@ public final class GL11 {
 	public static void glPixelMapu(int map, ShortBuffer values) {
 		org.lwjgl.opengl.GL11.glPixelMapusv(map, values);
 	}
-	@Todo("gl")
 	public static void glNormalPointer(int stride, ByteBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglNormalPointer(5120, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glNormalPointer(int stride, DoubleBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglNormalPointer(5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glNormalPointer(int stride, FloatBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglNormalPointer(5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glNormalPointer(int stride, IntBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglNormalPointer(5124, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
 	public static void glMultMatrix(FloatBuffer m) {
 		org.lwjgl.opengl.GL11.glMultMatrixf(m);
@@ -163,25 +156,20 @@ public final class GL11 {
 	public static void glMultMatrix(DoubleBuffer m) {
 		org.lwjgl.opengl.GL11.glMultMatrixd(m);
 	}
-	@Todo("gl")
 	public static void glReadPixels(int x, int y, int width, int height, int format, int type, DoubleBuffer pixels) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglReadPixels(x, y, width, height, format, type, org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
-	@Todo("gl")
 	public static void glVertexPointer(int size, int stride, DoubleBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glVertexPointer(int size, int stride, FloatBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glVertexPointer(int size, int stride, IntBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5124, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glVertexPointer(int size, int stride, ShortBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5122, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
 	public static void glTexParameter(int target, int pname, FloatBuffer param) {
 		org.lwjgl.opengl.GL11.glTexParameterfv(target, pname, param);
@@ -204,20 +192,16 @@ public final class GL11 {
 	public static void glTexEnv(int target, int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL11.glTexEnviv(target, pname, params);
 	}
-	@Todo("gl")
 	public static void glTexCoordPointer(int size, int stride, DoubleBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glTexCoordPointer(int size, int stride, FloatBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glTexCoordPointer(int size, int stride, IntBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5124, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glTexCoordPointer(int size, int stride, ShortBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5122, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
 }

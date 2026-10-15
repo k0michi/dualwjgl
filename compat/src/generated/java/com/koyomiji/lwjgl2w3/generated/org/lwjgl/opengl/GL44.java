@@ -1,45 +1,35 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import org.lwjgl.PointerBuffer;
 
 public final class GL44 {
-	@Todo("gl")
 	public static void glBufferStorage(int target, LongBuffer data, int flags) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBufferStorage(target, ((long)org.lwjgl.system.Checks.remainingSafe(data) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(data), flags);
 	}
-	@Todo("gl")
 	public static void glClearTexImage(int texture, int level, int format, int type, LongBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglClearTexImage(texture, level, format, type, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
-	@Todo("gl")
 	public static void glClearTexSubImage(int texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, LongBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglClearTexSubImage(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
-	@Todo("gl")
 	public static void glBindBuffersBase(int target, int first, int count, IntBuffer buffers) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBindBuffersBase(target, first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(buffers));
 	}
-	@Todo("gl")
 	public static void glBindBuffersRange(int target, int first, int count, IntBuffer buffers, PointerBuffer offsets, PointerBuffer sizes) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBindBuffersRange(target, first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(buffers), org.lwjgl.system.MemoryUtil.memAddressSafe(offsets), org.lwjgl.system.MemoryUtil.memAddressSafe(sizes));
 	}
-	@Todo("gl")
 	public static void glBindTextures(int first, int count, IntBuffer textures) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBindTextures(first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(textures));
 	}
-	@Todo("gl")
 	public static void glBindSamplers(int first, int count, IntBuffer samplers) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBindSamplers(first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(samplers));
 	}
-	@Todo("gl")
 	public static void glBindImageTextures(int first, int count, IntBuffer textures) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBindImageTextures(first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(textures));
 	}
-	@Todo("gl")
 	public static void glBindVertexBuffers(int first, int count, IntBuffer buffers, PointerBuffer offsets, IntBuffer strides) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL44.nglBindVertexBuffers(first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(buffers), org.lwjgl.system.MemoryUtil.memAddressSafe(offsets), org.lwjgl.system.MemoryUtil.memAddressSafe(strides));
 	}
 }

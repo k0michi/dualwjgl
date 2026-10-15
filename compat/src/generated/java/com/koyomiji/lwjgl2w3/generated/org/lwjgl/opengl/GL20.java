@@ -9,9 +9,8 @@ import java.nio.ShortBuffer;
 
 public final class GL20 {
 	public static final int GL_SHADER_OBJECT = 0x8B48;
-	@Todo("gl")
 	public static void glShaderSource(int shader, ByteBuffer string) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL20.nglShaderSource(shader, 1, org.lwjgl.system.MemoryUtil.memAddressSafe(string), org.lwjgl.system.Checks.remainingSafe(string));
 	}
 	public static void glUniform1(int location, FloatBuffer values) {
 		org.lwjgl.opengl.GL20.glUniform1fv(location, values);
@@ -82,13 +81,11 @@ public final class GL20 {
 	public static void glGetUniform(int program, int location, IntBuffer params) {
 		org.lwjgl.opengl.GL20.glGetUniformiv(program, location, params);
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointer(int index, int size, boolean normalized, int stride, DoubleBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL20.nglVertexAttribPointer(index, size, 5130, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointer(int index, int size, boolean normalized, int stride, FloatBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL20.nglVertexAttribPointer(index, size, 5126, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
 	}
 	@Todo("gl")
 	public static void glVertexAttribPointer(int index, int size, boolean unsigned, boolean normalized, int stride, ByteBuffer buffer) {
@@ -115,9 +112,8 @@ public final class GL20 {
 	public static ByteBuffer glGetVertexAttribPointer(int index, int pname, long result_size) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static void glGetVertexAttribPointer(int index, int pname, ByteBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL20.nglGetVertexAttribPointerv(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
 	@Todo("gl")
 	public static String glGetActiveAttrib(int program, int index, int maxLength, IntBuffer sizeType) {

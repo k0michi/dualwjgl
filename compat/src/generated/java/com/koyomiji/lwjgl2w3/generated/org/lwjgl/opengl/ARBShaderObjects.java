@@ -6,9 +6,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class ARBShaderObjects {
-	@Todo("gl")
 	public static void glShaderSourceARB(int shader, ByteBuffer string) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBShaderObjects.nglShaderSourceARB(shader, 1, org.lwjgl.system.MemoryUtil.memAddressSafe(string), org.lwjgl.system.Checks.remainingSafe(string));
 	}
 	public static void glUniform1ARB(int location, FloatBuffer values) {
 		org.lwjgl.opengl.ARBShaderObjects.glUniform1fvARB(location, values);

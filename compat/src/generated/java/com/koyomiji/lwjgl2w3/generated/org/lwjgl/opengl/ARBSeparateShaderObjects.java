@@ -7,13 +7,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class ARBSeparateShaderObjects {
-	@Todo("gl")
 	public static int glCreateShaderProgram(int type, ByteBuffer string) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBSeparateShaderObjects.nglCreateShaderProgramv(type, 1, org.lwjgl.system.MemoryUtil.memAddressSafe(string));
 	}
-	@Todo("gl")
 	public static int glCreateShaderProgram(int type, int count, ByteBuffer strings) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBSeparateShaderObjects.nglCreateShaderProgramv(type, count, org.lwjgl.system.MemoryUtil.memAddressSafe(strings));
 	}
 	@Todo("gl")
 	public static int glCreateShaderProgram(int type, ByteBuffer[] strings) {

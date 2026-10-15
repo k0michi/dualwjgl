@@ -32,13 +32,11 @@ public final class ARBVertexBlend {
 	public static void glWeightuARB(IntBuffer pWeights) {
 		org.lwjgl.opengl.ARBVertexBlend.glWeightuivARB(pWeights);
 	}
-	@Todo("gl")
 	public static void glWeightPointerARB(int size, int stride, DoubleBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
-	@Todo("gl")
 	public static void glWeightPointerARB(int size, int stride, FloatBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
 	@Todo("gl")
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, ByteBuffer pPointer) {

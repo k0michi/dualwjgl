@@ -12,9 +12,8 @@ public final class GL31 {
 	public static final int GL_COPY_READ_BUFFER_BINDING = 0x8F36;
 	public static final int GL_COPY_WRITE_BUFFER_BINDING = 0x8F37;
 	public static final int GL_TEXTURE_BUFFER_FORMAT = 0x8C2E;
-	@Todo("gl")
 	public static void glGetUniformIndices(int program, ByteBuffer uniformNames, IntBuffer uniformIndices) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL31.nglGetUniformIndices(program, org.lwjgl.system.Checks.remainingSafe(uniformIndices), org.lwjgl.system.MemoryUtil.memAddressSafe(uniformNames), org.lwjgl.system.MemoryUtil.memAddressSafe(uniformIndices));
 	}
 	public static void glGetActiveUniforms(int program, IntBuffer uniformIndices, int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL31.glGetActiveUniformsiv(program, uniformIndices, pname, params);

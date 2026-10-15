@@ -1,13 +1,11 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.openal;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class AL11 {
-	@Todo("al")
 	public static void alGetListeneri(int pname, FloatBuffer intdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.AL11.nalGetListeneriv(pname, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
 	}
 	public static void alSource(int source, int pname, IntBuffer value) {
 		org.lwjgl.openal.AL11.alSourceiv(source, pname, value);

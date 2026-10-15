@@ -5,9 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public final class ARBUniformBufferObject {
-	@Todo("gl")
 	public static void glGetUniformIndices(int program, ByteBuffer uniformNames, IntBuffer uniformIndices) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBUniformBufferObject.nglGetUniformIndices(program, org.lwjgl.system.Checks.remainingSafe(uniformIndices), org.lwjgl.system.MemoryUtil.memAddressSafe(uniformNames), org.lwjgl.system.MemoryUtil.memAddressSafe(uniformIndices));
 	}
 	public static void glGetActiveUniforms(int program, IntBuffer uniformIndices, int pname, IntBuffer params) {
 		org.lwjgl.opengl.ARBUniformBufferObject.glGetActiveUniformsiv(program, uniformIndices, pname, params);

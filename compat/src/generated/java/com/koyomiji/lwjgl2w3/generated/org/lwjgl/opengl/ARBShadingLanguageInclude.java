@@ -5,9 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public final class ARBShadingLanguageInclude {
-	@Todo("gl")
 	public static void glCompileShaderIncludeARB(int shader, int count, ByteBuffer path) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBShadingLanguageInclude.nglCompileShaderIncludeARB(shader, count, org.lwjgl.system.MemoryUtil.memAddressSafe(path), 0L);
 	}
 	@Todo("gl")
 	public static void glCompileShaderIncludeARB(int shader, CharSequence[] path) {

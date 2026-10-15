@@ -38,13 +38,11 @@ public final class EXTDirectStateAccess {
 	public static void glGetTextureLevelParameterEXT(int texture, int target, int level, int pname, IntBuffer params) {
 		org.lwjgl.opengl.EXTDirectStateAccess.glGetTextureLevelParameterivEXT(texture, target, level, pname, params);
 	}
-	@Todo("gl")
 	public static void glMultiTexCoordPointerEXT(int texunit, int size, int stride, DoubleBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglMultiTexCoordPointerEXT(texunit, size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glMultiTexCoordPointerEXT(int texunit, int size, int stride, FloatBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglMultiTexCoordPointerEXT(texunit, size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
 	public static void glMultiTexEnvEXT(int texunit, int target, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.EXTDirectStateAccess.glMultiTexEnvfvEXT(texunit, target, pname, params);
@@ -152,21 +150,17 @@ public final class EXTDirectStateAccess {
 	public static String glGetNamedProgramStringEXT(int program, int target, int pname) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static void glGetCompressedTextureImageEXT(int texture, int target, int level, IntBuffer img) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedTextureImageEXT(texture, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
-	@Todo("gl")
 	public static void glGetCompressedTextureImageEXT(int texture, int target, int level, ShortBuffer img) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedTextureImageEXT(texture, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
-	@Todo("gl")
 	public static void glGetCompressedMultiTexImageEXT(int texunit, int target, int level, IntBuffer img) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedMultiTexImageEXT(texunit, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
-	@Todo("gl")
 	public static void glGetCompressedMultiTexImageEXT(int texunit, int target, int level, ShortBuffer img) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedMultiTexImageEXT(texunit, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
 	public static void glMatrixLoadTransposeEXT(int matrixMode, FloatBuffer m) {
 		org.lwjgl.opengl.EXTDirectStateAccess.glMatrixLoadTransposefEXT(matrixMode, m);

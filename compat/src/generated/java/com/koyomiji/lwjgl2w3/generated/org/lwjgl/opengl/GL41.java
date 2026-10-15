@@ -7,13 +7,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class GL41 {
-	@Todo("gl")
 	public static int glCreateShaderProgram(int type, ByteBuffer string) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, 1, org.lwjgl.system.MemoryUtil.memAddressSafe(string));
 	}
-	@Todo("gl")
 	public static int glCreateShaderProgram(int type, int count, ByteBuffer strings) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, count, org.lwjgl.system.MemoryUtil.memAddressSafe(strings));
 	}
 	@Todo("gl")
 	public static int glCreateShaderProgram(int type, ByteBuffer[] strings) {
@@ -143,9 +141,8 @@ public final class GL41 {
 	public static void glVertexAttribL4(int index, DoubleBuffer v) {
 		org.lwjgl.opengl.GL41.glVertexAttribL4dv(index, v);
 	}
-	@Todo("gl")
 	public static void glVertexAttribLPointer(int index, int size, int stride, long pointer_buffer_offset) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL41.nglVertexAttribLPointer(index, size, 5130, stride, pointer_buffer_offset);
 	}
 	public static void glGetVertexAttribL(int index, int pname, DoubleBuffer params) {
 		org.lwjgl.opengl.GL41.glGetVertexAttribLdv(index, pname, params);

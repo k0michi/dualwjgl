@@ -1,14 +1,12 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class KHRRobustness {
-	@Todo("gl")
 	public static void glReadnPixels(int x, int y, int width, int height, int format, int type, DoubleBuffer pixels) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.KHRRobustness.nglReadnPixels(x, y, width, height, format, type, (org.lwjgl.system.Checks.remainingSafe(pixels) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
 	public static void glGetnUniform(int program, int location, FloatBuffer params) {
 		org.lwjgl.opengl.KHRRobustness.glGetnUniformfv(program, location, params);
