@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -35,48 +34,39 @@ public final class NVEvaluators {
 	private NVEvaluators() {
 	}
 
-	@Todo("gl")
 	public static void glGetMapControlPointsNV(int target, int index, int type, int ustride, int vstride, boolean packed, FloatBuffer pPoints) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glMapControlPointsNV(int target, int index, int type, int ustride, int vstride, int uorder, int vorder, boolean packed, FloatBuffer pPoints) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glMapParameterNV(int target, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glMapParameterNV(int target, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetMapParameterNV(int target, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetMapParameterNV(int target, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetMapAttribParameterNV(int target, int index, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetMapAttribParameterNV(int target, int index, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glEvalMapsNV(int target, int mode) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

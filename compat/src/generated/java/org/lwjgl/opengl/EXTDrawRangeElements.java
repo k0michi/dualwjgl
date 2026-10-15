@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -14,23 +13,19 @@ public final class EXTDrawRangeElements {
 	private EXTDrawRangeElements() {
 	}
 
-	@Todo("gl")
 	public static void glDrawRangeElementsEXT(int mode, int start, int end, ByteBuffer pIndices) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDrawRangeElementsEXT(int mode, int start, int end, IntBuffer pIndices) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDrawRangeElementsEXT(int mode, int start, int end, ShortBuffer pIndices) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDrawRangeElementsEXT(int mode, int start, int end, int pIndices_count, int type, long pIndices_buffer_offset) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.IntBuffer;
 
 @Generated
@@ -16,83 +15,67 @@ public final class NVGpuProgram4 {
 	private NVGpuProgram4() {
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameterI4iNV(int target, int index, int x, int y, int z, int w) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameterI4NV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParametersI4NV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameterI4uiNV(int target, int index, int x, int y, int z, int w) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameterI4uNV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParametersI4uNV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameterI4iNV(int target, int index, int x, int y, int z, int w) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameterI4NV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParametersI4NV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameterI4uiNV(int target, int index, int x, int y, int z, int w) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameterI4uNV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParametersI4uNV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetProgramLocalParameterINV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetProgramLocalParameterIuNV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetProgramEnvParameterINV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetProgramEnvParameterIuNV(int target, int index, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

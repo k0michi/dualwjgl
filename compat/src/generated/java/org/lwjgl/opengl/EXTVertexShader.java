@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -124,278 +123,223 @@ public final class EXTVertexShader {
 	private EXTVertexShader() {
 	}
 
-	@Todo("gl")
 	public static void glBeginVertexShaderEXT() {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glEndVertexShaderEXT() {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glBindVertexShaderEXT(int id) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glGenVertexShadersEXT(int range) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDeleteVertexShaderEXT(int id) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glShaderOp1EXT(int op, int res, int arg1) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glShaderOp2EXT(int op, int res, int arg1, int arg2) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glShaderOp3EXT(int op, int res, int arg1, int arg2, int arg3) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSwizzleEXT(int res, int in, int outX, int outY, int outZ, int outW) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glWriteMaskEXT(int res, int in, int outX, int outY, int outZ, int outW) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glInsertComponentEXT(int res, int src, int num) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glExtractComponentEXT(int res, int src, int num) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glGenSymbolsEXT(int dataType, int storageType, int range, int components) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetInvariantEXT(int id, DoubleBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetInvariantEXT(int id, FloatBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetInvariantEXT(int id, boolean unsigned, ByteBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetInvariantEXT(int id, boolean unsigned, IntBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetInvariantEXT(int id, boolean unsigned, ShortBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetLocalConstantEXT(int id, DoubleBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetLocalConstantEXT(int id, FloatBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetLocalConstantEXT(int id, boolean unsigned, ByteBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetLocalConstantEXT(int id, boolean unsigned, IntBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glSetLocalConstantEXT(int id, boolean unsigned, ShortBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantEXT(int id, ByteBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantEXT(int id, ShortBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantEXT(int id, IntBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantEXT(int id, FloatBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantEXT(int id, DoubleBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantuEXT(int id, ByteBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantuEXT(int id, ShortBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantuEXT(int id, IntBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantPointerEXT(int id, int stride, DoubleBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantPointerEXT(int id, int stride, FloatBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantPointerEXT(int id, boolean unsigned, int stride, ByteBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantPointerEXT(int id, boolean unsigned, int stride, IntBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantPointerEXT(int id, boolean unsigned, int stride, ShortBuffer pAddr) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glVariantPointerEXT(int id, int type, int stride, long pAddr_buffer_offset) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glEnableVariantClientStateEXT(int id) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDisableVariantClientStateEXT(int id) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glBindLightParameterEXT(int light, int value) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glBindMaterialParameterEXT(int face, int value) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glBindTexGenParameterEXT(int unit, int coord, int value) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glBindTextureUnitParameterEXT(int unit, int value) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glBindParameterEXT(int value) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static boolean glIsVariantEnabledEXT(int id, int cap) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetVariantBooleanEXT(int id, int value, ByteBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetVariantIntegerEXT(int id, int value, IntBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetVariantFloatEXT(int id, int value, FloatBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static ByteBuffer glGetVariantPointerEXT(int id, int value, long result_size) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetInvariantBooleanEXT(int id, int value, ByteBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetInvariantIntegerEXT(int id, int value, IntBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetInvariantFloatEXT(int id, int value, FloatBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetLocalConstantBooleanEXT(int id, int value, ByteBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetLocalConstantIntegerEXT(int id, int value, IntBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetLocalConstantFloatEXT(int id, int value, FloatBuffer pbData) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -62,98 +61,79 @@ public final class NVRegisterCombiners {
 	private NVRegisterCombiners() {
 	}
 
-	@Todo("gl")
 	public static void glCombinerParameterfNV(int pname, float param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glCombinerParameterNV(int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glCombinerParameteriNV(int pname, int param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glCombinerParameterNV(int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glCombinerInputNV(int stage, int portion, int variable, int input, int mapping, int componentUsage) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glCombinerOutputNV(int stage, int portion, int abOutput, int cdOutput, int sumOutput, int scale, int bias, boolean abDotProduct, boolean cdDotProduct, boolean muxSum) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glFinalCombinerInputNV(int variable, int input, int mapping, int componentUsage) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetCombinerInputParameterNV(int stage, int portion, int variable, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static float glGetCombinerInputParameterfNV(int stage, int portion, int variable, int pname) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetCombinerInputParameterNV(int stage, int portion, int variable, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glGetCombinerInputParameteriNV(int stage, int portion, int variable, int pname) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetCombinerOutputParameterNV(int stage, int portion, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static float glGetCombinerOutputParameterfNV(int stage, int portion, int pname) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetCombinerOutputParameterNV(int stage, int portion, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glGetCombinerOutputParameteriNV(int stage, int portion, int pname) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetFinalCombinerInputParameterNV(int variable, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static float glGetFinalCombinerInputParameterfNV(int variable, int pname) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetFinalCombinerInputParameterNV(int variable, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glGetFinalCombinerInputParameteriNV(int variable, int pname) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

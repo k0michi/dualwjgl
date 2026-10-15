@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.IntBuffer;
 
 @Generated
@@ -27,13 +26,11 @@ public final class ATIDrawBuffers {
 	private ATIDrawBuffers() {
 	}
 
-	@Todo("gl")
 	public static void glDrawBuffersATI(IntBuffer buffers) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDrawBuffersATI(int buffer) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

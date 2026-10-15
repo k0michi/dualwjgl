@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -19,23 +18,19 @@ public final class ATIEnvmapBumpmap {
 	private ATIEnvmapBumpmap() {
 	}
 
-	@Todo("gl")
 	public static void glTexBumpParameterATI(int pname, FloatBuffer param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glTexBumpParameterATI(int pname, IntBuffer param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetTexBumpParameterATI(int pname, FloatBuffer param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetTexBumpParameterATI(int pname, IntBuffer param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

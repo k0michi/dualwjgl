@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -10,18 +9,15 @@ public final class ATIVertexAttribArrayObject {
 	private ATIVertexAttribArrayObject() {
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribArrayObjectATI(int index, int size, int type, boolean normalized, int stride, int buffer, int offset) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetVertexAttribArrayObjectATI(int index, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetVertexAttribArrayObjectATI(int index, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

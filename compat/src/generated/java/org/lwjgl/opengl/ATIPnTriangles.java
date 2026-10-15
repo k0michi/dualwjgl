@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 
 @Generated
 public final class ATIPnTriangles {
@@ -18,13 +17,11 @@ public final class ATIPnTriangles {
 	private ATIPnTriangles() {
 	}
 
-	@Todo("gl")
 	public static void glPNTrianglesfATI(int pname, float param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glPNTrianglesiATI(int pname, int param) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

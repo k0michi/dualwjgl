@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.IntBuffer;
 
 @Generated
@@ -15,28 +14,23 @@ public final class AMDNameGenDelete {
 	private AMDNameGenDelete() {
 	}
 
-	@Todo("gl")
 	public static void glGenNamesAMD(int identifier, IntBuffer names) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static int glGenNamesAMD(int identifier) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDeleteNamesAMD(int identifier, IntBuffer names) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glDeleteNamesAMD(int identifier, int name) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static boolean glIsNameAMD(int identifier, int name) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

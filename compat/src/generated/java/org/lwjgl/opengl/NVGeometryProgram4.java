@@ -12,9 +12,8 @@ public final class NVGeometryProgram4 {
 	private NVGeometryProgram4() {
 	}
 
-	@Todo("gl")
 	public static void glProgramVertexLimitNV(int target, int limit) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
 	@Todo("gl")

@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
@@ -19,28 +18,23 @@ public final class EXTFogCoord {
 	private EXTFogCoord() {
 	}
 
-	@Todo("gl")
 	public static void glFogCoordfEXT(float coord) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glFogCoorddEXT(double coord) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glFogCoordPointerEXT(int stride, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glFogCoordPointerEXT(int stride, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glFogCoordPointerEXT(int type, int stride, long data_buffer_offset) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }

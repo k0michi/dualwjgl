@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -29,88 +28,71 @@ public final class EXTPalettedTexture {
 	private EXTPalettedTexture() {
 	}
 
-	@Todo("gl")
 	public static void glColorTableEXT(int target, int internalFormat, int width, int format, int type, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorTableEXT(int target, int internalFormat, int width, int format, int type, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorTableEXT(int target, int internalFormat, int width, int format, int type, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorTableEXT(int target, int internalFormat, int width, int format, int type, IntBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorTableEXT(int target, int internalFormat, int width, int format, int type, ShortBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorSubTableEXT(int target, int start, int count, int format, int type, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorSubTableEXT(int target, int start, int count, int format, int type, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorSubTableEXT(int target, int start, int count, int format, int type, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorSubTableEXT(int target, int start, int count, int format, int type, IntBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glColorSubTableEXT(int target, int start, int count, int format, int type, ShortBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableEXT(int target, int format, int type, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableEXT(int target, int format, int type, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableEXT(int target, int format, int type, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableEXT(int target, int format, int type, IntBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableEXT(int target, int format, int type, ShortBuffer data) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableParameterEXT(int target, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glGetColorTableParameterEXT(int target, int pname, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Function is not supported");
 	}
 }
