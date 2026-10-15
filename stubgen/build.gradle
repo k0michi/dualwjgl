@@ -16,6 +16,7 @@ configurations {
 dependencies {
     implementation libs.asm
     implementation libs.asm.tree
+    implementation libs.asm.analysis
 
     lwjgl2Sources(variantOf(libs.lwjgl2.core) { classifier('sources') })
     lwjgl2Sources(variantOf(libs.lwjgl2.util) { classifier('sources') })
@@ -45,7 +46,7 @@ tasks.register('generateStubs', JavaExec) {
          '--classpath', configurations.lwjgl2Classpath.files.join(File.pathSeparator),
          '--lwjgl3', configurations.lwjgl3Jars.files.join(File.pathSeparator),
          '--main', new File(compat, 'src/main/java').path,
-         '--inject', new File(compat, 'src/inject/java').path,
+         '--generated', new File(compat, 'src/generated/java').path,
          '--replace', new File(compat, 'src/replace/java').path,
          '--inject-classes', project(':compat').sourceSets.inject.output.classesDirs.singleFile.path]
     } as CommandLineArgumentProvider)

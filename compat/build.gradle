@@ -2,16 +2,22 @@ plugins {
     id 'java-library'
 }
 
-// main:    LWJGL 2-only classes, in their real packages (added to the LWJGL 3 jar that owns the package)
-// inject:  members to merge into existing LWJGL 3 classes; com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>
-// replace: whole classes that replace LWJGL 3's, where the two shapes cannot be merged member by member
+// generated: written by :stubgen:generateStubs on every run; never edit. Compiled with main.
+// main:      hand-written LWJGL 2-only classes, in their real packages
+// inject:    hand-written members, com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>; these override
+//            generated members, so implementing something never means editing generated code
+// replace:   hand-written whole classes that replace LWJGL 3's, where the shapes cannot be merged member by member
 sourceSets {
+    main {
+        java.srcDir 'src/generated/java'
+    }
     inject
     replace
 }
 
 dependencies {
     compileOnly libs.bundles.lwjgl3.patched
+    compileOnly project(':inject-api')
     compileOnly libs.lwjgl3.sdl
     compileOnly libs.jinput
     compileOnly libs.jutils

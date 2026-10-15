@@ -36,6 +36,7 @@ import java.util.zip.ZipFile;
 public final class StubGen {
 
 	static final String INJECT_PACKAGE = "com.koyomiji.lwjgl2w3.inject";
+	static final String GENERATED_PACKAGE = "com.koyomiji.lwjgl2w3.generated";
 
 	/** LWJGL 2 classes whose LWJGL 3 counterpart has an incompatible superclass; see poc/callback in the research repo. */
 	static final Set<String> CALLBACKS = Set.of(
@@ -72,7 +73,12 @@ public final class StubGen {
 	final Set<String> forcePublic = new TreeSet<>();
 	/** LWJGL 3 class -> constructor descriptors that compat adds through @Into inject classes */
 	final Map<String, Set<String>> addedConstructors = new HashMap<>();
-	Path mainDir, injectDir, replaceDir;
+	/** Native-call traces of the LWJGL 2 and LWJGL 3 binaries, for the delegation rules. */
+	NativeTrace trace2, trace3;
+
+	/** area -> {TODO stubs, delegations} written this run */
+	final Map<String, int[]> counts = new TreeMap<>();
+	Path mainDir, replaceDir, generatedDir;
 
 	public static void main(String[] args) throws IOException {
 		Map<String, String> a = new HashMap<>();
@@ -81,20 +87,25 @@ public final class StubGen {
 		}
 		StubGen g = new StubGen();
 		g.mainDir = Paths.get(a.get("--main"));
-		g.injectDir = Paths.get(a.get("--inject"));
 		g.replaceDir = Paths.get(a.get("--replace"));
+		g.generatedDir = Paths.get(a.get("--generated"));
+		deleteRecursively(g.generatedDir);
 		g.readAddedConstructors(Paths.get(a.get("--inject-classes")));
 		for (String jar : a.get("--lwjgl3").split(java.io.File.pathSeparator)) {
 			g.readLwjgl3(Paths.get(jar));
 		}
+		g.trace3 = new NativeTrace(a.get("--lwjgl3"));
+		List<String> lwjgl2Jars = new ArrayList<>();
 		for (String jar : a.get("--classpath").split(java.io.File.pathSeparator)) {
 			if (Paths.get(jar).getFileName().toString().startsWith("lwjgl")) {
+				lwjgl2Jars.add(jar);
 				try (ZipFile z = new ZipFile(jar)) {
 					Collections.list(z.entries()).stream().map(ZipEntry::getName).filter(n -> n.endsWith(".class"))
 						.forEach(n -> g.shipped.add(n.substring(0, n.length() - 6)));
 				}
 			}
 		}
+		g.trace2 = new NativeTrace(String.join(java.io.File.pathSeparator, lwjgl2Jars));
 		List<TypeElement> api = g.readLwjgl2(a.get("--sources").split(java.io.File.pathSeparator), a.get("--classpath"));
 		for (TypeElement te : api) {
 			g.generate(te);
@@ -113,6 +124,17 @@ public final class StubGen {
 					new ClassReader(in).accept(cn, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 					l3.put(cn.name, cn);
 				}
+			}
+		}
+	}
+
+	static void deleteRecursively(Path dir) throws IOException {
+		if (!Files.exists(dir)) {
+			return;
+		}
+		try (var s = Files.walk(dir)) {
+			for (Path p : s.sorted(Comparator.reverseOrder()).toList()) {
+				Files.delete(p);
 			}
 		}
 	}
@@ -472,10 +494,10 @@ public final class StubGen {
 		if (inLwjgl3(te)) {
 			generateInject(te, pkg, simple, area);
 		} else {
-			Path file = mainDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java");
-			if (Files.exists(file)) {
-				return;
+			if (Files.exists(mainDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java"))) {
+				return; // hand-written as a whole class
 			}
+			Path file = generatedDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java");
 			if (sup.getKind() == TypeKind.DECLARED && inLwjgl3((TypeElement)((DeclaredType)sup).asElement())
 				&& !CALLBACKS.contains(((TypeElement)((DeclaredType)sup).asElement()).getQualifiedName().toString())
 				&& !types.erasure(sup).toString().equals("java.lang.Object")) {
@@ -486,12 +508,13 @@ public final class StubGen {
 			w.local(te);
 			w.type(te, "");
 			write(file, w.file());
+			w.count();
 		}
 	}
 
 	void generateInject(TypeElement te, String pkg, String simple, String area) throws IOException {
 		String fqn = te.getQualifiedName().toString();
-		Path file = injectDir.resolve((INJECT_PACKAGE + "." + pkg).replace('.', '/')).resolve(simple + ".java");
+		Path file = generatedDir.resolve((GENERATED_PACKAGE + "." + pkg).replace('.', '/')).resolve(simple + ".java");
 		String cls = internalName(te);
 		Set<String> methods3 = methods3(cls);
 		Set<String> fields3 = fields3(cls);
@@ -519,7 +542,7 @@ public final class StubGen {
 			}
 		}
 
-		Writer w = new Writer(INJECT_PACKAGE + "." + pkg, area);
+		Writer w = new Writer(GENERATED_PACKAGE + "." + pkg, area);
 		w.localInject(simple);
 		StringBuilder body = new StringBuilder();
 		for (Element e : members) {
@@ -547,7 +570,7 @@ public final class StubGen {
 						design.add(fqn + ": abstract LWJGL 2 method " + m + " would break LWJGL 3 subclasses");
 					} else {
 						boolean hidden = needsHidden(methods3, m.getSimpleName().toString(), d);
-						body.append(w.method(m, "\t", false, hidden ? "@Hidden" : null, true));
+						body.append(w.method(m, "\t", false, hidden ? "@Hidden" : null, true, delegate(m, cls, d)));
 					}
 				}
 				case CONSTRUCTOR -> {
@@ -565,12 +588,54 @@ public final class StubGen {
 				}
 			}
 		}
-		// the analysis above runs regardless, so the design notes in the summary do not depend on what exists
-		if (body.length() == 0 || Files.exists(file)) {
+		if (body.length() == 0) {
 			return;
 		}
 		w.out.append("public final class ").append(simple).append(" {\n").append(body).append("}\n");
 		write(file, w.file());
+		w.count();
+	}
+
+	/**
+	 * Delegation rules: a statement implementing LWJGL 2 method {@code m} with LWJGL 3 code, or null.
+	 *
+	 * <p>R1: LWJGL 3's class (or a superclass) has a public static method with the same descriptor under another name,
+	 * and both make the same native calls with the same arguments and return the same thing
+	 * (e.g. {@code glFog(int, FloatBuffer)} and {@code glFogfv(int, FloatBuffer)}).</p>
+	 */
+	String delegate(ExecutableElement m, String cls, String desc) {
+		if (!m.getModifiers().contains(Modifier.STATIC) || !m.getTypeParameters().isEmpty()) {
+			return null;
+		}
+		String owner2 = internalName((TypeElement)m.getEnclosingElement());
+		NativeTrace.Summary s2 = trace2.summarize(owner2, m.getSimpleName().toString(), desc, 0);
+		if (s2.unresolved || s2.natives.isEmpty()) {
+			return null;
+		}
+		List<String> calls2 = NativeTrace.norm(s2);
+		String ret2 = NativeTrace.normRet(s2);
+		List<String> owners = new ArrayList<>();
+		owners.add(cls);
+		owners.addAll(supers3(cls));
+		for (String owner3 : owners) {
+			ClassNode cn = l3.get(owner3);
+			if (cn == null) {
+				continue;
+			}
+			List<MethodNode> candidates = cn.methods.stream()
+				.filter(c -> c.desc.equals(desc) && !c.name.equals(m.getSimpleName().toString())
+					&& (c.access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)) == (Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC))
+				.sorted(Comparator.comparing(c -> c.name)).toList();
+			for (MethodNode c : candidates) {
+				NativeTrace.Summary s3 = trace3.summarize(owner3, c.name, c.desc, 0);
+				if (!s3.unresolved && NativeTrace.norm(s3).equals(calls2) && NativeTrace.normRet(s3).equals(ret2)) {
+					String args = m.getParameters().stream().map(p -> p.getSimpleName().toString()).collect(Collectors.joining(", "));
+					String call = cls.replace('/', '.').replace('$', '.') + "." + c.name + "(" + args + ");";
+					return m.getReturnType().getKind() == TypeKind.VOID ? call : "return " + call;
+				}
+			}
+		}
+		return null;
 	}
 
 	static int rank(int access) {
@@ -581,46 +646,21 @@ public final class StubGen {
 		return m.contains(Modifier.PUBLIC) ? 3 : m.contains(Modifier.PROTECTED) ? 2 : m.contains(Modifier.PRIVATE) ? 0 : 1;
 	}
 
-	/** Counts the TODO markers currently in compat, so the summary stays right as stubs get implemented. */
-	Map<String, int[]> scanTodos() throws IOException {
-		Map<String, int[]> out = new HashMap<>();
-		for (Path root : List.of(mainDir, injectDir, replaceDir)) {
-			List<Path> files;
-			try (var s = Files.walk(root)) {
-				files = s.filter(f -> f.toString().endsWith(".java")).toList();
-			}
-			for (Path f : files) {
-				Map<String, Integer> perArea = new HashMap<>();
-				java.util.regex.Matcher m = java.util.regex.Pattern.compile("// TODO\\((\\w+)\\)").matcher(Files.readString(f));
-				while (m.find()) {
-					perArea.merge(m.group(1), 1, Integer::sum);
-				}
-				perArea.forEach((area, n) -> {
-					int[] c = out.computeIfAbsent(area, k -> new int[2]);
-					c[0]++;
-					c[1] += n;
-				});
-			}
-		}
-		return out;
-	}
-
 	static void write(Path file, String content) throws IOException {
 		Files.createDirectories(file.getParent());
 		Files.writeString(file, content);
 	}
 
-	void printSummary() throws IOException {
-		Map<String, int[]> current = scanTodos();
-		System.out.println("TODOs in compat (files / markers):");
-		int tf = 0, tt = 0;
+	void printSummary() {
+		System.out.println("Generated members (TODO stubs / delegations); the merger reports what hand-written code leaves:");
+		int tt = 0, td = 0;
 		for (Map.Entry<String, String> a : AREAS.entrySet()) {
-			int[] c = current.getOrDefault(a.getKey(), new int[2]);
-			System.out.printf("  %-8s %4d / %5d  %s%n", a.getKey(), c[0], c[1], a.getValue());
-			tf += c[0];
-			tt += c[1];
+			int[] c = counts.getOrDefault(a.getKey(), new int[2]);
+			System.out.printf("  %-8s %5d / %5d  %s%n", a.getKey(), c[0], c[1], a.getValue());
+			tt += c[0];
+			td += c[1];
 		}
-		System.out.printf("  %-8s %4d / %5d%n", "total", tf, tt);
+		System.out.printf("  %-8s %5d / %5d%n", "total", tt, td);
 		System.out.println("Needs design (no stub generated):");
 		design.stream().distinct().sorted().forEach(d -> System.out.println("  - " + d));
 		System.out.println("Package-private in LWJGL 2, made public because inject classes mention them:");
@@ -633,10 +673,17 @@ public final class StubGen {
 		final StringBuilder out = new StringBuilder();
 		final Map<String, String> taken = new HashMap<>(); // simple name -> fqn rendered as that simple name
 		final TreeSet<String> imports = new TreeSet<>();
+		int todos, delegations;
 
 		Writer(String pkg, String area) {
 			this.pkg = pkg;
 			this.area = area;
+		}
+
+		void count() {
+			int[] c = counts.computeIfAbsent(area, k -> new int[2]);
+			c[0] += todos;
+			c[1] += delegations;
 		}
 
 		/** Reserve the simple names declared in this file (the class and its nested types). */
@@ -659,8 +706,10 @@ public final class StubGen {
 			if (out.indexOf("@Widen") >= 0) {
 				imports.add(INJECT_PACKAGE + ".Widen");
 			}
-			if (out.indexOf("@Hidden") >= 0) {
-				imports.add(INJECT_PACKAGE + ".Hidden");
+			for (String a : List.of("Hidden", "Todo", "Generated")) {
+				if (out.indexOf("@" + a) >= 0) {
+					imports.add(INJECT_PACKAGE + "." + a);
+				}
 			}
 			if (!imports.isEmpty()) {
 				imports.forEach(i -> sb.append("import ").append(i).append(";\n"));
@@ -733,11 +782,13 @@ public final class StubGen {
 			return e.getAnnotation(Deprecated.class) != null ? indent + "@Deprecated\n" : "";
 		}
 
-		String todo(String indent) {
-			return indent + "\t// TODO(" + area + ")\n" + indent + "\tthrow new UnsupportedOperationException();\n";
+		String todoAnnotation(String indent) {
+			todos++;
+			return indent + "@Todo(\"" + area + "\")\n";
 		}
 
 		void type(TypeElement te, String indent) {
+			out.append(indent).append("@Generated\n");
 			out.append(deprecated(te, indent));
 			for (AnnotationMirror am : te.getAnnotationMirrors()) {
 				String at = am.getAnnotationType().toString();
@@ -837,7 +888,8 @@ public final class StubGen {
 			if (cv != null) {
 				sb.append(" = ").append(literal(cv, f.asType())).append(";\n");
 			} else if (isFinal && isStatic || inInterface) {
-					sb.append(" = ").append(defaultValue(f.asType())).append("; // TODO(").append(area).append(")\n");
+				sb.insert(0, todoAnnotation(indent));
+				sb.append(" = ").append(defaultValue(f.asType())).append(";\n");
 			} else {
 				sb.append(";\n");
 			}
@@ -849,18 +901,30 @@ public final class StubGen {
 			if (annotation != null) {
 				sb.append(indent).append(annotation).append('\n');
 			}
+			if (stub) {
+				sb.append(todoAnnotation(indent));
+			}
 			sb.append(indent).append(modifiers(c, false)).append(typeParams(c.getTypeParameters())).append(simple)
 				.append(parameters(c)).append(throwsClause(c)).append(" {\n");
 			if (stub) {
-				sb.append(superCall((TypeElement)c.getEnclosingElement(), indent)).append(todo(indent));
+				sb.append(superCall((TypeElement)c.getEnclosingElement(), indent)).append(indent).append("\tthrow new UnsupportedOperationException();\n");
 			}
 			return sb.append(indent).append("}\n").toString();
 		}
 
 		String method(ExecutableElement m, String indent, boolean inInterface, String annotation, boolean stub) {
+			return method(m, indent, inInterface, annotation, stub, null);
+		}
+
+		/** {@code delegate}: a statement implementing the method; otherwise a stub that throws. */
+		String method(ExecutableElement m, String indent, boolean inInterface, String annotation, boolean stub, String delegate) {
 			StringBuilder sb = new StringBuilder(deprecated(m, indent));
 			if (annotation != null) {
 				sb.append(indent).append(annotation).append('\n');
+			}
+			boolean concrete = !inInterface && !m.getModifiers().contains(Modifier.ABSTRACT) && m.getDefaultValue() == null;
+			if (concrete && stub && delegate == null) {
+				sb.append(todoAnnotation(indent));
 			}
 			sb.append(indent).append(modifiers(m, inInterface)).append(typeParams(m.getTypeParameters()))
 				.append(type(m.getReturnType())).append(' ').append(m.getSimpleName()).append(parameters(m)).append(throwsClause(m));
@@ -870,7 +934,12 @@ public final class StubGen {
 			if (inInterface || m.getModifiers().contains(Modifier.ABSTRACT)) {
 				return sb.append(";\n").toString();
 			}
-			sb.append(" {\n").append(stub ? todo(indent) : indent + "\tthrow new UnsupportedOperationException();\n");
+			if (delegate != null) {
+				delegations++;
+				sb.append(" {\n").append(indent).append('\t').append(delegate).append('\n');
+			} else {
+				sb.append(" {\n").append(indent).append("\tthrow new UnsupportedOperationException();\n");
+			}
 			return sb.append(indent).append("}\n").toString();
 		}
 

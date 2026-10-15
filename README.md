@@ -7,12 +7,12 @@ Unofficial; not affiliated with the LWJGL project.
 
 | Project | Role |
 |---|---|
-| `inject-api` | Annotations used by inject classes (`@Widen`, `@Hidden`). Build-time only. |
+| `inject-api` | Annotations read by the merger (`@Widen`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
 | `compat` | The LWJGL 2 implementation, written against LWJGL 3 (and SDL). |
 | `merger` | ASM tool that merges `compat` into the LWJGL 3 jars. |
 | `dist` | Runs the merger: `build/patched/*.jar`. |
 | `verify` | Link tests (see below). |
-| `stubgen` | One-shot scaffolding: writes `// TODO(<area>)` stubs into `compat` for LWJGL 2 API not implemented yet. |
+| `stubgen` | Writes `compat/src/generated/java`: an implementation or a `@Todo` stub for every LWJGL 2 member LWJGL 3 lacks. |
 
 ### Writing compat code
 
@@ -28,11 +28,13 @@ Unofficial; not affiliated with the LWJGL project.
 
 When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins.
 
-### Stubs
+### Generated code
 
-`./gradlew :stubgen:generateStubs` reads the LWJGL 2.9.3 API (shipped classes only) and writes a stub for every
-member LWJGL 3 does not already provide. It never overwrites an existing file, and prints the TODO count per area and
-what needs design. To regenerate a class from scratch, delete its file first.
+`./gradlew :stubgen:generateStubs` rewrites `compat/src/generated/java` from scratch; never edit it. For each LWJGL 2
+member LWJGL 3 does not provide it writes a delegation when a rule proves one (R1: an LWJGL 3 method with the same
+signature that makes the same native calls), and otherwise a stub marked `@Todo("<area>")`. Hand-written code goes in
+`main`, `inject` or `replace` and wins: a hand-written member overrides the generated one, and a hand-written whole
+class keeps stubgen from generating that class. The merger prints the `@Todo`s that remain.
 
 ## Verification
 

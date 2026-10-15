@@ -33,8 +33,7 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
         List<String> args = []
         configurations.lwjgl3.files.each { args += ['--jar', "${it.absolutePath}=${new File(out, it.name).absolutePath}".toString()] }
         compatReplace.files.each { args += ['--replace', it.absolutePath] }
-        compatInject.files.each { args += ['--inject', it.absolutePath] }
-        compatMain.files.each { args += ['--add', it.absolutePath] }
+        (compatMain.files + compatInject.files).each { args += ['--classes', it.absolutePath] }
         args += ['--extra', new File(out, 'lwjgl2w3-extra.jar').absolutePath]
         args
     } as CommandLineArgumentProvider)

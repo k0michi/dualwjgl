@@ -16,24 +16,32 @@ import java.util.stream.*;
 /**
  * Produces LWJGL 3 jars that also carry the LWJGL 2 API.
  *
+ * <p>Classes from {@code --classes} are sorted by what they are:</p>
  * <ul>
- * <li>Inject classes ({@code com/koyomiji/lwjgl2w3/inject/<pkg>/<Name>}) are merged into the existing LWJGL 3 class
- * {@code <pkg>/<Name>}: their members are copied in, references to the inject class are remapped to the target.</li>
- * <li>Add classes (LWJGL 2-only classes, compiled in their real package) are added to the LWJGL 3 jar that owns the
- * package, or to the extra jar when no LWJGL 3 jar does.</li>
- * <li>Replace classes (compiled in their real package) replace the LWJGL 3 class of the same name wholesale, for
- * classes whose LWJGL 2 and LWJGL 3 shapes cannot be merged member by member.</li>
+ * <li>Fragments ({@code com/koyomiji/lwjgl2w3/inject/<pkg>/<Name>} hand-written, or
+ * {@code com/koyomiji/lwjgl2w3/generated/<pkg>/<Name>} written by stubgen; {@code @Into} overrides the target) are
+ * merged into {@code <pkg>/<Name>}: their members are copied in and references to the fragment are remapped.</li>
+ * <li>Other classes (LWJGL 2-only classes in their real package; {@code @Generated} if stubgen wrote them) are added
+ * to the LWJGL 3 jar that owns the package, or to the extra jar when no LWJGL 3 jar does.</li>
  * </ul>
+ * <p>Classes from {@code --replace} replace the LWJGL 3 class of the same name wholesale.</p>
  *
- * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --inject DIR --add DIR --extra OUT}</p>
+ * <p>Generated code may only add members. A hand-written fragment may override a generated member; that is how
+ * hand-written code takes over from stubgen without editing generated files. Members of generated code still marked
+ * {@code @Todo} after that are reported per area.</p>
+ *
+ * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --classes DIR ... --extra OUT}</p>
  */
 public final class Merger {
 
 	static final String INJECT_PREFIX = "com/koyomiji/lwjgl2w3/inject/";
+	static final String GENERATED_PREFIX = "com/koyomiji/lwjgl2w3/generated/";
 	static final String ANNOTATION_PREFIX = "L" + INJECT_PREFIX;
 	static final String WIDEN = ANNOTATION_PREFIX + "Widen;";
 	static final String HIDDEN = ANNOTATION_PREFIX + "Hidden;";
 	static final String INTO = ANNOTATION_PREFIX + "Into;";
+	static final String GENERATED = ANNOTATION_PREFIX + "Generated;";
+	static final String TODO = ANNOTATION_PREFIX + "Todo;";
 	static final String CLINIT_ALIAS = "lwjgl2w3$clinit";
 	static final String VERSIONS = "META-INF/versions/";
 
@@ -51,13 +59,18 @@ public final class Merger {
 	final Map<String, JarImage> packageOwner = new HashMap<>();
 	final Map<String, JarImage> classOwner = new HashMap<>();
 	final List<String> log = new ArrayList<>();
-	/** inject class -> target class, from @Into or from the inject prefix */
+	/** fragment -> target class, from @Into or from the fragment's prefix */
 	final Map<String, String> injectTargets = new HashMap<>();
 	final Set<String> replaced = new HashSet<>();
+	/** members (class.name+desc, class.name for fields) that came from generated code and may be overridden */
+	final Set<String> generatedMembers = new HashSet<>();
+	/** generated members still marked @Todo -> area */
+	final Map<String, String> todos = new TreeMap<>();
+	int overrides;
 
 	public static void main(String[] args) throws IOException {
 		Merger m = new Merger();
-		List<Path> injectDirs = new ArrayList<>(), addDirs = new ArrayList<>(), replaceDirs = new ArrayList<>();
+		List<Path> classDirs = new ArrayList<>(), replaceDirs = new ArrayList<>();
 		Path extra = null;
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
@@ -66,11 +79,8 @@ public final class Merger {
 					m.read(Paths.get(io[0]), Paths.get(io[1]));
 					break;
 				}
-				case "--inject":
-					injectDirs.add(Paths.get(args[++i]));
-					break;
-				case "--add":
-					addDirs.add(Paths.get(args[++i]));
+				case "--classes":
+					classDirs.add(Paths.get(args[++i]));
 					break;
 				case "--replace":
 					replaceDirs.add(Paths.get(args[++i]));
@@ -90,21 +100,34 @@ public final class Merger {
 			}
 		}
 		m.replace(replacements);
-		List<byte[]> injects = new ArrayList<>();
-		for (Path dir : injectDirs) {
+
+		List<byte[]> generatedClasses = new ArrayList<>(), manualClasses = new ArrayList<>();
+		List<byte[]> generatedFragments = new ArrayList<>(), manualFragments = new ArrayList<>();
+		for (Path dir : classDirs) {
 			for (Path f : classFiles(dir)) {
 				byte[] b = Files.readAllBytes(f);
-				injects.add(b);
-				m.injectTargets.put(new ClassReader(b).getClassName(), injectTarget(b));
+				ClassNode cn = new ClassNode();
+				new ClassReader(b).accept(cn, ClassReader.SKIP_CODE);
+				String target = fragmentTarget(cn);
+				if (target != null) {
+					m.injectTargets.put(cn.name, target);
+					(cn.name.startsWith(GENERATED_PREFIX) ? generatedFragments : manualFragments).add(b);
+				} else {
+					(has(cn.invisibleAnnotations, GENERATED) ? generatedClasses : manualClasses).add(b);
+				}
 			}
 		}
-		for (byte[] b : injects) {
-			m.inject(b);
+		for (byte[] b : generatedClasses) {
+			m.add(b, extraJar, true);
 		}
-		for (Path dir : addDirs) {
-			for (Path f : classFiles(dir)) {
-				m.add(Files.readAllBytes(f), extraJar);
-			}
+		for (byte[] b : manualClasses) {
+			m.add(b, extraJar, false);
+		}
+		for (byte[] b : generatedFragments) {
+			m.inject(b, true);
+		}
+		for (byte[] b : manualFragments) {
+			m.inject(b, false);
 		}
 		for (JarImage j : m.jars) {
 			write(j);
@@ -113,6 +136,14 @@ public final class Merger {
 			write(extraJar);
 		}
 		m.log.forEach(System.out::println);
+		m.report();
+	}
+
+	void report() {
+		Map<String, Integer> byArea = new TreeMap<>();
+		todos.values().forEach(a -> byArea.merge(a, 1, Integer::sum));
+		System.out.println("Hand-written members overriding generated ones: " + overrides);
+		System.out.println("Remaining TODOs: " + todos.size() + " " + byArea);
 	}
 
 	static List<Path> classFiles(Path dir) throws IOException {
@@ -152,9 +183,8 @@ public final class Merger {
 		return i < 0 ? "" : internalName.substring(0, i);
 	}
 
-	static String injectTarget(byte[] bytes) {
-		ClassNode cn = new ClassNode();
-		new ClassReader(bytes).accept(cn, ClassReader.SKIP_CODE);
+	/** The class a fragment merges into, or null when {@code cn} is a whole class. */
+	static String fragmentTarget(ClassNode cn) {
 		if (cn.invisibleAnnotations != null) {
 			for (AnnotationNode a : cn.invisibleAnnotations) {
 				if (a.desc.equals(INTO)) {
@@ -162,11 +192,24 @@ public final class Merger {
 				}
 			}
 		}
-		// <prefix><pkg>/<Name> is an inject class; <prefix><Name> is inject-api (e.g. @Widen)
-		if (cn.name.startsWith(INJECT_PREFIX) && cn.name.indexOf('/', INJECT_PREFIX.length()) >= 0) {
-			return cn.name.substring(INJECT_PREFIX.length());
+		// <prefix><pkg>/<Name> is a fragment; <prefix><Name> (no package) would be inject-api itself
+		for (String prefix : new String[] {INJECT_PREFIX, GENERATED_PREFIX}) {
+			if (cn.name.startsWith(prefix) && cn.name.indexOf('/', prefix.length()) >= 0) {
+				return cn.name.substring(prefix.length());
+			}
 		}
-		throw new IllegalStateException(cn.name + " is not under " + INJECT_PREFIX + "<package>/ and has no @Into");
+		return null;
+	}
+
+	static String todoArea(List<AnnotationNode> anns) {
+		if (anns != null) {
+			for (AnnotationNode a : anns) {
+				if (a.desc.equals(TODO)) {
+					return (String)a.values.get(1);
+				}
+			}
+		}
+		return null;
 	}
 
 	ClassNode readInject(byte[] bytes) {
@@ -212,15 +255,14 @@ public final class Merger {
 		}
 	}
 
-	void inject(byte[] bytes) {
+	void inject(byte[] bytes, boolean generated) {
 		String target = readInject(bytes).name;
 		if (replaced.contains(target)) {
 			throw new IllegalStateException(target + " is both replaced and injected into");
 		}
 		JarImage owner = classOwner.get(target);
 		if (owner == null) {
-			throw new IllegalStateException("Inject target " + target + " does not exist in LWJGL 3. "
-				+ "LWJGL 2-only classes belong in compat's main source set.");
+			throw new IllegalStateException("Fragment target " + target + " exists neither in LWJGL 3 nor in compat");
 		}
 		if (target.contains("$")) {
 			throw new IllegalStateException("Nested inject classes are not supported yet: " + target);
@@ -229,12 +271,12 @@ public final class Merger {
 		for (String entry : new ArrayList<>(owner.entries.keySet())) {
 			if (entry.equals(target + ".class") || (entry.startsWith(VERSIONS) && entry.endsWith("/" + target + ".class"))) {
 				// a fresh copy per target: merge() moves and edits the inject's members
-				owner.entries.put(entry, merge(owner.entries.get(entry), readInject(bytes), entry));
+				owner.entries.put(entry, merge(owner.entries.get(entry), readInject(bytes), entry, generated));
 			}
 		}
 	}
 
-	byte[] merge(byte[] targetBytes, ClassNode inj, String entry) {
+	byte[] merge(byte[] targetBytes, ClassNode inj, String entry, boolean generated) {
 		ClassNode t = new ClassNode();
 		new ClassReader(targetBytes).accept(t, 0);
 
@@ -252,6 +294,8 @@ public final class Merger {
 			FieldNode existing = t.fields.stream().filter(x -> x.name.equals(f.name)).findFirst().orElse(null);
 			boolean widenField = has(f.invisibleAnnotations, WIDEN);
 			boolean hiddenField = has(f.invisibleAnnotations, HIDDEN);
+			String todo = todoArea(f.invisibleAnnotations);
+			String key = t.name + "." + f.name;
 			f.invisibleAnnotations = strip(f.invisibleAnnotations);
 			if (widenField) {
 				if (existing == null || !existing.desc.equals(f.desc)) {
@@ -262,12 +306,17 @@ public final class Merger {
 				continue;
 			}
 			if (existing != null) {
-				throw new IllegalStateException(entry + ": field " + f.name + " already exists in target");
+				if (generated || !generatedMembers.contains(key)) {
+					throw new IllegalStateException(entry + ": field " + f.name + " already exists in target");
+				}
+				t.fields.remove(existing);
+				override(key, entry + ": override field " + f.name);
 			}
 			if (hiddenField) {
 				f.access |= Opcodes.ACC_SYNTHETIC;
 			}
 			t.fields.add(f);
+			track(key, generated, todo);
 			log.add(entry + ": + field " + f.name + " " + f.desc);
 		}
 
@@ -275,6 +324,8 @@ public final class Merger {
 			MethodNode existing = find(t, m.name, m.desc);
 			boolean widen = has(m.invisibleAnnotations, WIDEN);
 			boolean hidden = has(m.invisibleAnnotations, HIDDEN);
+			String todo = (m.access & Opcodes.ACC_BRIDGE) != 0 ? null : todoArea(m.invisibleAnnotations);
+			String key = t.name + "." + m.name + m.desc;
 			m.invisibleAnnotations = strip(m.invisibleAnnotations);
 
 			if (widen) {
@@ -302,19 +353,42 @@ public final class Merger {
 				existing = find(t, m.name, m.desc);
 			}
 			if (existing != null) {
-				throw new IllegalStateException(entry + ": " + m.name + m.desc + " already exists in target "
-					+ "(use @Widen, or give the LWJGL 2 member a different descriptor)");
+				if (generated || !generatedMembers.contains(key)) {
+					throw new IllegalStateException(entry + ": " + m.name + m.desc + " already exists in target "
+						+ "(use @Widen, or give the LWJGL 2 member a different descriptor)");
+				}
+				// keep the generated member's synthetic flag: whether javac may see it is a property of the API
+				hidden |= (existing.access & Opcodes.ACC_SYNTHETIC) != 0;
+				t.methods.remove(existing);
+				override(key, entry + ": override " + m.name + m.desc);
 			}
 			if (hidden) {
 				m.access |= Opcodes.ACC_SYNTHETIC;
 			}
 			t.methods.add(m);
+			track(key, generated, todo);
 			log.add(entry + ": + " + access(m.access) + " " + m.name + m.desc);
 		}
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		t.accept(cw);
 		return cw.toByteArray();
+	}
+
+	void track(String key, boolean generated, String todo) {
+		if (generated) {
+			generatedMembers.add(key);
+			if (todo != null) {
+				todos.put(key, todo);
+			}
+		}
+	}
+
+	void override(String key, String message) {
+		generatedMembers.remove(key);
+		todos.remove(key);
+		overrides++;
+		log.add(message);
 	}
 
 	static void callFromClinit(ClassNode t, String owner, String alias) {
@@ -380,14 +454,29 @@ public final class Merger {
 			+ ((a & Opcodes.ACC_SYNTHETIC) != 0 ? " synthetic" : "");
 	}
 
-	void add(byte[] bytes, JarImage extra) {
-		String name = new ClassReader(bytes).getClassName();
-		if (classOwner.containsKey(name)) {
-			throw new IllegalStateException(name + " already exists in LWJGL 3; write it as an inject class instead");
+	void add(byte[] bytes, JarImage extra, boolean generated) {
+		ClassNode cn = new ClassNode();
+		new ClassReader(bytes).accept(cn, 0);
+		if (classOwner.containsKey(cn.name)) {
+			throw new IllegalStateException(cn.name + " already exists; write members of LWJGL 3 classes as a fragment");
 		}
-		JarImage owner = packageOwner.getOrDefault(packageOf(name), extra);
-		owner.entries.put(name + ".class", bytes);
-		log.add(owner.out.getFileName() + ": + class " + name);
+		cn.invisibleAnnotations = strip(cn.invisibleAnnotations);
+		for (FieldNode f : cn.fields) {
+			track(cn.name + "." + f.name, generated, todoArea(f.invisibleAnnotations));
+			f.invisibleAnnotations = strip(f.invisibleAnnotations);
+		}
+		for (MethodNode m : cn.methods) {
+			// javac copies annotations onto bridge methods; count the real method only
+			boolean bridge = (m.access & Opcodes.ACC_BRIDGE) != 0;
+			track(cn.name + "." + m.name + m.desc, generated, bridge ? null : todoArea(m.invisibleAnnotations));
+			m.invisibleAnnotations = strip(m.invisibleAnnotations);
+		}
+		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		cn.accept(cw);
+		JarImage owner = packageOwner.getOrDefault(packageOf(cn.name), extra);
+		owner.entries.put(cn.name + ".class", cw.toByteArray());
+		classOwner.put(cn.name, owner);
+		log.add(owner.out.getFileName() + ": + class " + cn.name);
 	}
 
 	static void write(JarImage j) throws IOException {
