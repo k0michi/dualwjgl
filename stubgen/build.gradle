@@ -48,6 +48,7 @@ tasks.register('generateStubs', JavaExec) {
          '--main', new File(compat, 'src/main/java').path,
          '--generated', new File(compat, 'src/generated/java').path,
          '--replace', new File(compat, 'src/replace/java').path,
-         '--inject-classes', project(':compat').sourceSets.inject.output.classesDirs.singleFile.path]
+         '--inject-classes', project(':compat').sourceSets.inject.output.classesDirs.singleFile.path,
+         '--diagnostics', layout.buildDirectory.file('unmatched.tsv').get().asFile.path]
     } as CommandLineArgumentProvider)
 }

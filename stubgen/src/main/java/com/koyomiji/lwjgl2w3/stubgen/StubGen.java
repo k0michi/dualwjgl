@@ -76,6 +76,12 @@ public final class StubGen {
 	/** Native-call traces of the LWJGL 2 and LWJGL 3 binaries, for the delegation rules. */
 	NativeTrace trace2, trace3;
 
+	/** Rows explaining why no rule matched a static method, for designing the next rule (see --diagnostics). */
+	final List<String> unmatched = new ArrayList<>();
+
+	/** rule -> methods it implemented this run */
+	final Map<String, Integer> ruleHits = new TreeMap<>();
+
 	/** area -> {TODO stubs, delegations} written this run */
 	final Map<String, int[]> counts = new TreeMap<>();
 	Path mainDir, replaceDir, generatedDir;
@@ -111,6 +117,11 @@ public final class StubGen {
 			g.generate(te);
 		}
 		g.printSummary();
+		if (a.containsKey("--diagnostics")) {
+			Path d = Paths.get(a.get("--diagnostics"));
+			Files.createDirectories(d.getParent());
+			Files.write(d, g.unmatched);
+		}
 	}
 
 	void readLwjgl3(Path jar) throws IOException {
@@ -602,6 +613,12 @@ public final class StubGen {
 	 * <p>R1: LWJGL 3's class (or a superclass) has a public static method with the same descriptor under another name,
 	 * and both make the same native calls with the same arguments and return the same thing
 	 * (e.g. {@code glFog(int, FloatBuffer)} and {@code glFogfv(int, FloatBuffer)}).</p>
+	 *
+	 * <p>R2: the LWJGL 2 method makes exactly one native call whose arguments are parameters, buffer addresses,
+	 * remaining counts, array lengths, constants and shifts/products of those, and returns nothing or that call's
+	 * primitive result. It becomes a call to LWJGL 3's raw {@code n<function>} method, which passes its arguments
+	 * straight to the same native function (e.g. {@code glBufferStorage(int, LongBuffer, int)} becomes
+	 * {@code nglBufferStorage(target, remaining << 3, address, flags)}).</p>
 	 */
 	String delegate(ExecutableElement m, String cls, String desc) {
 		if (!m.getModifiers().contains(Modifier.STATIC) || !m.getTypeParameters().isEmpty()) {
@@ -610,6 +627,8 @@ public final class StubGen {
 		String owner2 = internalName((TypeElement)m.getEnclosingElement());
 		NativeTrace.Summary s2 = trace2.summarize(owner2, m.getSimpleName().toString(), desc, 0);
 		if (s2.unresolved || s2.natives.isEmpty()) {
+			unmatched.add(String.join("\t", cls, m.getSimpleName().toString(), desc, s2.unresolved ? "unresolved" : "no-native",
+				NativeTrace.fmt(s2), ""));
 			return null;
 		}
 		List<String> calls2 = NativeTrace.norm(s2);
@@ -631,11 +650,176 @@ public final class StubGen {
 				if (!s3.unresolved && NativeTrace.norm(s3).equals(calls2) && NativeTrace.normRet(s3).equals(ret2)) {
 					String args = m.getParameters().stream().map(p -> p.getSimpleName().toString()).collect(Collectors.joining(", "));
 					String call = cls.replace('/', '.').replace('$', '.') + "." + c.name + "(" + args + ");";
+					ruleHits.merge("R1", 1, Integer::sum);
 					return m.getReturnType().getKind() == TypeKind.VOID ? call : "return " + call;
 				}
 			}
 		}
+		String r2 = rawCall(m, cls, s2, calls2, ret2);
+		if (r2 != null) {
+			ruleHits.merge("R2", 1, Integer::sum);
+			return r2;
+		}
+		explain(m, cls, desc, s2, owners);
 		return null;
+	}
+
+	static final java.util.regex.Pattern ARG = java.util.regex.Pattern.compile(
+		"\\$(\\d+)\\$|(addr|rem|len)\\(\\$(\\d+)\\$\\)|(-?\\d+)|\\((rem|len)\\(\\$(\\d+)\\$\\)(<<|>>|/|\\*)(\\d+)\\)");
+
+	/** R2; see {@link #delegate}. */
+	String rawCall(ExecutableElement m, String cls, NativeTrace.Summary s2, List<String> calls2, String ret2) {
+		if (calls2.size() != 1) {
+			return null;
+		}
+		String call2 = calls2.get(0);
+		String fn = call2.substring(0, call2.indexOf('('));
+		List<String> args = splitArgs(call2.substring(call2.indexOf('(') + 1, call2.length() - 1));
+		boolean returns = m.getReturnType().getKind() != TypeKind.VOID;
+		if (returns ? !ret2.equals("R:" + call2) || !m.getReturnType().getKind().isPrimitive() : !ret2.isEmpty()) {
+			return null;
+		}
+		String identity = fn + "(" + java.util.stream.IntStream.range(0, args.size()).mapToObj(i -> "$" + i + "$")
+			.collect(Collectors.joining(",")) + ")";
+		List<String> owners = new ArrayList<>();
+		owners.add(cls);
+		owners.addAll(supers3(cls));
+		if (l3.containsKey(cls + "C")) {
+			owners.add(cls + "C");
+		}
+		for (String owner3 : owners) {
+			ClassNode cn = l3.get(owner3);
+			if (cn == null) {
+				continue;
+			}
+			for (MethodNode n : cn.methods) {
+				if (!n.name.equals("n" + fn)
+					|| (n.access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)) != (Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)) {
+					continue;
+				}
+				org.objectweb.asm.Type[] pts = org.objectweb.asm.Type.getArgumentTypes(n.desc);
+				org.objectweb.asm.Type rt = org.objectweb.asm.Type.getReturnType(n.desc);
+				if (pts.length != args.size() || (returns && !rt.getDescriptor().equals(desc(m.getReturnType())))) {
+					continue;
+				}
+				NativeTrace.Summary s3 = trace3.summarize(owner3, n.name, n.desc, 0);
+				if (s3.unresolved || !NativeTrace.norm(s3).equals(List.of(identity))
+					|| !NativeTrace.normRet(s3).equals(returns ? "R:" + identity : "")) {
+					continue;
+				}
+				List<String> rendered = new ArrayList<>();
+				for (int i = 0; i < args.size(); i++) {
+					String a = renderArg(args.get(i), m, pts[i]);
+					if (a == null) {
+						return null;
+					}
+					rendered.add(a);
+				}
+				String call = owner3.replace('/', '.').replace('$', '.') + "." + n.name + "(" + String.join(", ", rendered) + ");";
+				return returns ? "return " + call : call;
+			}
+		}
+		return null;
+	}
+
+	static List<String> splitArgs(String s) {
+		List<String> out = new ArrayList<>();
+		int depth = 0;
+		StringBuilder cur = new StringBuilder();
+		for (char ch : s.toCharArray()) {
+			if (ch == '(' || ch == '[') {
+				depth++;
+			} else if (ch == ')' || ch == ']') {
+				depth--;
+			}
+			if (ch == ',' && depth == 0) {
+				out.add(cur.toString());
+				cur.setLength(0);
+			} else {
+				cur.append(ch);
+			}
+		}
+		if (cur.length() > 0) {
+			out.add(cur.toString());
+		}
+		return out;
+	}
+
+	static final Set<String> ADDRESSABLE = Set.of("java.nio.ByteBuffer", "java.nio.ShortBuffer", "java.nio.CharBuffer",
+		"java.nio.IntBuffer", "java.nio.FloatBuffer", "java.nio.LongBuffer", "java.nio.DoubleBuffer", "org.lwjgl.PointerBuffer");
+
+	/** Java source for one R2 argument, passed to a parameter of type {@code to}; null if it cannot be written. */
+	String renderArg(String arg, ExecutableElement m, org.objectweb.asm.Type to) {
+		java.util.regex.Matcher a = ARG.matcher(arg);
+		if (!a.matches()) {
+			return null;
+		}
+		boolean toLong = to.getSort() == org.objectweb.asm.Type.LONG;
+		if (a.group(1) != null) {
+			VariableElement p = m.getParameters().get(Integer.parseInt(a.group(1)));
+			String from = desc(p.asType());
+			// only what Java converts implicitly: identity or primitive widening
+			return from.length() == 1 && WIDENING.get(from).contains(to.getDescriptor()) ? p.getSimpleName().toString() : null;
+		}
+		if (a.group(4) != null) {
+			return a.group(4) + (toLong ? "L" : "");
+		}
+		String kind = a.group(2) != null ? a.group(2) : a.group(5);
+		VariableElement p = m.getParameters().get(Integer.parseInt(a.group(2) != null ? a.group(3) : a.group(6)));
+		String name = p.getSimpleName().toString();
+		String type = types.erasure(p.asType()).toString();
+		String base;
+		switch (kind) {
+			case "addr" -> {
+				if (!ADDRESSABLE.contains(type) || !toLong) {
+					return null;
+				}
+				return "org.lwjgl.system.MemoryUtil.memAddressSafe(" + name + ")";
+			}
+			case "rem" -> {
+				if (!ADDRESSABLE.contains(type)) {
+					return null;
+				}
+				base = "org.lwjgl.system.Checks.remainingSafe(" + name + ")";
+			}
+			default -> {
+				if (p.asType().getKind() != TypeKind.ARRAY) {
+					return null;
+				}
+				base = "(" + name + " == null ? 0 : " + name + ".length)";
+			}
+		}
+		if (to.getSort() != org.objectweb.asm.Type.INT && !toLong) {
+			return null;
+		}
+		if (a.group(7) == null) {
+			return base;
+		}
+		// evaluate in the parameter's width, as the LWJGL 2 code did not overflow either
+		return "(" + (toLong ? "(long)" : "") + base + " " + a.group(7) + " " + a.group(8) + ")";
+	}
+
+	/** Records the LWJGL 3 methods that call the same native functions, which is what a next rule would map to. */
+	void explain(ExecutableElement m, String cls, String desc, NativeTrace.Summary s2, List<String> owners) {
+		String fns = NativeTrace.fnNames(NativeTrace.norm(s2));
+		List<String> near = new ArrayList<>();
+		for (String owner3 : owners) {
+			ClassNode cn = l3.get(owner3);
+			if (cn == null) {
+				continue;
+			}
+			for (MethodNode c : cn.methods) {
+				if ((c.access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)) != (Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)) {
+					continue;
+				}
+				NativeTrace.Summary s3 = trace3.summarize(owner3, c.name, c.desc, 0);
+				if (!s3.unresolved && NativeTrace.fnNames(NativeTrace.norm(s3)).equals(fns)) {
+					near.add(c.name + c.desc + " = " + NativeTrace.fmt(s3));
+				}
+			}
+		}
+		unmatched.add(String.join("\t", cls, m.getSimpleName().toString(), desc, near.isEmpty() ? "no-same-fn" : "same-fn",
+			NativeTrace.fmt(s2), String.join(" || ", near)));
 	}
 
 	static int rank(int access) {
@@ -661,6 +845,7 @@ public final class StubGen {
 			td += c[1];
 		}
 		System.out.printf("  %-8s %5d / %5d%n", "total", tt, td);
+		System.out.println("Delegations by rule: " + ruleHits);
 		System.out.println("Needs design (no stub generated):");
 		design.stream().distinct().sorted().forEach(d -> System.out.println("  - " + d));
 		System.out.println("Package-private in LWJGL 2, made public because inject classes mention them:");
