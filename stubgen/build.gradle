@@ -5,6 +5,8 @@ plugins {
     id 'application'
 }
 
+evaluationDependsOn(':compat')
+
 configurations {
     lwjgl2Sources { transitive = false }
     lwjgl2Classpath { transitive = false }
@@ -36,12 +38,15 @@ tasks.register('generateStubs', JavaExec) {
     description = 'Writes TODO stubs into compat for LWJGL 2 API members that are not implemented yet.'
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.koyomiji.lwjgl2w3.stubgen.StubGen'
+    dependsOn ':compat:injectClasses'
     def compat = project(':compat').projectDir
     argumentProviders.add({
         ['--sources', configurations.lwjgl2Sources.files.join(File.pathSeparator),
          '--classpath', configurations.lwjgl2Classpath.files.join(File.pathSeparator),
          '--lwjgl3', configurations.lwjgl3Jars.files.join(File.pathSeparator),
          '--main', new File(compat, 'src/main/java').path,
-         '--inject', new File(compat, 'src/inject/java').path]
+         '--inject', new File(compat, 'src/inject/java').path,
+         '--replace', new File(compat, 'src/replace/java').path,
+         '--inject-classes', project(':compat').sourceSets.inject.output.classesDirs.singleFile.path]
     } as CommandLineArgumentProvider)
 }

@@ -70,7 +70,9 @@ public final class StubGen {
 	final Set<String> shipped = new HashSet<>();
 	/** Package-private LWJGL 2 types that inject classes (in another package) must reference, emitted as public. */
 	final Set<String> forcePublic = new TreeSet<>();
-	Path mainDir, injectDir;
+	/** LWJGL 3 class -> constructor descriptors that compat adds through @Into inject classes */
+	final Map<String, Set<String>> addedConstructors = new HashMap<>();
+	Path mainDir, injectDir, replaceDir;
 
 	public static void main(String[] args) throws IOException {
 		Map<String, String> a = new HashMap<>();
@@ -80,6 +82,8 @@ public final class StubGen {
 		StubGen g = new StubGen();
 		g.mainDir = Paths.get(a.get("--main"));
 		g.injectDir = Paths.get(a.get("--inject"));
+		g.replaceDir = Paths.get(a.get("--replace"));
+		g.readAddedConstructors(Paths.get(a.get("--inject-classes")));
 		for (String jar : a.get("--lwjgl3").split(java.io.File.pathSeparator)) {
 			g.readLwjgl3(Paths.get(jar));
 		}
@@ -108,6 +112,30 @@ public final class StubGen {
 					ClassNode cn = new ClassNode();
 					new ClassReader(in).accept(cn, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 					l3.put(cn.name, cn);
+				}
+			}
+		}
+	}
+
+	void readAddedConstructors(Path dir) throws IOException {
+		if (!Files.isDirectory(dir)) {
+			return;
+		}
+		List<Path> files;
+		try (var s = Files.walk(dir)) {
+			files = s.filter(f -> f.toString().endsWith(".class")).toList();
+		}
+		for (Path f : files) {
+			ClassNode cn = new ClassNode();
+			new ClassReader(Files.readAllBytes(f)).accept(cn, ClassReader.SKIP_CODE);
+			if (cn.invisibleAnnotations == null) {
+				continue;
+			}
+			for (var an : cn.invisibleAnnotations) {
+				if (an.desc.equals("L" + INJECT_PACKAGE.replace('.', '/') + "/Into;")) {
+					String target = ((org.objectweb.asm.Type)an.values.get(1)).getInternalName();
+					cn.methods.stream().filter(m -> m.name.equals("<init>"))
+						.forEach(m -> addedConstructors.computeIfAbsent(target, k -> new HashSet<>()).add(m.desc));
 				}
 			}
 		}
@@ -426,14 +454,18 @@ public final class StubGen {
 		String area = area(pkg, simple);
 
 		if (CALLBACKS.contains(fqn)) {
-			design.add(fqn + ": superclass conflicts with LWJGL 3 (PointerWrapperAbstract vs Callback); hand-write as in the research repo's poc/callback");
+			if (!Files.exists(replaceDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java"))) {
+				design.add(fqn + ": superclass conflicts with LWJGL 3 (PointerWrapperAbstract vs Callback); write a replace class");
+			}
 			return;
 		}
 		TypeMirror sup = te.getSuperclass();
 		if (sup.getKind() == TypeKind.DECLARED) {
 			TypeElement st = (TypeElement)((DeclaredType)sup).asElement();
-			if (CALLBACKS.contains(st.getQualifiedName().toString())) {
-				design.add(fqn + ": extends " + st.getQualifiedName() + "; the stub compiles against LWJGL 3's class and follows its design");
+			String sp = elements.getPackageOf(st).getQualifiedName().toString();
+			if (CALLBACKS.contains(st.getQualifiedName().toString())
+				&& !Files.exists(replaceDir.resolve(sp.replace('.', '/')).resolve(st.getSimpleName() + ".java"))) {
+				design.add(fqn + ": extends " + st.getQualifiedName() + ", which needs a replace class first");
 			}
 		}
 
@@ -522,7 +554,9 @@ public final class StubGen {
 					ExecutableElement c = (ExecutableElement)e;
 					MethodNode own = declared3(cls, "<init>", desc(c));
 					if (own == null) {
-						design.add(fqn + ": constructor " + c + " does not exist in LWJGL 3 (merger cannot add constructors)");
+						if (!addedConstructors.getOrDefault(cls, Set.of()).contains(desc(c))) {
+							design.add(fqn + ": constructor " + c + " does not exist in LWJGL 3; add it from an @Into inject class extending the same superclass");
+						}
 					} else if (rank(own.access) < rank(c.getModifiers())) {
 						body.append(w.constructor(c, simple, "\t", "@Widen", false));
 					}
@@ -550,7 +584,7 @@ public final class StubGen {
 	/** Counts the TODO markers currently in compat, so the summary stays right as stubs get implemented. */
 	Map<String, int[]> scanTodos() throws IOException {
 		Map<String, int[]> out = new HashMap<>();
-		for (Path root : List.of(mainDir, injectDir)) {
+		for (Path root : List.of(mainDir, injectDir, replaceDir)) {
 			List<Path> files;
 			try (var s = Files.walk(root)) {
 				files = s.filter(f -> f.toString().endsWith(".java")).toList();
