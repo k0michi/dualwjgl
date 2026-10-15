@@ -62,3 +62,40 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 8
     options.compilerArgs << '-Xlint:-options'
 }
+
+// Delegations stubgen generated make the same native calls as LWJGL 2's own code: both run here with their natives
+// rewritten to record calls (see DelegationTest), so no driver or context is needed.
+sourceSets {
+    delegationTest
+}
+
+dependencies {
+    delegationTestImplementation platform(libs.junit.bom)
+    delegationTestImplementation libs.junit.jupiter
+    delegationTestImplementation libs.asm
+    delegationTestImplementation libs.asm.tree
+    delegationTestRuntimeOnly libs.junit.launcher
+}
+
+tasks.named('compileDelegationTestJava') {
+    options.release = 21
+}
+
+def delegationTest = tasks.register('delegationTest', Test) {
+    group = 'verification'
+    testClassesDirs = sourceSets.delegationTest.output.classesDirs
+    classpath = sourceSets.delegationTest.runtimeClasspath
+    useJUnitPlatform()
+    def compatClasses = project(':compat').sourceSets.main.output.classesDirs
+    def report = layout.buildDirectory.file('reports/delegation/mismatches.txt')
+    inputs.files(configurations.lwjgl2Api, patched, configurations.natives, compatClasses)
+    outputs.file(report)
+    testLogging { showStandardStreams = true }
+    doFirst {
+        systemProperty 'lwjgl2w3.lwjgl2.jars', configurations.lwjgl2Api.files.join(File.pathSeparator)
+        systemProperty 'lwjgl2w3.patched.jars', (patched.files + configurations.natives.files).join(File.pathSeparator)
+        systemProperty 'lwjgl2w3.compat.classes', compatClasses.files.join(File.pathSeparator)
+        systemProperty 'lwjgl2w3.report', report.get().asFile.path
+    }
+}
+tasks.named('check') { dependsOn delegationTest }
