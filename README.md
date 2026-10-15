@@ -42,4 +42,6 @@ Every test tree is compiled twice and always run against the patched jars:
 ./gradlew check
 ```
 
+CI (`.github/workflows/ci.yml`) runs the same on Linux x64, macOS arm64 and Windows x64.
+
 Versions are pinned in `gradle/libs.versions.toml`.
