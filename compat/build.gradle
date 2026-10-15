@@ -2,10 +2,12 @@ plugins {
     id 'java-library'
 }
 
-// main:   LWJGL 2-only classes, in their real packages (added to the LWJGL 3 jar that owns the package)
-// inject: members to merge into existing LWJGL 3 classes; com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>
+// main:    LWJGL 2-only classes, in their real packages (added to the LWJGL 3 jar that owns the package)
+// inject:  members to merge into existing LWJGL 3 classes; com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>
+// replace: whole classes that replace LWJGL 3's, where the two shapes cannot be merged member by member
 sourceSets {
     inject
+    replace
 }
 
 dependencies {
@@ -16,6 +18,9 @@ dependencies {
     injectCompileOnly libs.lwjgl3.sdl
     injectCompileOnly project(':inject-api')
     injectCompileOnly sourceSets.main.output
+
+    replaceCompileOnly libs.bundles.lwjgl3.patched
+    replaceCompileOnly sourceSets.main.output
 }
 
 tasks.withType(JavaCompile).configureEach {

@@ -21,9 +21,11 @@ import java.util.stream.*;
  * {@code <pkg>/<Name>}: their members are copied in, references to the inject class are remapped to the target.</li>
  * <li>Add classes (LWJGL 2-only classes, compiled in their real package) are added to the LWJGL 3 jar that owns the
  * package, or to the extra jar when no LWJGL 3 jar does.</li>
+ * <li>Replace classes (compiled in their real package) replace the LWJGL 3 class of the same name wholesale, for
+ * classes whose LWJGL 2 and LWJGL 3 shapes cannot be merged member by member.</li>
  * </ul>
  *
- * <p>Usage: {@code Merger --jar IN=OUT ... --inject DIR --add DIR --extra OUT}</p>
+ * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --inject DIR --add DIR --extra OUT}</p>
  */
 public final class Merger {
 
@@ -31,6 +33,7 @@ public final class Merger {
 	static final String ANNOTATION_PREFIX = "L" + INJECT_PREFIX;
 	static final String WIDEN = ANNOTATION_PREFIX + "Widen;";
 	static final String HIDDEN = ANNOTATION_PREFIX + "Hidden;";
+	static final String INTO = ANNOTATION_PREFIX + "Into;";
 	static final String CLINIT_ALIAS = "lwjgl2w3$clinit";
 	static final String VERSIONS = "META-INF/versions/";
 
@@ -48,10 +51,13 @@ public final class Merger {
 	final Map<String, JarImage> packageOwner = new HashMap<>();
 	final Map<String, JarImage> classOwner = new HashMap<>();
 	final List<String> log = new ArrayList<>();
+	/** inject class -> target class, from @Into or from the inject prefix */
+	final Map<String, String> injectTargets = new HashMap<>();
+	final Set<String> replaced = new HashSet<>();
 
 	public static void main(String[] args) throws IOException {
 		Merger m = new Merger();
-		List<Path> injectDirs = new ArrayList<>(), addDirs = new ArrayList<>();
+		List<Path> injectDirs = new ArrayList<>(), addDirs = new ArrayList<>(), replaceDirs = new ArrayList<>();
 		Path extra = null;
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
@@ -66,6 +72,9 @@ public final class Merger {
 				case "--add":
 					addDirs.add(Paths.get(args[++i]));
 					break;
+				case "--replace":
+					replaceDirs.add(Paths.get(args[++i]));
+					break;
 				case "--extra":
 					extra = Paths.get(args[++i]);
 					break;
@@ -74,10 +83,23 @@ public final class Merger {
 			}
 		}
 		JarImage extraJar = new JarImage(Objects.requireNonNull(extra, "--extra is required"));
+		List<byte[]> replacements = new ArrayList<>();
+		for (Path dir : replaceDirs) {
+			for (Path f : classFiles(dir)) {
+				replacements.add(Files.readAllBytes(f));
+			}
+		}
+		m.replace(replacements);
+		List<byte[]> injects = new ArrayList<>();
 		for (Path dir : injectDirs) {
 			for (Path f : classFiles(dir)) {
-				m.inject(Files.readAllBytes(f));
+				byte[] b = Files.readAllBytes(f);
+				injects.add(b);
+				m.injectTargets.put(new ClassReader(b).getClassName(), injectTarget(b));
 			}
+		}
+		for (byte[] b : injects) {
+			m.inject(b);
 		}
 		for (Path dir : addDirs) {
 			for (Path f : classFiles(dir)) {
@@ -130,25 +152,71 @@ public final class Merger {
 		return i < 0 ? "" : internalName.substring(0, i);
 	}
 
-	static final Remapper STRIP_PREFIX = new Remapper() {
-		@Override
-		public String map(String internalName) {
-			// <prefix><pkg>/<Name> is an inject class; <prefix><Name> is inject-api (e.g. @Widen)
-			if (internalName.startsWith(INJECT_PREFIX) && internalName.indexOf('/', INJECT_PREFIX.length()) >= 0) {
-				return internalName.substring(INJECT_PREFIX.length());
+	static String injectTarget(byte[] bytes) {
+		ClassNode cn = new ClassNode();
+		new ClassReader(bytes).accept(cn, ClassReader.SKIP_CODE);
+		if (cn.invisibleAnnotations != null) {
+			for (AnnotationNode a : cn.invisibleAnnotations) {
+				if (a.desc.equals(INTO)) {
+					return ((org.objectweb.asm.Type)a.values.get(1)).getInternalName();
+				}
 			}
-			return internalName;
 		}
-	};
+		// <prefix><pkg>/<Name> is an inject class; <prefix><Name> is inject-api (e.g. @Widen)
+		if (cn.name.startsWith(INJECT_PREFIX) && cn.name.indexOf('/', INJECT_PREFIX.length()) >= 0) {
+			return cn.name.substring(INJECT_PREFIX.length());
+		}
+		throw new IllegalStateException(cn.name + " is not under " + INJECT_PREFIX + "<package>/ and has no @Into");
+	}
 
-	static ClassNode readInject(byte[] bytes) {
+	ClassNode readInject(byte[] bytes) {
+		Remapper toTarget = new Remapper() {
+			@Override
+			public String map(String internalName) {
+				return injectTargets.getOrDefault(internalName, internalName);
+			}
+		};
 		ClassNode inj = new ClassNode();
-		new ClassReader(bytes).accept(new ClassRemapper(inj, STRIP_PREFIX), 0);
+		new ClassReader(bytes).accept(new ClassRemapper(inj, toTarget), 0);
 		return inj;
+	}
+
+	void replace(List<byte[]> classes) {
+		Map<String, byte[]> byName = new TreeMap<>();
+		for (byte[] b : classes) {
+			byName.put(new ClassReader(b).getClassName(), b);
+		}
+		for (String name : byName.keySet()) {
+			if (name.contains("$")) {
+				continue;
+			}
+			JarImage owner = classOwner.get(name);
+			if (owner == null) {
+				throw new IllegalStateException("Replace target " + name + " does not exist in LWJGL 3; it belongs in compat's main source set");
+			}
+			// LWJGL 3's anonymous classes of the replaced class are only reachable from its old code
+			for (String entry : new ArrayList<>(owner.entries.keySet())) {
+				String cls = entry.substring(0, Math.max(0, entry.length() - 6));
+				if (entry.matches(java.util.regex.Pattern.quote(name) + "\\$\\d+\\.class") && !byName.containsKey(cls)) {
+					owner.entries.remove(entry);
+					log.add(owner.out.getFileName() + ": - class " + cls);
+				}
+			}
+		}
+		for (Map.Entry<String, byte[]> e : byName.entrySet()) {
+			String top = e.getKey().contains("$") ? e.getKey().substring(0, e.getKey().indexOf('$')) : e.getKey();
+			JarImage owner = classOwner.get(top);
+			owner.entries.put(e.getKey() + ".class", e.getValue());
+			replaced.add(e.getKey());
+			log.add(owner.out.getFileName() + ": replace class " + e.getKey());
+		}
 	}
 
 	void inject(byte[] bytes) {
 		String target = readInject(bytes).name;
+		if (replaced.contains(target)) {
+			throw new IllegalStateException(target + " is both replaced and injected into");
+		}
 		JarImage owner = classOwner.get(target);
 		if (owner == null) {
 			throw new IllegalStateException("Inject target " + target + " does not exist in LWJGL 3. "
@@ -221,7 +289,11 @@ public final class Merger {
 				if (isTrivialConstructor(m, inj.superName)) {
 					continue; // the inject class's own default constructor
 				}
-				throw new IllegalStateException(entry + ": constructors must be annotated (@Widen): " + m.desc);
+				if (!inj.superName.equals(t.superName)) {
+					// its super(...) call would not target the target's superclass
+					throw new IllegalStateException(entry + ": constructor " + m.desc + " needs an inject class that extends "
+						+ t.superName + " (see @Into), or @Widen");
+				}
 			}
 			if (m.name.equals("<clinit>")) {
 				m.name = CLINIT_ALIAS;
