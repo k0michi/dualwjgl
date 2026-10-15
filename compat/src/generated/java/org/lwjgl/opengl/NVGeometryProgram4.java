@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 
 @Generated
 public final class NVGeometryProgram4 {
@@ -16,18 +15,15 @@ public final class NVGeometryProgram4 {
 		throw new IllegalStateException("Function is not supported");
 	}
 
-	@Todo("gl")
 	public static void glFramebufferTextureEXT(int target, int attachment, int texture, int level) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGeometryShader4.glFramebufferTextureEXT(target, attachment, texture, level);
 	}
 
-	@Todo("gl")
 	public static void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGeometryShader4.glFramebufferTextureLayerEXT(target, attachment, texture, level, layer);
 	}
 
-	@Todo("gl")
 	public static void glFramebufferTextureFaceEXT(int target, int attachment, int texture, int level, int face) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGeometryShader4.glFramebufferTextureFaceEXT(target, attachment, texture, level, face);
 	}
 }

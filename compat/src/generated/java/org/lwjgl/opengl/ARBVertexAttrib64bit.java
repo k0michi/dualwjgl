@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.DoubleBuffer;
 
 @Generated
@@ -22,63 +21,51 @@ public final class ARBVertexAttrib64bit {
 	private ARBVertexAttrib64bit() {
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL1d(int index, double x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL1d(index, x);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL2d(int index, double x, double y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL2d(index, x, y);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL3d(int index, double x, double y, double z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL3d(index, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL4d(int index, double x, double y, double z, double w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL4d(index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL1(int index, DoubleBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL1dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL2(int index, DoubleBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL2dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL3(int index, DoubleBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL3dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribL4(int index, DoubleBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL4dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribLPointer(int index, int size, int stride, DoubleBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribLPointer(index, size, stride, pointer);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribLPointer(int index, int size, int stride, long pointer_buffer_offset) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribLPointer(index, size, 5130, stride, pointer_buffer_offset);
 	}
 
-	@Todo("gl")
 	public static void glGetVertexAttribL(int index, int pname, DoubleBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglGetVertexAttribLdv(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glVertexArrayVertexAttribLOffsetEXT(int vaobj, int buffer, int index, int size, int type, int stride, long offset) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexArrayVertexAttribLOffsetEXT(vaobj, buffer, index, size, type, stride, offset);
 	}
 }

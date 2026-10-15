@@ -1,6 +1,5 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -36,24 +35,19 @@ public final class ARBViewportArray {
 	public static double glGetDouble(int target, int index) {
 		return org.lwjgl.opengl.ARBViewportArray.glGetDoublei(target, index);
 	}
-	@Todo("gl")
 	public static void glGetIntegerIndexedEXT(int target, int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.nglGetIntegerIndexedvEXT(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
-	@Todo("gl")
 	public static int glGetIntegerIndexedEXT(int target, int index) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.EXTDirectStateAccess.glGetIntegerIndexedEXT(target, index);
 	}
-	@Todo("gl")
 	public static void glEnableIndexedEXT(int target, int index) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.glEnableIndexedEXT(target, index);
 	}
-	@Todo("gl")
 	public static void glDisableIndexedEXT(int target, int index) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTDirectStateAccess.glDisableIndexedEXT(target, index);
 	}
-	@Todo("gl")
 	public static boolean glIsEnabledIndexedEXT(int target, int index) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.EXTDirectStateAccess.glIsEnabledIndexedEXT(target, index);
 	}
 }

@@ -25,93 +25,71 @@ public final class EXTPixelBufferObject {
 	public static final int GL_BUFFER_ACCESS_ARB = 0x88BB;
 	public static final int GL_BUFFER_MAPPED_ARB = 0x88BC;
 	public static final int GL_BUFFER_MAP_POINTER_ARB = 0x88BD;
-	@Todo("gl")
 	public static void glBindBufferARB(int target, int buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBindBufferARB(target, buffer);
 	}
-	@Todo("gl")
 	public static void glDeleteBuffersARB(IntBuffer buffers) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glDeleteBuffersARB(buffers);
 	}
-	@Todo("gl")
 	public static void glDeleteBuffersARB(int buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glDeleteBuffersARB(buffer);
 	}
-	@Todo("gl")
 	public static void glGenBuffersARB(IntBuffer buffers) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glGenBuffersARB(buffers);
 	}
-	@Todo("gl")
 	public static int glGenBuffersARB() {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexBufferObject.glGenBuffersARB();
 	}
-	@Todo("gl")
 	public static boolean glIsBufferARB(int buffer) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexBufferObject.glIsBufferARB(buffer);
 	}
-	@Todo("gl")
 	public static void glBufferDataARB(int target, long data_size, int usage) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferDataARB(target, data_size, usage);
 	}
-	@Todo("gl")
 	public static void glBufferDataARB(int target, ByteBuffer data, int usage) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferDataARB(target, data, usage);
 	}
-	@Todo("gl")
 	public static void glBufferDataARB(int target, DoubleBuffer data, int usage) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferDataARB(target, data, usage);
 	}
-	@Todo("gl")
 	public static void glBufferDataARB(int target, FloatBuffer data, int usage) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferDataARB(target, data, usage);
 	}
-	@Todo("gl")
 	public static void glBufferDataARB(int target, IntBuffer data, int usage) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferDataARB(target, data, usage);
 	}
-	@Todo("gl")
 	public static void glBufferDataARB(int target, ShortBuffer data, int usage) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferDataARB(target, data, usage);
 	}
-	@Todo("gl")
 	public static void glBufferSubDataARB(int target, long offset, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glBufferSubDataARB(int target, long offset, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glBufferSubDataARB(int target, long offset, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glBufferSubDataARB(int target, long offset, IntBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glBufferSubDataARB(int target, long offset, ShortBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glGetBufferSubDataARB(int target, long offset, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glGetBufferSubDataARB(int target, long offset, DoubleBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glGetBufferSubDataARB(int target, long offset, FloatBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glGetBufferSubDataARB(int target, long offset, IntBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferSubDataARB(target, offset, data);
 	}
-	@Todo("gl")
 	public static void glGetBufferSubDataARB(int target, long offset, ShortBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferSubDataARB(target, offset, data);
 	}
 	@Todo("gl")
 	public static ByteBuffer glMapBufferARB(int target, int access, ByteBuffer old_buffer) {
@@ -121,22 +99,19 @@ public final class EXTPixelBufferObject {
 	public static ByteBuffer glMapBufferARB(int target, int access, long length, ByteBuffer old_buffer) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static boolean glUnmapBufferARB(int target) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexBufferObject.glUnmapBufferARB(target);
 	}
-	@Todo("gl")
 	public static void glGetBufferParameterARB(int target, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBufferObject.nglGetBufferParameterivARB(target, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 	@Deprecated
 	@Todo("gl")
 	public static int glGetBufferParameterARB(int target, int pname) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static int glGetBufferParameteriARB(int target, int pname) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferParameteriARB(target, pname);
 	}
 	@Todo("gl")
 	public static ByteBuffer glGetBufferPointerARB(int target, int pname) {

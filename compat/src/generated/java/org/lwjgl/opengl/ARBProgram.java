@@ -78,9 +78,8 @@ public class ARBProgram {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("gl")
 	public static void glProgramStringARB(int target, int format, ByteBuffer string) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glProgramStringARB(target, format, string);
 	}
 
 	@Todo("gl")
@@ -88,14 +87,12 @@ public class ARBProgram {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("gl")
 	public static void glBindProgramARB(int target, int program) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glBindProgramARB(target, program);
 	}
 
-	@Todo("gl")
 	public static void glDeleteProgramsARB(IntBuffer programs) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glDeleteProgramsARB(programs);
 	}
 
 	@Todo("gl")
@@ -103,79 +100,64 @@ public class ARBProgram {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("gl")
 	public static void glGenProgramsARB(IntBuffer programs) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glGenProgramsARB(programs);
 	}
 
-	@Todo("gl")
 	public static int glGenProgramsARB() {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexProgram.glGenProgramsARB();
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameter4fARB(int target, int index, float x, float y, float z, float w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glProgramEnvParameter4fARB(target, index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameter4dARB(int target, int index, double x, double y, double z, double w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glProgramEnvParameter4dARB(target, index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameter4ARB(int target, int index, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglProgramEnvParameter4fvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glProgramEnvParameter4ARB(int target, int index, DoubleBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglProgramEnvParameter4dvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameter4fARB(int target, int index, float x, float y, float z, float w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glProgramLocalParameter4fARB(target, index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameter4dARB(int target, int index, double x, double y, double z, double w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.glProgramLocalParameter4dARB(target, index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameter4ARB(int target, int index, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglProgramLocalParameter4fvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glProgramLocalParameter4ARB(int target, int index, DoubleBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglProgramLocalParameter4dvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetProgramEnvParameterARB(int target, int index, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramEnvParameterfvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetProgramEnvParameterARB(int target, int index, DoubleBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramEnvParameterdvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetProgramLocalParameterARB(int target, int index, FloatBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramLocalParameterfvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetProgramLocalParameterARB(int target, int index, DoubleBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramLocalParameterdvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetProgramARB(int target, int parameterName, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramivARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
 	@Deprecated
@@ -184,14 +166,12 @@ public class ARBProgram {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("gl")
 	public static int glGetProgramiARB(int target, int parameterName) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexProgram.glGetProgramiARB(target, parameterName);
 	}
 
-	@Todo("gl")
 	public static void glGetProgramStringARB(int target, int parameterName, ByteBuffer paramString) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramStringARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddressSafe(paramString));
 	}
 
 	@Todo("gl")
@@ -199,8 +179,7 @@ public class ARBProgram {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("gl")
 	public static boolean glIsProgramARB(int program) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.ARBVertexProgram.glIsProgramARB(program);
 	}
 }

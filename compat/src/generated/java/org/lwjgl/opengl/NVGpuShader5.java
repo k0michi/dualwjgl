@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.LongBuffer;
 
 @Generated
@@ -39,173 +38,139 @@ public final class NVGpuShader5 {
 	private NVGpuShader5() {
 	}
 
-	@Todo("gl")
 	public static void glUniform1i64NV(int location, long x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform1i64NV(location, x);
 	}
 
-	@Todo("gl")
 	public static void glUniform2i64NV(int location, long x, long y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform2i64NV(location, x, y);
 	}
 
-	@Todo("gl")
 	public static void glUniform3i64NV(int location, long x, long y, long z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform3i64NV(location, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glUniform4i64NV(int location, long x, long y, long z, long w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform4i64NV(location, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glUniform1NV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform1i64vNV(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform2NV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform2i64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform3NV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform3i64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform4NV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform4i64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform1ui64NV(int location, long x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform1ui64NV(location, x);
 	}
 
-	@Todo("gl")
 	public static void glUniform2ui64NV(int location, long x, long y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform2ui64NV(location, x, y);
 	}
 
-	@Todo("gl")
 	public static void glUniform3ui64NV(int location, long x, long y, long z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform3ui64NV(location, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glUniform4ui64NV(int location, long x, long y, long z, long w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glUniform4ui64NV(location, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glUniform1uNV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform1ui64vNV(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform2uNV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform2ui64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform3uNV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform3ui64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform4uNV(int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglUniform4ui64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glGetUniformNV(int program, int location, LongBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglGetUniformi64vNV(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetUniformuNV(int program, int location, LongBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglGetUniformui64vNV(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform1i64NV(int program, int location, long x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform1i64NV(program, location, x);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform2i64NV(int program, int location, long x, long y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform2i64NV(program, location, x, y);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform3i64NV(int program, int location, long x, long y, long z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform3i64NV(program, location, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform4i64NV(int program, int location, long x, long y, long z, long w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform4i64NV(program, location, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform1NV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform1i64vNV(program, location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform2NV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform2i64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform3NV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform3i64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform4NV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform4i64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform1ui64NV(int program, int location, long x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform1ui64NV(program, location, x);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform2ui64NV(int program, int location, long x, long y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform2ui64NV(program, location, x, y);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform3ui64NV(int program, int location, long x, long y, long z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform3ui64NV(program, location, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform4ui64NV(int program, int location, long x, long y, long z, long w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.glProgramUniform4ui64NV(program, location, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform1uNV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform1ui64vNV(program, location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform2uNV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform2ui64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform3uNV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform3ui64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glProgramUniform4uNV(int program, int location, LongBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform4ui64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 }

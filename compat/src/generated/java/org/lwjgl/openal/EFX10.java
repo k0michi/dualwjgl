@@ -488,9 +488,8 @@ public final class EFX10 {
 	private EFX10() {
 	}
 
-	@Todo("al")
 	public static void alGenAuxiliaryEffectSlots(IntBuffer auxiliaryeffectslots) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alGenAuxiliaryEffectSlots(auxiliaryeffectslots);
 	}
 
 	@Todo("al")
@@ -498,9 +497,8 @@ public final class EFX10 {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("al")
 	public static void alDeleteAuxiliaryEffectSlots(IntBuffer auxiliaryeffectslots) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alDeleteAuxiliaryEffectSlots(auxiliaryeffectslots);
 	}
 
 	@Todo("al")
@@ -508,54 +506,44 @@ public final class EFX10 {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("al")
 	public static boolean alIsAuxiliaryEffectSlot(int auxiliaryeffectslot) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alIsAuxiliaryEffectSlot(auxiliaryeffectslot);
 	}
 
-	@Todo("al")
 	public static void alAuxiliaryEffectSloti(int auxiliaryeffectslot, int param, int value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alAuxiliaryEffectSloti(auxiliaryeffectslot, param, value);
 	}
 
-	@Todo("al")
 	public static void alAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, IntBuffer values) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalAuxiliaryEffectSlotiv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
 	}
 
-	@Todo("al")
 	public static void alAuxiliaryEffectSlotf(int auxiliaryeffectslot, int param, float value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alAuxiliaryEffectSlotf(auxiliaryeffectslot, param, value);
 	}
 
-	@Todo("al")
 	public static void alAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, FloatBuffer values) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalAuxiliaryEffectSlotfv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
 	}
 
-	@Todo("al")
 	public static int alGetAuxiliaryEffectSloti(int auxiliaryeffectslot, int param) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGetAuxiliaryEffectSloti(auxiliaryeffectslot, param);
 	}
 
-	@Todo("al")
 	public static void alGetAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, IntBuffer intdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalGetAuxiliaryEffectSlotiv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
 	}
 
-	@Todo("al")
 	public static float alGetAuxiliaryEffectSlotf(int auxiliaryeffectslot, int param) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGetAuxiliaryEffectSlotf(auxiliaryeffectslot, param);
 	}
 
-	@Todo("al")
 	public static void alGetAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, FloatBuffer floatdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalGetAuxiliaryEffectSlotfv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(floatdata));
 	}
 
-	@Todo("al")
 	public static void alGenEffects(IntBuffer effects) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alGenEffects(effects);
 	}
 
 	@Todo("al")
@@ -563,9 +551,8 @@ public final class EFX10 {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("al")
 	public static void alDeleteEffects(IntBuffer effects) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alDeleteEffects(effects);
 	}
 
 	@Todo("al")
@@ -573,54 +560,44 @@ public final class EFX10 {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("al")
 	public static boolean alIsEffect(int effect) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alIsEffect(effect);
 	}
 
-	@Todo("al")
 	public static void alEffecti(int effect, int param, int value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alEffecti(effect, param, value);
 	}
 
-	@Todo("al")
 	public static void alEffect(int effect, int param, IntBuffer values) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalEffectiv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
 	}
 
-	@Todo("al")
 	public static void alEffectf(int effect, int param, float value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alEffectf(effect, param, value);
 	}
 
-	@Todo("al")
 	public static void alEffect(int effect, int param, FloatBuffer values) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalEffectfv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
 	}
 
-	@Todo("al")
 	public static int alGetEffecti(int effect, int param) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGetEffecti(effect, param);
 	}
 
-	@Todo("al")
 	public static void alGetEffect(int effect, int param, IntBuffer intdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalGetEffectiv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
 	}
 
-	@Todo("al")
 	public static float alGetEffectf(int effect, int param) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGetEffectf(effect, param);
 	}
 
-	@Todo("al")
 	public static void alGetEffect(int effect, int param, FloatBuffer floatdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalGetEffectfv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(floatdata));
 	}
 
-	@Todo("al")
 	public static void alGenFilters(IntBuffer filters) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alGenFilters(filters);
 	}
 
 	@Todo("al")
@@ -628,9 +605,8 @@ public final class EFX10 {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("al")
 	public static void alDeleteFilters(IntBuffer filters) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alDeleteFilters(filters);
 	}
 
 	@Todo("al")
@@ -638,48 +614,39 @@ public final class EFX10 {
 		throw new UnsupportedOperationException();
 	}
 
-	@Todo("al")
 	public static boolean alIsFilter(int filter) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alIsFilter(filter);
 	}
 
-	@Todo("al")
 	public static void alFilteri(int filter, int param, int value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alFilteri(filter, param, value);
 	}
 
-	@Todo("al")
 	public static void alFilter(int filter, int param, IntBuffer values) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalFilteriv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
 	}
 
-	@Todo("al")
 	public static void alFilterf(int filter, int param, float value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alFilterf(filter, param, value);
 	}
 
-	@Todo("al")
 	public static void alFilter(int filter, int param, FloatBuffer values) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalFilterfv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
 	}
 
-	@Todo("al")
 	public static int alGetFilteri(int filter, int param) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGetFilteri(filter, param);
 	}
 
-	@Todo("al")
 	public static void alGetFilter(int filter, int param, IntBuffer intdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalGetFilteriv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
 	}
 
-	@Todo("al")
 	public static float alGetFilterf(int filter, int param) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGetFilterf(filter, param);
 	}
 
-	@Todo("al")
 	public static void alGetFilter(int filter, int param, FloatBuffer floatdata) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.nalGetFilterfv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(floatdata));
 	}
 }

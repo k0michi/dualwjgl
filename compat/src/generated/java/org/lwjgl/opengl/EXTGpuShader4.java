@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -40,198 +39,159 @@ public final class EXTGpuShader4 {
 	private EXTGpuShader4() {
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI1iEXT(int index, int x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI1iEXT(index, x);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI2iEXT(int index, int x, int y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI2iEXT(index, x, y);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI3iEXT(int index, int x, int y, int z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI3iEXT(index, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4iEXT(int index, int x, int y, int z, int w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4iEXT(index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI1uiEXT(int index, int x) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI1uiEXT(index, x);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI2uiEXT(int index, int x, int y) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI2uiEXT(index, x, y);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI3uiEXT(int index, int x, int y, int z) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI3uiEXT(index, x, y, z);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4uiEXT(int index, int x, int y, int z, int w) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4uiEXT(index, x, y, z, w);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI1EXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI1ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI2EXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI2ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI3EXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI3ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4EXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI1uEXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI1uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI2uEXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI2uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI3uEXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI3uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4uEXT(int index, IntBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4EXT(int index, ByteBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4bvEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4EXT(int index, ShortBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4svEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4uEXT(int index, ByteBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4ubvEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribI4uEXT(int index, ShortBuffer v) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4usvEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribIPointerEXT(int index, int size, int type, int stride, ByteBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribIPointerEXT(index, size, type, stride, buffer);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribIPointerEXT(int index, int size, int type, int stride, IntBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribIPointerEXT(index, size, type, stride, buffer);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribIPointerEXT(int index, int size, int type, int stride, ShortBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribIPointerEXT(index, size, type, stride, buffer);
 	}
 
-	@Todo("gl")
 	public static void glVertexAttribIPointerEXT(int index, int size, int type, int stride, long buffer_buffer_offset) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribIPointerEXT(index, size, type, stride, buffer_buffer_offset);
 	}
 
-	@Todo("gl")
 	public static void glGetVertexAttribIEXT(int index, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglGetVertexAttribIivEXT(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glGetVertexAttribIuEXT(int index, int pname, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglGetVertexAttribIuivEXT(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glUniform1uiEXT(int location, int v0) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glUniform1uiEXT(location, v0);
 	}
 
-	@Todo("gl")
 	public static void glUniform2uiEXT(int location, int v0, int v1) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glUniform2uiEXT(location, v0, v1);
 	}
 
-	@Todo("gl")
 	public static void glUniform3uiEXT(int location, int v0, int v1, int v2) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glUniform3uiEXT(location, v0, v1, v2);
 	}
 
-	@Todo("gl")
 	public static void glUniform4uiEXT(int location, int v0, int v1, int v2, int v3) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glUniform4uiEXT(location, v0, v1, v2, v3);
 	}
 
-	@Todo("gl")
 	public static void glUniform1uEXT(int location, IntBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglUniform1uivEXT(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform2uEXT(int location, IntBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglUniform2uivEXT(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform3uEXT(int location, IntBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglUniform3uivEXT(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glUniform4uEXT(int location, IntBuffer value) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglUniform4uivEXT(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
 	}
 
-	@Todo("gl")
 	public static void glGetUniformuEXT(int program, int location, IntBuffer params) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.nglGetUniformuivEXT(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 
-	@Todo("gl")
 	public static void glBindFragDataLocationEXT(int program, int colorNumber, ByteBuffer name) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glBindFragDataLocationEXT(program, colorNumber, name);
 	}
 
-	@Todo("gl")
 	public static void glBindFragDataLocationEXT(int program, int colorNumber, CharSequence name) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.EXTGPUShader4.glBindFragDataLocationEXT(program, colorNumber, name);
 	}
 
-	@Todo("gl")
 	public static int glGetFragDataLocationEXT(int program, ByteBuffer name) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.EXTGPUShader4.glGetFragDataLocationEXT(program, name);
 	}
 
-	@Todo("gl")
 	public static int glGetFragDataLocationEXT(int program, CharSequence name) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.EXTGPUShader4.glGetFragDataLocationEXT(program, name);
 	}
 }
