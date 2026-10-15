@@ -1,7 +1,3 @@
-/*
- * Copyright LWJGL. All rights reserved.
- * License terms: https://www.lwjgl.org/license
- */
 package org.lwjgl.opencl;
 
 import org.lwjgl.PointerWrapper;
