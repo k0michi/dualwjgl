@@ -14,6 +14,7 @@ lwjgl3-sdl = { module = "org.lwjgl:lwjgl-sdl", version.ref = "lwjgl3" }
 lwjgl2-core = { module = "org.lwjgl.lwjgl:lwjgl", version.ref = "lwjgl2" }
 lwjgl2-util = { module = "org.lwjgl.lwjgl:lwjgl_util", version.ref = "lwjgl2" }
 jinput = { module = "net.java.jinput:jinput", version = "2.0.5" }
+jutils = { module = "net.java.jutils:jutils", version = "1.0.0" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }

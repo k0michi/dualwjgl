@@ -13,6 +13,8 @@ sourceSets {
 dependencies {
     compileOnly libs.bundles.lwjgl3.patched
     compileOnly libs.lwjgl3.sdl
+    compileOnly libs.jinput
+    compileOnly libs.jutils
 
     injectCompileOnly libs.bundles.lwjgl3.patched
     injectCompileOnly libs.lwjgl3.sdl

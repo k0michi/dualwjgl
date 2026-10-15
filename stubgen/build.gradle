@@ -19,6 +19,7 @@ dependencies {
     lwjgl2Sources(variantOf(libs.lwjgl2.util) { classifier('sources') })
     lwjgl2Classpath libs.bundles.lwjgl2
     lwjgl2Classpath libs.jinput
+    lwjgl2Classpath libs.jutils
     lwjgl3Jars libs.bundles.lwjgl3.patched
 }
 

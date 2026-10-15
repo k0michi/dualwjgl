@@ -279,25 +279,6 @@ public final class StubGen {
 		return sb.append(')').append(m.getKind() == ElementKind.CONSTRUCTOR ? "V" : desc(m.getReturnType())).toString();
 	}
 
-	/** Every type an element's API mentions. */
-	boolean mentions(TypeElement te, String packagePrefix) {
-		List<TypeMirror> ts = new ArrayList<>();
-		ts.add(te.getSuperclass());
-		ts.addAll(te.getInterfaces());
-		for (Element e : te.getEnclosedElements()) {
-			if (!isApi(e)) {
-				continue;
-			}
-			if (e instanceof ExecutableElement m) {
-				ts.add(m.getReturnType());
-				m.getParameters().forEach(p -> ts.add(p.asType()));
-			} else if (e instanceof VariableElement v) {
-				ts.add(v.asType());
-			}
-		}
-		return ts.stream().anyMatch(t -> t.toString().contains(packagePrefix));
-	}
-
 	static boolean isApi(Element e) {
 		Set<Modifier> m = e.getModifiers();
 		return m.contains(Modifier.PUBLIC) || m.contains(Modifier.PROTECTED)
@@ -444,10 +425,6 @@ public final class StubGen {
 		String simple = te.getSimpleName().toString();
 		String area = area(pkg, simple);
 
-		if (mentions(te, "net.java.games.input")) {
-			design.add(fqn + ": exposes jinput types; decide whether to keep jinput or replace with SDL gamepads");
-			return;
-		}
 		if (CALLBACKS.contains(fqn)) {
 			design.add(fqn + ": superclass conflicts with LWJGL 3 (PointerWrapperAbstract vs Callback); hand-write as in the research repo's poc/callback");
 			return;
