@@ -28,8 +28,8 @@ configurations {
 }
 
 dependencies {
-    lwjgl2Api libs.lwjgl2.core
-    lwjgl3Api libs.lwjgl3.core
+    lwjgl2Api libs.bundles.lwjgl2
+    lwjgl3Api libs.bundles.lwjgl3.patched
     natives(variantOf(libs.lwjgl3.core) { classifier(nativesClassifier) })
 }
 

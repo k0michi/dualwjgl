@@ -30,17 +30,17 @@ public final class Sys {
 		return Pointer.BITS64;
 	}
 
-	// TODO(SDL): SDL_ShowSimpleMessageBox
+	// TODO(sdl): SDL_ShowSimpleMessageBox
 	public static void alert(String title, String message) {
 		System.err.println("[LWJGL] " + title + ": " + message);
 	}
 
-	// TODO(SDL): SDL_OpenURL. LWJGL 2 returns false when the URL could not be opened.
+	// TODO(sdl): SDL_OpenURL. LWJGL 2 returns false when the URL could not be opened.
 	public static boolean openURL(String url) {
 		return false;
 	}
 
-	// TODO(SDL): SDL_GetClipboardText. LWJGL 2 returns null when the clipboard is unavailable.
+	// TODO(sdl): SDL_GetClipboardText. LWJGL 2 returns null when the clipboard is unavailable.
 	public static String getClipboard() {
 		return null;
 	}

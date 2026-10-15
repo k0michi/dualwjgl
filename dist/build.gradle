@@ -10,7 +10,7 @@ configurations {
 }
 
 dependencies {
-    lwjgl3 libs.lwjgl3.core
+    lwjgl3 libs.bundles.lwjgl3.patched
     mergerTool project(':merger')
 }
 

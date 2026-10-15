@@ -9,9 +9,11 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly libs.lwjgl3.core
+    compileOnly libs.bundles.lwjgl3.patched
+    compileOnly libs.lwjgl3.sdl
 
-    injectCompileOnly libs.lwjgl3.core
+    injectCompileOnly libs.bundles.lwjgl3.patched
+    injectCompileOnly libs.lwjgl3.sdl
     injectCompileOnly project(':inject-api')
     injectCompileOnly sourceSets.main.output
 }

@@ -1,0 +1,46 @@
+// One-shot scaffolding: writes TODO stubs into compat for every LWJGL 2 API member not implemented yet.
+// Never overwrites an existing file, so it is safe to re-run after implementing some classes.
+
+plugins {
+    id 'application'
+}
+
+configurations {
+    lwjgl2Sources { transitive = false }
+    lwjgl2Classpath { transitive = false }
+    lwjgl3Jars { transitive = false }
+}
+
+dependencies {
+    implementation libs.asm
+    implementation libs.asm.tree
+
+    lwjgl2Sources(variantOf(libs.lwjgl2.core) { classifier('sources') })
+    lwjgl2Sources(variantOf(libs.lwjgl2.util) { classifier('sources') })
+    lwjgl2Classpath libs.bundles.lwjgl2
+    lwjgl2Classpath libs.jinput
+    lwjgl3Jars libs.bundles.lwjgl3.patched
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+application {
+    mainClass = 'com.koyomiji.lwjgl2w3.stubgen.StubGen'
+}
+
+tasks.register('generateStubs', JavaExec) {
+    group = 'lwjgl2w3'
+    description = 'Writes TODO stubs into compat for LWJGL 2 API members that are not implemented yet.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.koyomiji.lwjgl2w3.stubgen.StubGen'
+    def compat = project(':compat').projectDir
+    argumentProviders.add({
+        ['--sources', configurations.lwjgl2Sources.files.join(File.pathSeparator),
+         '--classpath', configurations.lwjgl2Classpath.files.join(File.pathSeparator),
+         '--lwjgl3', configurations.lwjgl3Jars.files.join(File.pathSeparator),
+         '--main', new File(compat, 'src/main/java').path,
+         '--inject', new File(compat, 'src/inject/java').path]
+    } as CommandLineArgumentProvider)
+}

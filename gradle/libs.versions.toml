@@ -6,10 +6,22 @@ junit = "5.11.4"
 
 [libraries]
 lwjgl3-core = { module = "org.lwjgl:lwjgl", version.ref = "lwjgl3" }
+lwjgl3-opengl = { module = "org.lwjgl:lwjgl-opengl", version.ref = "lwjgl3" }
+lwjgl3-opengles = { module = "org.lwjgl:lwjgl-opengles", version.ref = "lwjgl3" }
+lwjgl3-openal = { module = "org.lwjgl:lwjgl-openal", version.ref = "lwjgl3" }
+lwjgl3-opencl = { module = "org.lwjgl:lwjgl-opencl", version.ref = "lwjgl3" }
+lwjgl3-sdl = { module = "org.lwjgl:lwjgl-sdl", version.ref = "lwjgl3" }
 lwjgl2-core = { module = "org.lwjgl.lwjgl:lwjgl", version.ref = "lwjgl2" }
+lwjgl2-util = { module = "org.lwjgl.lwjgl:lwjgl_util", version.ref = "lwjgl2" }
+jinput = { module = "net.java.jinput:jinput", version = "2.0.5" }
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 asm-tree = { module = "org.ow2.asm:asm-tree", version.ref = "asm" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[bundles]
+# The LWJGL 3 modules that own a package LWJGL 2 also uses; these are the jars the merger patches.
+lwjgl3-patched = ["lwjgl3-core", "lwjgl3-opengl", "lwjgl3-opengles", "lwjgl3-openal", "lwjgl3-opencl"]
+lwjgl2 = ["lwjgl2-core", "lwjgl2-util"]

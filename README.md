@@ -12,6 +12,7 @@ Unofficial; not affiliated with the LWJGL project.
 | `merger` | ASM tool that merges `compat` into the LWJGL 3 jars. |
 | `dist` | Runs the merger: `build/patched/*.jar`. |
 | `verify` | Link tests (see below). |
+| `stubgen` | One-shot scaffolding: writes `// TODO(<area>)` stubs into `compat` for LWJGL 2 API not implemented yet. |
 
 ### Writing compat code
 
@@ -26,6 +27,12 @@ Unofficial; not affiliated with the LWJGL project.
   - Nested classes in inject classes are not supported yet.
 
 When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins.
+
+### Stubs
+
+`./gradlew :stubgen:generateStubs` reads the LWJGL 2.9.3 API (shipped classes only) and writes a stub for every
+member LWJGL 3 does not already provide. It never overwrites an existing file, and prints the TODO count per area and
+what needs design. To regenerate a class from scratch, delete its file first.
 
 ## Verification
 
