@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
  * counts, array lengths, constants and shifts/products of those, and returns nothing or that call's primitive result.
  * It becomes a call to LWJGL 3's raw {@code n<function>} method, which passes its arguments straight to the same native
  * function (e.g. {@code glBufferStorage(int, LongBuffer, int)} becomes
- * {@code nglBufferStorage(target, remaining << 3, address, flags)}).
+ * {@code nglBufferStorage(target, remaining << 3, address, flags)}), wherever {@link Lwjgl3Api#owners} finds it.
  */
 final class RawNativeCallRule implements Rule {
 
@@ -60,11 +60,7 @@ final class RawNativeCallRule implements Rule {
 		}
 		String identity = fn + "(" + IntStream.range(0, args.size()).mapToObj(i -> "$" + i + "$")
 			.collect(Collectors.joining(",")) + ")";
-		List<String> owners = lwjgl3.selfAndSupers(t.cls());
-		if (lwjgl3.contains(t.cls() + "C")) {
-			owners.add(t.cls() + "C");
-		}
-		for (String owner3 : owners) {
+		for (String owner3 : lwjgl3.owners(t.cls())) {
 			ClassNode cn = lwjgl3.get(owner3);
 			if (cn == null) {
 				continue;

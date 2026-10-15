@@ -82,6 +82,27 @@ final class Lwjgl3Api {
 		return out;
 	}
 
+	/**
+	 * Where LWJGL 3 may implement a function of {@code cls}: {@code cls} and its supertypes, its {@code C} class, then
+	 * the other public classes of its package, because LWJGL 3 moved functions between classes (ARBProgram's into
+	 * ARBVertexProgram, EFX10's into EXTEfx, EXTGpuShader4's into EXTGPUShader4). Same name ignoring case first.
+	 */
+	List<String> owners(String cls) {
+		List<String> out = selfAndSupers(cls);
+		if (contains(cls + "C")) {
+			out.add(cls + "C");
+		}
+		String pkg = cls.substring(0, cls.lastIndexOf('/') + 1);
+		String simple = cls.substring(pkg.length());
+		classes.values().stream()
+			.filter(cn -> cn.name.startsWith(pkg) && cn.name.indexOf('/', pkg.length()) < 0 && !cn.name.contains("$")
+				&& (cn.access & Opcodes.ACC_PUBLIC) != 0 && !out.contains(cn.name))
+			.map(cn -> cn.name)
+			.sorted(Comparator.comparing((String n) -> !n.substring(pkg.length()).equalsIgnoreCase(simple)).thenComparing(n -> n))
+			.forEach(out::add);
+		return out;
+	}
+
 	/** Methods {@code cls} declares or inherits, as name + descriptor. */
 	Set<String> methods(String cls) {
 		Set<String> out = new HashSet<>();
