@@ -13,7 +13,6 @@ import java.nio.IntBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** LWJGL 3 code: compiled against LWJGL 3.4.3 and against the patched jars, run against the patched jars. */
 class Lwjgl3CoreTest {
 
 	@Test

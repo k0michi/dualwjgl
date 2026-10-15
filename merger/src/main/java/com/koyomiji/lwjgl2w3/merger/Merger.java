@@ -34,7 +34,6 @@ public final class Merger {
 	static final String CLINIT_ALIAS = "lwjgl2w3$clinit";
 	static final String VERSIONS = "META-INF/versions/";
 
-	/** Entries of one output jar, in their original order. */
 	static final class JarImage {
 		final Path out;
 		final Map<String, byte[]> entries = new LinkedHashMap<>();
@@ -130,8 +129,6 @@ public final class Merger {
 		int i = internalName.lastIndexOf('/');
 		return i < 0 ? "" : internalName.substring(0, i);
 	}
-
-	// ---- inject ---------------------------------------------------------------
 
 	static final Remapper STRIP_PREFIX = new Remapper() {
 		@Override
@@ -311,8 +308,6 @@ public final class Merger {
 			+ ((a & Opcodes.ACC_SYNTHETIC) != 0 ? " synthetic" : "");
 	}
 
-	// ---- add ------------------------------------------------------------------
-
 	void add(byte[] bytes, JarImage extra) {
 		String name = new ClassReader(bytes).getClassName();
 		if (classOwner.containsKey(name)) {
@@ -322,8 +317,6 @@ public final class Merger {
 		owner.entries.put(name + ".class", bytes);
 		log.add(owner.out.getFileName() + ": + class " + name);
 	}
-
-	// ---- output ---------------------------------------------------------------
 
 	static void write(JarImage j) throws IOException {
 		Files.createDirectories(j.out.getParent());

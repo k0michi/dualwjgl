@@ -2,10 +2,8 @@ package org.lwjgl;
 
 import org.lwjgl.system.Pointer;
 
-/** LWJGL 2's system class, on top of LWJGL 3. */
 public final class Sys {
 
-	/** The LWJGL 2 version this API reproduces. */
 	private static final String VERSION = "2.9.3";
 
 	private Sys() {
@@ -19,7 +17,6 @@ public final class Sys {
 		return VERSION;
 	}
 
-	/** Ticks per second of {@link #getTime()}. */
 	public static long getTimerResolution() {
 		return 1000L;
 	}

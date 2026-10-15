@@ -1,4 +1,3 @@
-# Keep the Gradle wrapper scripts runnable on every platform
 /gradlew        text eol=lf
 *.bat           text eol=crlf
 *.jar           binary

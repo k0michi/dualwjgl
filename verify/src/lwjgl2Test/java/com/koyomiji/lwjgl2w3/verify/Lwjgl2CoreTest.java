@@ -12,7 +12,6 @@ import java.nio.IntBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** LWJGL 2 code: compiled against LWJGL 2.9.3 and against the patched jars, run against the patched jars. */
 class Lwjgl2CoreTest {
 
 	/** Guards the setup: these tests must run against the patched jars, never the original LWJGL 2. */
