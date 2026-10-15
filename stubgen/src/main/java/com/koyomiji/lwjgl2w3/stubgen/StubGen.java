@@ -39,7 +39,7 @@ public final class StubGen {
 
 	private StubGen(Options o) throws IOException {
 		generatedDir = o.generated();
-		handWritten = new HandWritten(o.main(), o.replace(), o.injectClasses());
+		handWritten = new HandWritten(o.main(), o.copied(), o.replace(), o.injectClasses());
 		lwjgl3 = new Lwjgl3Api(o.lwjgl3());
 		lwjgl2 = new Lwjgl2Api(o.sources(), o.classpath(), o.lwjgl2Jars(), lwjgl3);
 		overloads = new Overloads(lwjgl3);

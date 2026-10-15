@@ -16,6 +16,7 @@ dependencies {
 
 def compatMain = project(':compat').sourceSets.main.output.classesDirs
 def compatInject = project(':compat').sourceSets.inject.output.classesDirs
+def compatLwjgl2 = project(':compat').sourceSets.lwjgl2.output.classesDirs
 def compatReplace = project(':compat').sourceSets.replace.output.classesDirs
 
 def mergeJars = tasks.register('mergeJars', JavaExec) {
@@ -23,7 +24,7 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
     description = 'Merges the LWJGL 2 compat layer into the LWJGL 3 jars.'
 
     def outDir = layout.buildDirectory.dir('patched')
-    inputs.files(configurations.lwjgl3, compatMain, compatInject, compatReplace)
+    inputs.files(configurations.lwjgl3, compatMain, compatInject, compatLwjgl2, compatReplace)
     outputs.dir(outDir)
 
     classpath = configurations.mergerTool
@@ -33,7 +34,7 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
         List<String> args = []
         configurations.lwjgl3.files.each { args += ['--jar', "${it.absolutePath}=${new File(out, it.name).absolutePath}".toString()] }
         compatReplace.files.each { args += ['--replace', it.absolutePath] }
-        (compatMain.files + compatInject.files).each { args += ['--classes', it.absolutePath] }
+        (compatMain.files + compatInject.files + compatLwjgl2.files).each { args += ['--classes', it.absolutePath] }
         args += ['--extra', new File(out, 'lwjgl2w3-extra.jar').absolutePath]
         args
     } as CommandLineArgumentProvider)

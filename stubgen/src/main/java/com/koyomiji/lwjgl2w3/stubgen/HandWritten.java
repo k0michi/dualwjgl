@@ -14,12 +14,14 @@ import java.util.*;
 final class HandWritten {
 
 	private final Path mainDir;
+	private final Path copiedDir;
 	private final Path replaceDir;
 	/** LWJGL 3 class -> constructor descriptors that @Into fragments add */
 	private final Map<String, Set<String>> constructors = new HashMap<>();
 
-	HandWritten(Path mainDir, Path replaceDir, Path injectClasses) throws IOException {
+	HandWritten(Path mainDir, Path copiedDir, Path replaceDir, Path injectClasses) throws IOException {
 		this.mainDir = mainDir;
+		this.copiedDir = copiedDir;
 		this.replaceDir = replaceDir;
 		if (!Files.isDirectory(injectClasses)) {
 			return;
@@ -44,9 +46,10 @@ final class HandWritten {
 		}
 	}
 
-	/** A whole LWJGL 2-only class in compat/src/main. */
+	/** A whole LWJGL 2-only class in compat/src/main, or one of the LWJGL 2 sources compat compiles unchanged. */
 	boolean wholeClass(String pkg, String simple) {
-		return Files.exists(mainDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java"));
+		Path file = Path.of(pkg.replace('.', '/'), simple + ".java");
+		return Files.exists(mainDir.resolve(file)) || Files.exists(copiedDir.resolve(file));
 	}
 
 	/** A class that replaces LWJGL 3's in compat/src/replace. */
