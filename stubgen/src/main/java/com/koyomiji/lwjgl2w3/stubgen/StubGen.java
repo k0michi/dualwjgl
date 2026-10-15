@@ -47,7 +47,8 @@ public final class StubGen {
 		NativeTrace trace2 = new NativeTrace(String.join(File.pathSeparator, o.lwjgl2Jars()));
 		diagnostics = new Diagnostics(lwjgl3, trace3);
 		delegator = new Delegator(lwjgl2, trace2,
-			List.of(new SameSignatureRule(lwjgl3, trace3), new RawNativeCallRule(lwjgl2, lwjgl3, trace3)), diagnostics);
+			List.of(new UnsupportedRule(lwjgl3, trace3), new SameSignatureRule(lwjgl3, trace3), new RawNativeCallRule(lwjgl2, lwjgl3, trace3)),
+			diagnostics);
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -94,7 +95,7 @@ public final class StubGen {
 			report.needsDesign(fqn + ": LWJGL 2-only class extending " + sup + ", which LWJGL 3 also has");
 			return;
 		}
-		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, pkg, area);
+		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, pkg, area, delegator);
 		w.type(te);
 		write(generatedDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java"), w.file());
 		report.count(w);
@@ -130,7 +131,7 @@ public final class StubGen {
 			}
 		}
 
-		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, GENERATED_PACKAGE + "." + pkg, area);
+		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, GENERATED_PACKAGE + "." + pkg, area, delegator);
 		w.openFragment(simple);
 		for (Element e : members) {
 			if (!Lwjgl2Api.isApi(e)) {

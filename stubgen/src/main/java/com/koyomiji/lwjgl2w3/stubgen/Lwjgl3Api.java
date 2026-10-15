@@ -34,6 +34,10 @@ final class Lwjgl3Api {
 		}
 	}
 
+	Collection<ClassNode> all() {
+		return classes.values();
+	}
+
 	boolean contains(String cls) {
 		return classes.containsKey(cls);
 	}

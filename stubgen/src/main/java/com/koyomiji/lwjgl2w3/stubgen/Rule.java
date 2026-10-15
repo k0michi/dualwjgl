@@ -13,6 +13,15 @@ interface Rule {
 	/** The statement implementing {@code target}, or null if this rule does not apply. */
 	String apply(Target target);
 
+	/** Whether the statement deliberately leaves the method unsupported rather than implementing it. */
+	default boolean unsupported() {
+		return false;
+	}
+
+	/** A rule's statement for a method. */
+	record Implementation(String statement, Rule rule) {
+	}
+
 	/**
 	 * An LWJGL 2 static method to implement.
 	 *

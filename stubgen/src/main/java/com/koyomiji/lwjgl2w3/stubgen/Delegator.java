@@ -24,8 +24,8 @@ final class Delegator {
 		this.diagnostics = diagnostics;
 	}
 
-	/** A statement implementing {@code m}, merged into {@code cls}, or null to leave it a stub. */
-	String delegate(ExecutableElement m, String cls, String desc) {
+	/** How a rule implements {@code m}, merged into {@code cls}, or null to leave it a stub. */
+	Rule.Implementation delegate(ExecutableElement m, String cls, String desc) {
 		if (!m.getModifiers().contains(Modifier.STATIC) || !m.getTypeParameters().isEmpty()) {
 			return null;
 		}
@@ -40,7 +40,7 @@ final class Delegator {
 			String statement = rule.apply(target);
 			if (statement != null) {
 				hits.merge(rule.name(), 1, Integer::sum);
-				return statement;
+				return new Rule.Implementation(statement, rule);
 			}
 		}
 		diagnostics.unmatched(target, s2);

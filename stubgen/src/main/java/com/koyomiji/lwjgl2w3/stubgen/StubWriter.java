@@ -18,10 +18,13 @@ final class StubWriter {
 	final String area;
 	final TypeNames names;
 	private final Code code = new Code();
-	int todos, delegations, members;
+	private final Delegator delegator;
+	int todos, delegations, unsupported, members;
 
-	StubWriter(Lwjgl2Api lwjgl2, Set<String> forcePublic, String pkg, String area) {
+	/** {@code delegator}: implements methods of whole classes by rule; fragments pass implementations explicitly. */
+	StubWriter(Lwjgl2Api lwjgl2, Set<String> forcePublic, String pkg, String area, Delegator delegator) {
 		this.lwjgl2 = lwjgl2;
+		this.delegator = delegator;
 		this.forcePublic = forcePublic;
 		this.pkg = pkg;
 		this.area = area;
@@ -151,7 +154,8 @@ final class StubWriter {
 				if (!first) {
 					code.blank();
 				}
-				method((ExecutableElement)e, itf, null, true, null);
+				ExecutableElement m = (ExecutableElement)e;
+				method(m, itf, null, true, itf ? null : delegator.delegate(m, lwjgl2.internalName(te), lwjgl2.desc(m)));
 				first = false;
 			}
 		}
@@ -208,10 +212,11 @@ final class StubWriter {
 	}
 
 	/**
-	 * {@code delegate}: a statement implementing the method; otherwise the body throws, with @Todo if {@code stub}
-	 * (without it, as for @Widen, the merger ignores the body).
+	 * {@code impl}: a rule's body for the method; otherwise the body throws, with @Todo if {@code stub} (without it, as
+	 * for @Widen, the merger ignores the body).
 	 */
-	void method(ExecutableElement m, boolean inInterface, String annotation, boolean stub, String delegate) {
+	void method(ExecutableElement m, boolean inInterface, String annotation, boolean stub, Rule.Implementation impl) {
+		String delegate = impl == null ? null : impl.statement();
 		members++;
 		deprecated(m);
 		if (annotation != null) {
@@ -230,7 +235,11 @@ final class StubWriter {
 		} else {
 			code.open(header);
 			if (delegate != null) {
-				delegations++;
+				if (impl.rule().unsupported()) {
+					unsupported++;
+				} else {
+					delegations++;
+				}
 				code.line(delegate);
 			} else {
 				code.line(THROW);
