@@ -46,6 +46,7 @@ public abstract class CLContextCallback extends Callback implements CLContextCal
 	protected CLContextCallback() {
 		super(DESCRIPTOR);
 		this.pointer = address();
+		CallbackUtil.markOwned(this);
 		this.custom = false;
 	}
 

@@ -35,6 +35,7 @@ public abstract class CLEventCallback extends Callback implements CLEventCallbac
 	protected CLEventCallback() {
 		super(DESCRIPTOR);
 		this.pointer = address();
+		CallbackUtil.markOwned(this);
 	}
 
 	CLEventCallback(long functionPointer) {
@@ -60,18 +61,25 @@ public abstract class CLEventCallback extends Callback implements CLEventCallbac
 		return pointer;
 	}
 
+	/** LWJGL 2: where the CLEvent wrappers are; set by clSetEventCallback, which knows the event. */
+	private CLObjectRegistry<CLEvent> eventRegistry;
+
+	void setRegistry(final CLObjectRegistry<CLEvent> eventRegistry) {
+		this.eventRegistry = eventRegistry;
+	}
+
+	/** LWJGL 2's trampoline: the CLEvent for the cl_event, then the one-shot reference deleted (see CallbackUtil). */
 	@Override
 	public void invoke(long event, int event_command_exec_status, long user_data) {
-		handleMessage(event(event), event_command_exec_status);
+		try {
+			handleMessage(eventRegistry == null ? null : eventRegistry.getObject(event), event_command_exec_status);
+		} finally {
+			CallbackUtil.deleteGlobalRef(user_data);
+		}
 	}
 
 	protected void handleMessage(CLEvent event, int event_command_exec_status) {
 		throw new AbstractMethodError(getClass().getName() + " overrides neither invoke nor handleMessage");
-	}
-
-	private static CLEvent event(long event) {
-		// TODO(cl): the CLEvent that wraps this cl_event in the CL object model
-		throw new UnsupportedOperationException();
 	}
 
 }

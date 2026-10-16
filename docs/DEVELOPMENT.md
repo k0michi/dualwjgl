@@ -120,6 +120,23 @@ then clears the capabilities, and unloads the library only if `AL.create` loaded
 
 The link tests open devices on OpenAL Soft's null backend (`ALSOFT_DRIVERS=null`).
 
+### OpenCL
+
+The CL object model (`CLPlatform`, `CLContext`, `CLObjectRegistry`, `InfoUtil*`, ...) is LWJGL 2's sources. The one
+change is in `InfoUtilFactory`, filtered as it is extracted: it read LWJGL 2's static `CLCapabilities.clCreateContext`
+(and `clCreateImage2D`/`3D`), which LWJGL 3's `CLCapabilities` cannot have next to its instance fields of those names,
+and calls `CL.getFunctionAddress` instead. Around it:
+
+- `CallbackUtil` (`compat/src/main`) keeps LWJGL 2's user_data protocol with a Java table of IDs in place of JNI global
+  references. The callback classes (`compat/src/replace`) are LWJGL 3 Callbacks, so they are their own native functions;
+  the one-shot ones (event, program, memory object destructor, native kernel) delete their reference after the call,
+  as LWJGL 2's trampolines did. A closure given to `createGlobalRef` is freed once its callback object is collected.
+- `clGetPlatformIDs` and `clGetGLContextInfoKHR` have LWJGL 2's signatures, so LWJGL 3's are used; they are wrapped to
+  add LWJGL 2's side effect, registering the CLPlatform and CLDevice wrappers the object model looks up.
+- `CLCapabilities` gets LWJGL 2's static extension flags (whether the library exports the extension's functions) and
+  the per-object capabilities; `CL` gets `isCreated`, `getFunctionAddress` and `getHostBuffer`; `CL10` gets the
+  `ncl*` overloads with LWJGL 2's trailing function pointer that `InfoUtilFactory` calls.
+
 ### Generated code
 
 `./gradlew :stubgen:generateStubs` rewrites `compat/src/generated/java` from scratch; never edit it. For each LWJGL 2

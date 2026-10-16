@@ -37,6 +37,7 @@ public abstract class CLNativeKernel extends Callback implements CLNativeKernelI
 	protected CLNativeKernel() {
 		super(DESCRIPTOR);
 		this.pointer = address();
+		CallbackUtil.markOwned(this);
 	}
 
 	CLNativeKernel(long functionPointer) {
@@ -62,9 +63,18 @@ public abstract class CLNativeKernel extends Callback implements CLNativeKernelI
 		return pointer;
 	}
 
+	/**
+	 * LWJGL 2's trampoline: the args block is APIUtil.getNativeKernelArgs's, the callback's reference (8 bytes), the
+	 * memory object count (4), then per memory object its size (4) and the pointer the implementation puts there. The
+	 * one-shot reference is deleted after the call (see CallbackUtil).
+	 */
 	@Override
 	public void invoke(long args) {
-		execute(memobjs(args));
+		try {
+			execute(memobjs(args));
+		} finally {
+			CallbackUtil.deleteGlobalRef(memGetLong(args));
+		}
 	}
 
 	protected void execute(ByteBuffer[] memobjs) {
@@ -72,8 +82,17 @@ public abstract class CLNativeKernel extends Callback implements CLNativeKernelI
 	}
 
 	private static ByteBuffer[] memobjs(long args) {
-		// TODO(cl): decode the args block that LWJGL 2's clEnqueueNativeKernel lays out (memory object count, sizes, pointers)
-		throw new UnsupportedOperationException();
+		int count = memGetInt(args + 8);
+		if (count == 0) {
+			return null; // TODO(verify): LWJGL 2's trampoline passed null, not an empty array, without memory objects
+		}
+		ByteBuffer[] memobjs = new ByteBuffer[count];
+		long entry = args + 12;
+		for (int i = 0; i < count; i++) {
+			memobjs[i] = memByteBuffer(memGetAddress(entry + 4), memGetInt(entry));
+			entry += 4 + POINTER_SIZE;
+		}
+		return memobjs;
 	}
 
 }

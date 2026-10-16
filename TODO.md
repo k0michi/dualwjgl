@@ -11,14 +11,16 @@
 - [ ] EFX10
 
 ## OpenCL
-- [ ] Rewrite `CallbackUtil` (Java-side ID table, `Callback.free()` lifetime)
-- [ ] `CLEventCallback.setRegistry`, `CLProgramCallback.setContext`, `CLNativeKernel` argument block
-- [ ] `CL.getHostBuffer`, `CL10.ncl*` overloads, `CLCapabilities` extension flags
-- [ ] Decide `InfoUtilFactory`'s `CLCapabilities.clCreate*` fields (patch or merger rewrite)
+- [x] Rewrite `CallbackUtil` (Java-side ID table, `Callback.free()` lifetime)
+- [x] `CLEventCallback.setRegistry`, `CLProgramCallback.setContext`, `CLNativeKernel` argument block
+- [x] `CL.getHostBuffer`, `CL10.ncl*` overloads, `CLCapabilities` extension flags
+- [x] `InfoUtilFactory`'s `CLCapabilities.clCreate*` fields: filtered as extracted
 - [ ] CL bindings (CL10/11/12, extensions): extend R3 (`@PointerWrapper` with params, `@Code`)
-- [ ] Functions LWJGL 3 also has that LWJGL 2 registers objects in (`clGetPlatformIDs`, ...)
-- [ ] `CLFunctionAddress`, `APPLEContextLoggingUtil`, `CLPrintfCallback`
-- [ ] `CL.isCreated`
+- [x] Functions LWJGL 3 also has that LWJGL 2 registers objects in (`clGetPlatformIDs`, ...)
+- [x] `CLFunctionAddress`
+- [ ] `APPLEContextLoggingUtil`, `CLPrintfCallback`
+- [x] `CL.isCreated`
+- [ ] `CL.create()` once LWJGL 3 has loaded the library (no explicit init): throws, where LWJGL 2's returned
 
 ## OpenGL
 - [ ] Debug output callbacks (KHR, ARB, AMD) and their callback classes

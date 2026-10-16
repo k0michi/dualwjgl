@@ -38,6 +38,7 @@ public abstract class CLProgramCallback extends Callback implements CLProgramCal
 	protected CLProgramCallback() {
 		super(DESCRIPTOR);
 		this.pointer = address();
+		CallbackUtil.markOwned(this);
 	}
 
 	CLProgramCallback(long functionPointer) {
@@ -63,18 +64,25 @@ public abstract class CLProgramCallback extends Callback implements CLProgramCal
 		return pointer;
 	}
 
+	/** LWJGL 2: where the CLProgram wrappers are; set by the functions that take the callback, which know the program. */
+	private CLContext context;
+
+	final void setContext(final CLContext context) {
+		this.context = context;
+	}
+
+	/** LWJGL 2's trampoline: the CLProgram for the cl_program, then the one-shot reference deleted (see CallbackUtil). */
 	@Override
 	public void invoke(long program, long user_data) {
-		handleMessage(program(program));
+		try {
+			handleMessage(context == null ? null : context.getCLProgram(program));
+		} finally {
+			CallbackUtil.deleteGlobalRef(user_data);
+		}
 	}
 
 	protected void handleMessage(CLProgram program) {
 		throw new AbstractMethodError(getClass().getName() + " overrides neither invoke nor handleMessage");
-	}
-
-	private static CLProgram program(long program) {
-		// TODO(cl): the CLProgram that wraps this cl_program in the CL object model
-		throw new UnsupportedOperationException();
 	}
 
 }

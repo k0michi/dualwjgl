@@ -35,6 +35,7 @@ public abstract class CLMemObjectDestructorCallback extends Callback implements 
 	protected CLMemObjectDestructorCallback() {
 		super(DESCRIPTOR);
 		this.pointer = address();
+		CallbackUtil.markOwned(this);
 	}
 
 	CLMemObjectDestructorCallback(long functionPointer) {
@@ -60,9 +61,14 @@ public abstract class CLMemObjectDestructorCallback extends Callback implements 
 		return pointer;
 	}
 
+	/** LWJGL 2's trampoline: the call, then the one-shot reference deleted (see CallbackUtil). */
 	@Override
 	public void invoke(long memobj, long user_data) {
-		handleMessage(memobj);
+		try {
+			handleMessage(memobj);
+		} finally {
+			CallbackUtil.deleteGlobalRef(user_data);
+		}
 	}
 
 	protected void handleMessage(long memobj) {

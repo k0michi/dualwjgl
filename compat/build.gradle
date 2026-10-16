@@ -36,7 +36,8 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
             'org/lwjgl/opencl/CLChecks.java', 'org/lwjgl/opencl/APIUtil.java', 'org/lwjgl/opencl/Util.java',
             'org/lwjgl/opencl/OpenCLException.java', 'org/lwjgl/opencl/CLPlatformCapabilities.java',
             'org/lwjgl/opencl/CLDeviceCapabilities.java', 'org/lwjgl/opencl/CLBuildProgramCallback.java',
-            'org/lwjgl/opencl/CLCompileProgramCallback.java', 'org/lwjgl/opencl/CLLinkProgramCallback.java'
+            'org/lwjgl/opencl/CLCompileProgramCallback.java', 'org/lwjgl/opencl/CLLinkProgramCallback.java',
+            'org/lwjgl/opencl/CLFunctionAddress.java'
         // what Display takes and returns; Display itself is written on SDL (compat/src/main)
         include 'org/lwjgl/opengl/DisplayMode.java', 'org/lwjgl/opengl/PixelFormat.java', 'org/lwjgl/opengl/PixelFormatLWJGL.java',
             'org/lwjgl/opengl/ContextAttribs.java', 'org/lwjgl/opengl/Drawable.java', 'org/lwjgl/opengl/Sync.java',
@@ -48,6 +49,14 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
         include 'org/lwjgl/input/Mouse.java', 'org/lwjgl/input/Keyboard.java',
             'org/lwjgl/input/OpenGLPackageAccess.java', 'org/lwjgl/input/Controller.java', 'org/lwjgl/input/ControllerEvent.java',
             'org/lwjgl/opengl/InputImplementation.java', 'org/lwjgl/opengl/EventQueue.java'
+    }
+    // The one change to the imported sources: InfoUtilFactory reads LWJGL 2's static CLCapabilities.clCreateContext
+    // (and clCreateImage2D/3D), which LWJGL 3's CLCapabilities cannot have, as it has instance fields of those names.
+    // CL.getFunctionAddress (LWJGL 2's, package-private, compat injects it) looks the function up instead.
+    filesMatching('org/lwjgl/opencl/InfoUtilFactory.java') {
+        filter { String line ->
+            line.replaceAll(/CLCapabilities\.(clCreateContext|clCreateImage2D|clCreateImage3D);/, 'CL.getFunctionAddress("$1"); // lwjgl2w3')
+        }
     }
     into layout.buildDirectory.dir('lwjgl2-sources')
 }
