@@ -7,7 +7,7 @@ plugins {
 // inject:    hand-written members, com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>; these override
 //            generated members, so implementing something never means editing generated code
 // replace:   hand-written whole classes that replace LWJGL 3's, where the shapes cannot be merged member by member
-// lwjgl2:    lwjgl_util 2.9.3 sources and a few pure Java core classes, unpacked unchanged from the released sources
+// lwjgl2:    lwjgl_util 2.9.3 sources, the AL/CL object models and a few pure Java core classes, unpacked unchanged from the released sources
 //            jars at build time (pure Java on top of the LWJGL 2 API); compiled against LWJGL 2 itself
 configurations {
     lwjgl2UtilSources { transitive = false }
@@ -22,6 +22,19 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
     }
     from({ zipTree(configurations.lwjgl2CoreSources.singleFile) }) {
         include 'org/lwjgl/PointerWrapperAbstract.java'
+        // the AL and CL object models: pure Java over the LWJGL 2 API; their natives (CallbackUtil, ...) are rewritten
+        include 'org/lwjgl/openal/ALCdevice.java', 'org/lwjgl/openal/ALCcontext.java', 'org/lwjgl/openal/OpenALException.java',
+            'org/lwjgl/openal/Util.java', 'org/lwjgl/openal/EFXUtil.java'
+        include 'org/lwjgl/opencl/CLObjectRetainable.java', 'org/lwjgl/opencl/CLObjectChild.java',
+            'org/lwjgl/opencl/CLObjectRegistry.java', 'org/lwjgl/opencl/FastLongMap.java',
+            'org/lwjgl/opencl/CLPlatform.java', 'org/lwjgl/opencl/CLDevice.java', 'org/lwjgl/opencl/CLContext.java',
+            'org/lwjgl/opencl/CLCommandQueue.java', 'org/lwjgl/opencl/CLMem.java', 'org/lwjgl/opencl/CLProgram.java',
+            'org/lwjgl/opencl/CLKernel.java', 'org/lwjgl/opencl/CLEvent.java', 'org/lwjgl/opencl/CLSampler.java',
+            'org/lwjgl/opencl/InfoUtil.java', 'org/lwjgl/opencl/InfoUtilAbstract.java', 'org/lwjgl/opencl/InfoUtilFactory.java',
+            'org/lwjgl/opencl/CLChecks.java', 'org/lwjgl/opencl/APIUtil.java', 'org/lwjgl/opencl/Util.java',
+            'org/lwjgl/opencl/OpenCLException.java', 'org/lwjgl/opencl/CLPlatformCapabilities.java',
+            'org/lwjgl/opencl/CLDeviceCapabilities.java', 'org/lwjgl/opencl/CLBuildProgramCallback.java',
+            'org/lwjgl/opencl/CLCompileProgramCallback.java', 'org/lwjgl/opencl/CLLinkProgramCallback.java'
     }
     into layout.buildDirectory.dir('lwjgl2-sources')
 }
@@ -56,9 +69,11 @@ dependencies {
     injectCompileOnly libs.lwjgl3.sdl
     injectCompileOnly project(':inject-api')
     injectCompileOnly sourceSets.main.output
+    injectCompileOnly sourceSets.lwjgl2.output
 
     replaceCompileOnly libs.bundles.lwjgl3.patched
     replaceCompileOnly sourceSets.main.output
+    replaceCompileOnly sourceSets.lwjgl2.output
 }
 
 tasks.withType(JavaCompile).configureEach {
