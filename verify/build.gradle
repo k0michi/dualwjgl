@@ -32,6 +32,7 @@ dependencies {
     lwjgl3Api libs.bundles.lwjgl3.patched
     natives(variantOf(libs.lwjgl3.core) { classifier(nativesClassifier) })
     natives(variantOf(libs.lwjgl3.openal) { classifier(nativesClassifier) })
+    natives(variantOf(libs.lwjgl3.opengl) { classifier(nativesClassifier) })
 }
 
 def registerSuite = { String suite, String sources, FileCollection compileAgainst, String compiledAgainst, Map<String, String> properties = [:] ->

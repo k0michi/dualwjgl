@@ -109,8 +109,8 @@ class Lwjgl2OpenCLTest {
 		assertFalse(CL.isCreated());
 		assumeTrue(openCL(), "no OpenCL");
 		IntBuffer count = BufferUtils.createIntBuffer(1);
-		assertEquals(CL10.CL_SUCCESS, CL10.clGetPlatformIDs(null, count));
-		assumeTrue(count.get(0) > 0, "no OpenCL platform");
+		// an ICD loader without drivers (Windows runners) returns CL_PLATFORM_NOT_FOUND_KHR
+		assumeTrue(CL10.clGetPlatformIDs(null, count) == CL10.CL_SUCCESS && count.get(0) > 0, "no OpenCL platform");
 		PointerBuffer ids = BufferUtils.createPointerBuffer(count.get(0));
 		assertEquals(CL10.CL_SUCCESS, CL10.clGetPlatformIDs(ids, (IntBuffer)null));
 

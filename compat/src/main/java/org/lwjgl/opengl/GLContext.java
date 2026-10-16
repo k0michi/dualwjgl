@@ -28,7 +28,7 @@ public final class GLContext {
 		GLCapabilities current;
 		try {
 			current = GL.getCapabilities();
-		} catch (IllegalStateException e) {
+		} catch (IllegalStateException | LinkageError e) { // none current, or no GL at all to initialize
 			throw new RuntimeException("No OpenGL context found in the current thread.");
 		}
 		synchronized (GLContext.class) {
