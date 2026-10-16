@@ -34,7 +34,7 @@ dependencies {
     natives(variantOf(libs.lwjgl3.openal) { classifier(nativesClassifier) })
 }
 
-def registerSuite = { String suite, String sources, FileCollection compileAgainst, String compiledAgainst ->
+def registerSuite = { String suite, String sources, FileCollection compileAgainst, String compiledAgainst, Map<String, String> properties = [:] ->
     def ss = sourceSets.create(suite) {
         java.srcDir sources
         compileClasspath += compileAgainst
@@ -54,13 +54,16 @@ def registerSuite = { String suite, String sources, FileCollection compileAgains
         systemProperty 'lwjgl2w3.compiledAgainst', compiledAgainst
         // OpenAL Soft's null backend: a device to open without sound hardware
         environment 'ALSOFT_DRIVERS', 'null'
+        systemProperties properties
     }
     tasks.named('check') { dependsOn test }
 }
 
-registerSuite('lwjgl2Test', 'src/lwjgl2Test/java', configurations.lwjgl2Api, 'original')
+// LWJGL 2 programs run with OpenCL's explicit init, so that their CL.create() loads it (DEVIATION(explicit-init))
+def lwjgl2Properties = ['org.lwjgl.opencl.explicitInit': 'true']
+registerSuite('lwjgl2Test', 'src/lwjgl2Test/java', configurations.lwjgl2Api, 'original', lwjgl2Properties)
 registerSuite('lwjgl3Test', 'src/lwjgl3Test/java', configurations.lwjgl3Api, 'original')
-registerSuite('lwjgl2SourceTest', 'src/lwjgl2Test/java', patched, 'patched')
+registerSuite('lwjgl2SourceTest', 'src/lwjgl2Test/java', patched, 'patched', lwjgl2Properties)
 registerSuite('lwjgl3SourceTest', 'src/lwjgl3Test/java', patched, 'patched')
 
 tasks.withType(JavaCompile).configureEach {

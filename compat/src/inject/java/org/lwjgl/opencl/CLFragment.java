@@ -9,6 +9,10 @@ import static org.lwjgl.system.MemoryUtil.memByteBuffer;
 /**
  * LWJGL 2's CL members besides create and destroy, which are LWJGL 3's (same signatures; both load and unload the
  * library, though LWJGL 2's destroy did nothing).
+ *
+ * <p>DEVIATION(explicit-init): LWJGL 3's create throws once the library is loaded, where LWJGL 2's returned, and LWJGL 3
+ * loads it as CL initializes unless org.lwjgl.opencl.explicitInit is set: LWJGL 2 programs run with
+ * -Dorg.lwjgl.opencl.explicitInit=true.</p>
  */
 @Into(CL.class)
 final class CLFragment {

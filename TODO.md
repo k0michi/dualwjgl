@@ -20,7 +20,7 @@
 - [x] `CLFunctionAddress`
 - [ ] `APPLEContextLoggingUtil`, `CLPrintfCallback`
 - [x] `CL.isCreated`
-- [ ] `CL.create()` once LWJGL 3 has loaded the library (no explicit init): throws, where LWJGL 2's returned
+- [x] `CL.create()` once LWJGL 3 has loaded the library: throws as LWJGL 3; LWJGL 2 programs set `org.lwjgl.opencl.explicitInit`
 
 ## OpenGL
 - [ ] Debug output callbacks (KHR, ARB, AMD) and their callback classes

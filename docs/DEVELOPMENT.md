@@ -72,6 +72,11 @@ marks every place that decision affects.
     LWJGL 2 did on platforms without a gamma ramp; SDL 3 has no gamma API.
   - `shared-context`: SDL shares a new context only with the current one, so creating a context shared with one current
     on another thread throws; LWJGL 2 created it.
+  - `explicit-init`: `CL.create()` is LWJGL 3's (same signature), which throws once the library is loaded, where LWJGL
+    2's returned. Unless `org.lwjgl.opencl.explicitInit` is set, LWJGL 3 loads it as `CL` initializes, so an LWJGL 2
+    program's `CL.create()` throws; run it with `-Dorg.lwjgl.opencl.explicitInit=true` (a system property, so it can be
+    set outside the program, e.g. in `JAVA_TOOL_OPTIONS`). `AL.create` is LWJGL 2's own and works either way: it loads
+    the library only if nothing has.
   - `keyboard-physical-keys`: key codes name physical keys on every platform; LWJGL 2 on Linux followed the layout.
   - `macos-first-thread`: on macOS the Display needs `-XstartOnFirstThread` (SDL's video runs on the first thread).
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the

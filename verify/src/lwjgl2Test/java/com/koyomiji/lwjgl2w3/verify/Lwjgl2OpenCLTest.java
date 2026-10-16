@@ -105,6 +105,8 @@ class Lwjgl2OpenCLTest {
 
 	@Test
 	void platformsRegistered() throws Exception {
+		// the only test here that loads CL: explicit init leaves it to CL.create(), which an LWJGL 2 program calls
+		assertFalse(CL.isCreated());
 		assumeTrue(openCL(), "no OpenCL");
 		IntBuffer count = BufferUtils.createIntBuffer(1);
 		assertEquals(CL10.CL_SUCCESS, CL10.clGetPlatformIDs(null, count));
@@ -126,10 +128,11 @@ class Lwjgl2OpenCLTest {
 		assertTrue(icd.getBoolean(null));
 	}
 
-	/** LWJGL 3's CL loads the library on its own (no explicit init), and CL.create then throws, where LWJGL 2's returned. */
+	/** As an LWJGL 2 program: CL.create() loads the library (the suite sets org.lwjgl.opencl.explicitInit). */
 	private static boolean openCL() {
 		try {
-			return CL.isCreated();
+			CL.create();
+			return true;
 		} catch (Throwable e) {
 			System.err.println("OpenCL unavailable: " + e);
 			return false;

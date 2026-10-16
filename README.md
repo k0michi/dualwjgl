@@ -33,6 +33,8 @@ Building requires JDK 21. The jars it produces run on Java 8 or later.
 The merged jars are written to `dist/build/patched/`. To use them, put them in place of the LWJGL 3 jars of the same
 name, and add `lwjgl2w3-extra.jar` along with the usual LWJGL 3 natives. LWJGL 2's `Display` and `Controllers` also need
 LWJGL 3's `lwjgl-sdl` module and its natives (JInput is not needed); on macOS, run the JVM with `-XstartOnFirstThread`.
+Programs that use LWJGL 2's OpenCL need `-Dorg.lwjgl.opencl.explicitInit=true`: otherwise LWJGL 3 loads OpenCL on its
+own and their `CL.create()` throws.
 
 To run the tests:
 
