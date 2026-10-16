@@ -14,6 +14,11 @@ import static org.lwjgl.system.Pointer.*;
 /**
  * LWJGL 2's PointerBuffer constructors and members, merged into LWJGL 3's PointerBuffer.
  *
+ * <p>DEVIATION(pointer-buffer-view): LWJGL 2's protected fields {@code pointers}, {@code view}, {@code view32} and
+ * {@code view64} (generated stubs) are always null, so an LWJGL 2 subclass reading them fails. LWJGL 3 keeps the state
+ * in CustomBuffer's fields, and keeping NIO views in sync means rewriting every LWJGL 3 method (see
+ * poc/pointerbuffer-sync in the research repo).</p>
+ *
  * <p>Extends CustomBuffer, like PointerBuffer, so that its constructors can call super(...) and its members can call
  * CustomBuffer's and read its state. In LWJGL 2's package so that it can create the package-private
  * {@link PointerBufferR}.</p>
@@ -177,9 +182,9 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 	}
 
 	/**
-	 * As LWJGL 2's: newInstance over the whole buffer, then this buffer's position and limit. DEVIATION(duplicate-mark):
-	 * LWJGL 2 did not copy the mark, and LWJGL 2 binaries keep that here; LWJGL 2 source compiled against these jars
-	 * calls LWJGL 3's duplicate() (same signature, LWJGL 3 wins), which copies it.
+	 * As LWJGL 2's: newInstance over the whole buffer, then this buffer's position and limit, not its mark. LWJGL 2
+	 * source compiled against these jars calls LWJGL 3's duplicate() instead (same signature, LWJGL 3 wins), which copies
+	 * the mark.
 	 */
 	@Hidden
 	@Override

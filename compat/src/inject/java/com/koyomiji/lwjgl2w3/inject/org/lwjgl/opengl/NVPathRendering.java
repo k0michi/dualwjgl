@@ -5,7 +5,7 @@ import com.koyomiji.lwjgl2w3.inject.Hidden;
 public final class NVPathRendering {
 
 	/**
-	 * LWJGL 2 declares {@code units} as an int and passes it where the function takes a float. Here it is an overload of
+	 * DEVIATION(spec-fix): LWJGL 2 declares {@code units} as an int and passes it where the function takes a float. Here it is an overload of
 	 * LWJGL 3's that converts it; hidden, so that LWJGL 3 source passing an int still calls the float version.
 	 */
 	@Hidden

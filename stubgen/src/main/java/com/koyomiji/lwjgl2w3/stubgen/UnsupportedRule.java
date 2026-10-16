@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * GL and CL functions LWJGL 3 no longer binds at all (mostly vendor extensions superseded long ago). They are left
+ * DEVIATION(unbound): GL and CL functions LWJGL 3 no longer binds at all (mostly vendor extensions superseded long ago). They are left
  * unsupported the way LWJGL 2 reports a function the driver lacks: {@code IllegalStateException("Function is not
  * supported")}. Only gl/cl entry points count, which LWJGL 2 calls through function pointers; LWJGL 2's own natives
  * (e.g. {@code alGenBuffers2}) are not API. Only LWJGL 3's binding in the same package counts: OpenGL ES binding

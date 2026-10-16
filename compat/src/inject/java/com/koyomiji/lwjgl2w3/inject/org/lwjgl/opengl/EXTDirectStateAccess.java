@@ -8,7 +8,10 @@ import java.nio.ByteOrder;
 // TODO(verify): hand-written; DelegationTest only compares generated members.
 public final class EXTDirectStateAccess {
 
-	/** LWJGL 3 does not bind glGetNamedBufferPointervEXT: unsupported, as LWJGL 2 reports a function the driver lacks. */
+	/**
+	 * DEVIATION(unbound): LWJGL 3 does not bind glGetNamedBufferPointervEXT: unsupported, as LWJGL 2 reports a function
+	 * the driver lacks.
+	 */
 	public static ByteBuffer glGetNamedBufferPointerEXT(int buffer, int pname) {
 		throw new IllegalStateException("Function is not supported");
 	}

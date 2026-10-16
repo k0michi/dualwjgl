@@ -743,7 +743,7 @@ final class TemplateRule implements Rule {
 	private final Map<String, String> encodings = new HashMap<>();
 
 	/**
-	 * How LWJGL 3 encodes strings of {@code fn}: {@code UTF8} or {@code ASCII}, read from the MemoryStack/MemoryUtil
+	 * DEVIATION(text-encoding): how LWJGL 3 encodes strings of {@code fn}, where LWJGL 2 truncated every char to a byte: {@code UTF8} or {@code ASCII}, read from the MemoryStack/MemoryUtil
 	 * helpers its own methods for {@code fn} call (its templates' GLcharUTF8 and GLcharASCII). ASCII, as LWJGL 2 and the
 	 * extension specs have it, when LWJGL 3 has no string form of {@code fn} (glProgramStringARB takes bytes); null when
 	 * its methods use both.

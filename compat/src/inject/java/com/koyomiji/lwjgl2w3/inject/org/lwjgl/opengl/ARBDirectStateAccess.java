@@ -8,7 +8,10 @@ import java.nio.ByteBuffer;
 // TODO(verify): hand-written; DelegationTest only compares generated members.
 public final class ARBDirectStateAccess {
 
-	/** As {@link GL45#glClearNamedFramebufferfi(int, int, float, int)}, through LWJGL 3's ARB_direct_state_access binding. */
+	/**
+	 * DEVIATION(spec-fix): as {@link GL45#glClearNamedFramebufferfi(int, int, float, int)}, through LWJGL 3's
+	 * ARB_direct_state_access binding.
+	 */
 	public static void glClearNamedFramebufferfi(int framebuffer, int buffer, float depth, int stencil) {
 		org.lwjgl.opengl.ARBDirectStateAccess.glClearNamedFramebufferfi(framebuffer, buffer, 0, depth, stencil);
 	}

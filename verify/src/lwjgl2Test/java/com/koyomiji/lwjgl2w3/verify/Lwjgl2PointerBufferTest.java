@@ -136,7 +136,7 @@ class Lwjgl2PointerBufferTest {
 		assertEquals(21L, p.get(1));
 		assertEquals(21L, d.get(1));
 
-		// duplicate() and the mark: LWJGL 2 did not copy it (binaries), LWJGL 3 does (source): DEVIATION(duplicate-mark)
+		// duplicate() and the mark: LWJGL 2's does not copy it (binaries); recompiled, LWJGL 3's is called and does
 		boolean binary = "original".equals(System.getProperty("lwjgl2w3.compiledAgainst"));
 		p.position(1).mark().position(2);
 		PointerBuffer dm = p.duplicate();

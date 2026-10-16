@@ -3,7 +3,7 @@ package com.koyomiji.lwjgl2w3.inject.org.lwjgl.opengl;
 public final class ARBSparseTexture {
 
 	/**
-	 * LWJGL 2 declares the EXT_direct_state_access variant with a {@code target} the function does not take, and calls it
+	 * DEVIATION(spec-fix): LWJGL 2 declares the EXT_direct_state_access variant with a {@code target} the function does not take, and calls it
 	 * with 10 arguments. Here it is an overload of LWJGL 3's that drops {@code target}: the texture name identifies it.
 	 */
 	public static void glTexturePageCommitmentEXT(int texture, int target, int level, int xoffset, int yoffset, int zoffset,

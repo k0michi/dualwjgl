@@ -32,7 +32,28 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
 
 When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins.
 Strings follow LWJGL 3 too: each function's strings are encoded as LWJGL 3 encodes them (ASCII or UTF-8), where LWJGL 2
-truncated every char to a byte.
+truncated every char to a byte (`DEVIATION(text-encoding)`).
+
+### Comment markers
+
+Greppable markers in comments, each `KIND(tag)` followed by an explanation. The tag names one decision; the same tag
+marks every place that decision affects.
+
+- **`DEVIATION(tag)`**: an LWJGL 2 binary, linked against the patched jars, behaves differently from LWJGL 2. Only what a
+  binary compiled against LWJGL 2.9.3 can observe counts: a difference that only appears once LWJGL 2 source is
+  recompiled against the patched jars (javac then picks LWJGL 3's member of the same signature, which wins by policy)
+  is not a deviation, and is documented in a plain comment. Deviations in use:
+  - `spec-fix`: LWJGL 2 declared the function against the wrong signature (a spec draft, a wrong type); the overload
+    calls the function as the spec defines it.
+  - `unbound`: LWJGL 3 does not bind the function, so it is unsupported, as LWJGL 2 reports a function the driver
+    lacks, even when the driver has it. Generated unsupported members (`UnsupportedRule`) are all of this kind.
+  - `text-encoding`: strings are encoded as LWJGL 3 encodes that function's (ASCII or UTF-8), where LWJGL 2 truncated
+    every char to a byte; only non-ASCII text differs.
+  - `pointer-buffer-view`: PointerBuffer's LWJGL 2 protected view fields are always null.
+- **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
+  `@Todo("<area>")` annotation instead, which the merger counts.
+- **`TODO(verify)`**: hand-written code that no test compares with LWJGL 2's behaviour (DelegationTest only covers
+  generated members).
 
 ### Generated code
 
