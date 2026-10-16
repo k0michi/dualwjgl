@@ -3,6 +3,7 @@ package com.koyomiji.lwjgl2w3.verify.demo;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -11,7 +12,7 @@ import java.nio.ByteBuffer;
 
 /**
  * An LWJGL 2 program, compiled against LWJGL 2.9.3 only: opens a window and spins a triangle until the window is
- * closed, or for the number of frames given as the first argument.
+ * closed, or for the number of frames given as the first argument, printing mouse clicks.
  */
 public final class DisplayDemo {
 
@@ -31,6 +32,12 @@ public final class DisplayDemo {
 		long start = Sys.getTime();
 		int frame = 0;
 		while (!Display.isCloseRequested() && frame != frames) {
+			while (Mouse.next()) {
+				if (Mouse.getEventButton() >= 0) {
+					System.out.println(Mouse.getButtonName(Mouse.getEventButton()) + (Mouse.getEventButtonState() ? " down" : " up")
+						+ " at " + Mouse.getEventX() + ", " + Mouse.getEventY());
+				}
+			}
 			if (Display.wasResized()) {
 				System.out.println("Resized to " + Display.getWidth() + "x" + Display.getHeight());
 			}

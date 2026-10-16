@@ -81,8 +81,12 @@ LWJGL 3's own buffers have no view and pay a null check per call.
 
 `org.lwjgl.opengl.Display` is written on LWJGL 3's SDL 3 bindings (`compat/src/main`): one SDL window and OpenGL context,
 made current with LWJGL 3's GL capabilities. `DisplayMode`, `PixelFormat`, `ContextAttribs`, `Drawable` and `Sync` are
-LWJGL 2's sources, unchanged. Keyboard, Mouse, shared contexts, OpenGL ES and AWT embedding are still TODO(sdl).
-`./gradlew :verify:displayDemo` (not part of check; `-Pframes=N` to stop) runs an LWJGL 2 program that opens a window.
+LWJGL 2's sources, unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
+classes implemented), which Display feeds SDL's events; `Mouse`, `Cursor` and their helpers are LWJGL 2's sources. Keyboard,
+shared contexts, OpenGL ES and AWT embedding are still TODO(sdl).
+
+Not part of check, as they open a window: `./gradlew :verify:displayDemo` (`-Pframes=N` to stop) runs an LWJGL 2
+program; `./gradlew :verify:displayInputCheck` feeds the Display synthetic SDL events and checks LWJGL 2's Mouse.
 
 ### Generated code
 

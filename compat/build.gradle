@@ -40,6 +40,9 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
         // what Display takes and returns; Display itself is written on SDL (compat/src/main)
         include 'org/lwjgl/opengl/DisplayMode.java', 'org/lwjgl/opengl/PixelFormat.java', 'org/lwjgl/opengl/PixelFormatLWJGL.java',
             'org/lwjgl/opengl/ContextAttribs.java', 'org/lwjgl/opengl/Drawable.java', 'org/lwjgl/opengl/Sync.java'
+        // input over Display's InputImplementation, which compat writes on SDL
+        include 'org/lwjgl/input/Mouse.java', 'org/lwjgl/input/Cursor.java', 'org/lwjgl/input/OpenGLPackageAccess.java',
+            'org/lwjgl/opengl/InputImplementation.java', 'org/lwjgl/opengl/EventQueue.java'
     }
     into layout.buildDirectory.dir('lwjgl2-sources')
 }

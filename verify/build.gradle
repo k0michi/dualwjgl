@@ -157,3 +157,18 @@ tasks.register('displayDemo', JavaExec) {
         args project.property('frames')
     }
 }
+
+// Not part of check (it opens a window): ./gradlew :verify:displayInputCheck feeds the Display synthetic SDL events and
+// checks LWJGL 2's input API. Compiled against the patched jars and LWJGL 3's SDL module.
+sourceSets {
+    displayCheck { compileClasspath += patched + configurations.demoRuntime }
+}
+tasks.register('displayInputCheck', JavaExec) {
+    group = 'verification'
+    classpath = sourceSets.displayCheck.output + patched + configurations.demoRuntime
+    mainClass = 'com.koyomiji.lwjgl2w3.verify.demo.DisplayInputCheck'
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+        jvmArgs '-XstartOnFirstThread'
+    }
+}

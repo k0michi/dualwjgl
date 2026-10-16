@@ -4,6 +4,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.sdl.SDL_DisplayMode;
 import org.lwjgl.sdl.SDL_Event;
 import org.lwjgl.sdl.SDL_Surface;
@@ -29,8 +30,11 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * LWJGL 2's Display, on LWJGL 3's SDL 3 bindings: one SDL window with an OpenGL context, made current on the creating
  * thread with LWJGL 3's GL capabilities.
  *
- * <p>Not there yet: Keyboard and Mouse (LWJGL 2 creates them in create() and polls them in processMessages()), shared
- * contexts and Pbuffers, OpenGL ES, setParent (AWT embedding) and setDisplayConfiguration (gamma).</p>
+ * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse (compiled unchanged)
+ * reaches through getImplementation(), as in LWJGL 2.</p>
+ *
+ * <p>Not there yet: Keyboard (LWJGL 2 creates it in create() and polls it in processMessages()), shared contexts and
+ * Pbuffers, OpenGL ES, setParent (AWT embedding) and setDisplayConfiguration (gamma).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
  * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
@@ -38,8 +42,9 @@ import static org.lwjgl.sdl.SDLVideo.*;
  */
 public final class Display {
 
-	private static final Object lock = new Object();
+	private static final Object lock = GlobalLock.lock;
 	private static final Drawable drawable = new DisplayDrawable();
+	private static final SDLInput input = new SDLInput();
 
 	private static DisplayMode initialMode;
 	private static DisplayMode currentMode;
@@ -467,7 +472,7 @@ public final class Display {
 				setSwapInterval(swapInterval);
 				// as LWJGL 2: the window icon, the given one or LWJGL's
 				setIcon(cachedIcons != null ? cachedIcons : new ByteBuffer[] {LWJGLUtil.LWJGLIcon32x32, LWJGLUtil.LWJGLIcon16x16});
-				// TODO(sdl): create Keyboard and Mouse, as LWJGL 2 does unless org.lwjgl.opengl.Display.noinput is set
+				initControls();
 				// as LWJGL 2's initContext: clear to the initial background and show it
 				GL11.glClearColor(red, green, blue, 0f);
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
@@ -477,6 +482,21 @@ public final class Display {
 				throw e;
 			}
 		}
+	}
+
+	/** As LWJGL 2: the input devices, unless org.lwjgl.opengl.Display.noinput (or .nomouse) is set. */
+	private static void initControls() {
+		if (LWJGLUtil.getPrivilegedBoolean("org.lwjgl.opengl.Display.noinput")) {
+			return;
+		}
+		if (!Mouse.isCreated() && !LWJGLUtil.getPrivilegedBoolean("org.lwjgl.opengl.Display.nomouse")) {
+			try {
+				Mouse.create();
+			} catch (LWJGLException e) {
+				LWJGLUtil.log("Failed to create Mouse: " + e);
+			}
+		}
+		// TODO(sdl): Keyboard, unless org.lwjgl.opengl.Display.nokeyboard is set
 	}
 
 	/** PixelFormat and ContextAttribs as SDL OpenGL attributes, before the window is created. */
@@ -569,6 +589,9 @@ public final class Display {
 
 	public static void destroy() {
 		synchronized (lock) {
+			if (Mouse.isCreated()) {
+				Mouse.destroy();
+			}
 			if (context != 0L) {
 				if (SDL_GL_GetCurrentContext() == context) {
 					SDL_GL_MakeCurrent(window, 0L);
@@ -590,6 +613,15 @@ public final class Display {
 
 	public static Drawable getDrawable() {
 		return drawable;
+	}
+
+	/** LWJGL 2's input classes get it by reflection (OpenGLPackageAccess). */
+	private static InputImplementation getImplementation() {
+		return input;
+	}
+
+	static long window() {
+		return window;
 	}
 
 	// ---- per frame
@@ -639,9 +671,15 @@ public final class Display {
 				SDL_Event event = SDL_Event.malloc(stack);
 				while (SDL_PollEvent(event)) {
 					handle(event);
+					input.handle(event);
 				}
 			}
-			// TODO(sdl): poll Keyboard and Mouse, as LWJGL 2 does here
+			// as LWJGL 2's pollDevices
+			if (Mouse.isCreated()) {
+				Mouse.poll();
+				Mouse.updateCursor();
+			}
+			// TODO(sdl): poll Keyboard
 		}
 	}
 
