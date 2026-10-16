@@ -10,6 +10,9 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.OpenGLException;
+import org.lwjgl.opengl.SharedDrawable;
+import org.lwjgl.opengl.Util;
 import org.lwjgl.sdl.SDL_Event;
 
 import java.lang.reflect.Field;
@@ -17,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLMouse.*;
 import static org.lwjgl.sdl.SDLScancode.*;
@@ -173,6 +177,63 @@ public final class DisplayInputCheck {
 		check("makeCurrent() brings it back", Display.isCurrent() && GLContext.getCapabilities() == caps);
 	}
 
+	/** A SharedDrawable current on another thread makes a texture, which the Display's context then sees. */
+	static void checkSharedDrawable() throws Exception {
+		SharedDrawable shared = new SharedDrawable(Display.getDrawable());
+		check("Display still current after creating a SharedDrawable", Display.isCurrent() && !shared.isCurrent());
+		int[] texture = new int[1];
+		Throwable[] failure = new Throwable[1];
+		Thread t = new Thread(() -> {
+			try {
+				shared.makeCurrent();
+				texture[0] = glGenTextures();
+				glBindTexture(GL_TEXTURE_2D, texture[0]);
+				ByteBuffer pixel = BufferUtils.createByteBuffer(4);
+				pixel.put((byte)0x12).put((byte)0x34).put((byte)0x56).put((byte)0x78).flip();
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+				glFinish();
+				Util.checkGLError();
+				shared.releaseContext();
+			} catch (Throwable e) {
+				failure[0] = e;
+			}
+		});
+		t.start();
+		t.join();
+		check("SharedDrawable current on another thread", failure[0] == null);
+		if (failure[0] != null) {
+			failure[0].printStackTrace();
+		}
+		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		ByteBuffer read = BufferUtils.createByteBuffer(4);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, read);
+		check("its texture seen from the Display's context", glIsTexture(texture[0])
+			&& read.get(0) == 0x12 && read.get(1) == 0x34 && read.get(2) == 0x56 && read.get(3) == 0x78);
+		glDeleteTextures(texture[0]);
+		shared.destroy();
+		boolean destroyed;
+		try {
+			shared.makeCurrent();
+			destroyed = false;
+		} catch (IllegalStateException e) {
+			destroyed = true;
+		}
+		check("destroyed SharedDrawable: no context", destroyed && Display.isCurrent());
+	}
+
+	/** Util.checkGLError: LWJGL 2's OpenGLException with its message. */
+	static void checkGLError() {
+		Util.checkGLError();
+		glEnable(0xFFFF);
+		String message = null;
+		try {
+			Util.checkGLError();
+		} catch (OpenGLException e) {
+			message = e.getMessage();
+		}
+		check("Util.checkGLError throws on an error", "Invalid enum (1280)".equals(message));
+	}
+
 	/** DEVIATION(display-configuration): LWJGL 2's argument checks, then not supported. */
 	static void checkDisplayConfiguration() {
 		boolean brightness = false;
@@ -270,10 +331,20 @@ public final class DisplayInputCheck {
 
 		checkKeyboard();
 		checkContext();
+		checkSharedDrawable();
+		checkGLError();
 		checkDisplayConfiguration();
 
 		Display.destroy();
 		check("Display.destroy() destroys the Mouse and the Keyboard", !Mouse.isCreated() && !Keyboard.isCreated());
+		boolean noContext;
+		try {
+			Display.makeCurrent();
+			noContext = false;
+		} catch (IllegalStateException e) {
+			noContext = true;
+		}
+		check("after destroy: no context, as LWJGL 2", noContext);
 		System.out.println(failures == 0 ? "all checks passed" : failures + " checks failed");
 		System.exit(failures == 0 ? 0 : 1);
 	}

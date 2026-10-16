@@ -28,13 +28,13 @@ import static org.lwjgl.sdl.SDLSurface.SDL_DestroySurface;
 import static org.lwjgl.sdl.SDLVideo.*;
 
 /**
- * LWJGL 2's Display, on LWJGL 3's SDL 3 bindings: one SDL window with an OpenGL context, made current on the creating
- * thread with LWJGL 3's GL capabilities.
+ * LWJGL 2's Display, on LWJGL 3's SDL 3 bindings: one SDL window, and as in LWJGL 2 a DrawableGL whose ContextGL (an
+ * SDL GL context, current with LWJGL 3's GL capabilities) other Drawables can share.
  *
  * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse and Keyboard (compiled
  * unchanged) reach through getImplementation(), as in LWJGL 2.</p>
  *
- * <p>Not there yet: shared contexts and Pbuffers, OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt))
+ * <p>Not there yet: Pbuffers, OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt))
  * and setDisplayConfiguration (gamma, DEVIATION(display-configuration)).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
@@ -44,7 +44,7 @@ import static org.lwjgl.sdl.SDLVideo.*;
 public final class Display {
 
 	private static final Object lock = GlobalLock.lock;
-	private static final Drawable drawable = new DisplayDrawable();
+	private static DisplayDrawable drawable;
 	private static final SDLInput input = new SDLInput();
 
 	private static DisplayMode initialMode;
@@ -61,8 +61,6 @@ public final class Display {
 	private static ByteBuffer[] cachedIcons;
 
 	private static long window;
-	private static long context;
-	private static GLCapabilities capabilities;
 	private static int width;
 	private static int height;
 	private static boolean closeRequested;
@@ -451,12 +449,11 @@ public final class Display {
 			if (pixel_format == null) {
 				throw new NullPointerException("pixel_format cannot be null");
 			}
-			if (shared_drawable != null) {
-				// TODO(sdl): shared contexts (SharedDrawable, Pbuffer)
-				throw new LWJGLException("Shared contexts are not supported yet");
-			}
 			initialMode();
 			video();
+			DisplayDrawable drawable = new DisplayDrawable();
+			Display.drawable = drawable;
+			drawable.setPixelFormat(pixel_format, attribs);
 			glAttributes(pixel_format, attribs);
 
 			long flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
@@ -472,14 +469,15 @@ public final class Display {
 				throw new LWJGLException("Could not create the window: " + SDL_GetError());
 			}
 			try {
-				context = SDL_GL_CreateContext(window);
-				if (context == 0L) {
-					throw new LWJGLException("Could not create the OpenGL context: " + SDL_GetError());
+				drawable.context = new ContextGL(drawable.peer_info, attribs,
+					shared_drawable != null ? ((DrawableGL)shared_drawable).getContext() : null);
+				// as LWJGL 2's makeCurrentAndSetSwapInterval
+				drawable.makeCurrent();
+				try {
+					drawable.checkGLError();
+				} catch (OpenGLException e) {
+					LWJGLUtil.log("OpenGL error during context creation: " + e.getMessage());
 				}
-				if (!SDL_GL_MakeCurrent(window, context)) {
-					throw new LWJGLException("Could not make the OpenGL context current: " + SDL_GetError());
-				}
-				capabilities = GL.createCapabilities();
 				applyMode();
 				SDL_ShowWindow(window);
 				setSwapInterval(swapInterval);
@@ -487,8 +485,7 @@ public final class Display {
 				setIcon(cachedIcons != null ? cachedIcons : new ByteBuffer[] {LWJGLUtil.LWJGLIcon32x32, LWJGLUtil.LWJGLIcon16x16});
 				initControls();
 				// as LWJGL 2's initContext: clear to the initial background and show it
-				GL11.glClearColor(red, green, blue, 0f);
-				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+				drawable.initContext(red, green, blue);
 				update();
 			} catch (RuntimeException e) { // LWJGLException included: it is unchecked here
 				destroy();
@@ -519,7 +516,7 @@ public final class Display {
 	}
 
 	/** PixelFormat and ContextAttribs as SDL OpenGL attributes, before the window is created. */
-	private static void glAttributes(PixelFormat format, ContextAttribs attribs) throws LWJGLException {
+	static void glAttributes(PixelFormat format, ContextAttribs attribs) throws LWJGLException {
 		SDL_GL_ResetAttributes();
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		int bpp = format.getBitsPerPixel();
@@ -614,19 +611,13 @@ public final class Display {
 			if (Keyboard.isCreated()) {
 				Keyboard.destroy();
 			}
-			if (context != 0L) {
-				if (SDL_GL_GetCurrentContext() == context) {
-					SDL_GL_MakeCurrent(window, 0L);
-					GL.setCapabilities(null);
-				}
-				SDL_GL_DestroyContext(context);
-				context = 0L;
+			if (drawable != null) {
+				drawable.destroyContext();
 			}
 			if (window != 0L) {
 				SDL_DestroyWindow(window);
 				window = 0L;
 			}
-			capabilities = null;
 			closeRequested = false;
 			resizeEvent = false;
 			windowResized = false;
@@ -646,6 +637,16 @@ public final class Display {
 		return window;
 	}
 
+	/** The Display's peer, over its window: DrawableGL.setPixelFormat asks for it before the window is created. */
+	static PeerInfo createPeerInfo(PixelFormat pixel_format, ContextAttribs attribs) {
+		return new SDLPeerInfo(pixel_format, new SDLPeerInfo.Window() {
+			@Override
+			public long get() {
+				return window;
+			}
+		});
+	}
+
 	// ---- per frame
 
 	public static void swapBuffers() throws LWJGLException {
@@ -653,9 +654,10 @@ public final class Display {
 			if (!isCreated()) {
 				throw new IllegalStateException("Display not created");
 			}
-			if (!SDL_GL_SwapWindow(window)) {
-				throw new LWJGLException("Could not swap buffers: " + SDL_GetError());
+			if (LWJGLUtil.DEBUG) {
+				drawable.checkGLError();
 			}
+			drawable.swapBuffers();
 		}
 	}
 
@@ -725,7 +727,7 @@ public final class Display {
 		synchronized (lock) {
 			swapInterval = value;
 			if (isCreated()) {
-				SDL_GL_SetSwapInterval(value);
+				drawable.setSwapInterval(value);
 			}
 		}
 	}
@@ -746,54 +748,16 @@ public final class Display {
 		return drawable.isCurrent();
 	}
 
-	/** The Display's context: made current on a thread together with LWJGL 3's GL capabilities for it. */
-	private static final class DisplayDrawable implements Drawable {
-
-		@Override
-		public boolean isCurrent() throws LWJGLException {
-			synchronized (lock) {
-				if (!Display.isCreated()) {
-					throw new IllegalStateException("Display not created");
-				}
-				return SDL_GL_GetCurrentContext() == context;
-			}
-		}
-
-		@Override
-		public void makeCurrent() throws LWJGLException {
-			synchronized (lock) {
-				if (!Display.isCreated()) {
-					throw new IllegalStateException("Display not created");
-				}
-				if (!SDL_GL_MakeCurrent(window, context)) {
-					throw new LWJGLException("Could not make the OpenGL context current: " + SDL_GetError());
-				}
-				GL.setCapabilities(capabilities);
-			}
-		}
-
-		@Override
-		public void releaseContext() throws LWJGLException {
-			synchronized (lock) {
-				if (!Display.isCreated()) {
-					throw new IllegalStateException("Display not created");
-				}
-				if (SDL_GL_GetCurrentContext() == context) {
-					SDL_GL_MakeCurrent(window, 0L);
-					GL.setCapabilities(null);
-				}
-			}
-		}
+	/** As LWJGL 2's: a DrawableGL whose destroy destroys the Display. */
+	private static final class DisplayDrawable extends DrawableGL {
 
 		@Override
 		public void destroy() {
 			Display.destroy();
 		}
 
-		@Override
-		public void setCLSharingProperties(PointerBuffer properties) throws LWJGLException {
-			// TODO(cl): CL/GL sharing (CL_GL_CONTEXT_KHR and the platform's display or share group)
-			throw new LWJGLException("CL/GL sharing is not supported yet");
+		void destroyContext() {
+			super.destroy();
 		}
 
 	}

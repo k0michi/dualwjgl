@@ -67,6 +67,8 @@ marks every place that decision affects.
     and ranges varied by platform; JInput is not needed.
   - `display-configuration`: `Display.setDisplayConfiguration` (gamma) throws "Display configuration not supported", as
     LWJGL 2 did on platforms without a gamma ramp; SDL 3 has no gamma API.
+  - `shared-context`: SDL shares a new context only with the current one, so creating a context shared with one current
+    on another thread throws; LWJGL 2 created it.
   - `keyboard-physical-keys`: key codes name physical keys on every platform; LWJGL 2 on Linux followed the layout.
   - `macos-first-thread`: on macOS the Display needs `-XstartOnFirstThread` (SDL's video runs on the first thread).
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
@@ -87,12 +89,14 @@ LWJGL 3's own buffers have no view and pay a null check per call.
 
 ### Display
 
-`org.lwjgl.opengl.Display` is written on LWJGL 3's SDL 3 bindings (`compat/src/main`): one SDL window and OpenGL context,
-made current with LWJGL 3's GL capabilities. `DisplayMode`, `PixelFormat`, `ContextAttribs`, `Drawable` and `Sync` are
-LWJGL 2's sources, unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
+`org.lwjgl.opengl.Display` is written on LWJGL 3's SDL 3 bindings (`compat/src/main`): one SDL window, and as in LWJGL 2
+a `DrawableGL` with a `ContextGL`. `ContextGL` and `DrawableGL` are LWJGL 2's, written on SDL's GL contexts in place of
+its platform context implementations; the peer (`SDLPeerInfo`) is an SDL window. `DisplayMode`, `PixelFormat`,
+`ContextAttribs`, `Drawable`, `Sync`, `PeerInfo`, `SharedDrawable`, `OpenGLException` and `Util` are LWJGL 2's sources,
+unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
 classes implemented), which Display feeds SDL's events; `Mouse`, `Keyboard` and their helpers are LWJGL 2's sources, and
-`Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. Shared
-contexts and OpenGL ES are still TODO(sdl); AWT embedding is not supported (`DEVIATION(awt)`).
+`Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. Pbuffers
+and OpenGL ES are still TODO(sdl); AWT embedding is not supported (`DEVIATION(awt)`).
 
 `Controllers` is written on SDL's gamepad and joystick API (`Controller` and `ControllerEvent` are LWJGL 2's sources).
 `./gradlew :verify:controllersCheck` drives an SDL virtual gamepad and joystick through it.

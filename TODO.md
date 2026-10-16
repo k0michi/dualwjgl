@@ -22,16 +22,17 @@
 
 ## OpenGL
 - [ ] Debug output callbacks (KHR, ARB, AMD) and their callback classes
-- [ ] `OpenGLException`, `Util.checkGLError`
+- [x] `OpenGLException`, `Util.checkGLError`
 - [ ] Remaining constructors (`ARBProgram`, `NVProgram`, `ARBBufferObject`)
 - [ ] `glCreateSyncFromCLeventARB`, `glMapTexture2DINTEL`, `glPathTexGenNV`
-- [ ] Internal classes: `DrawableGL`, `ContextGL`, `PeerInfo`
+- [x] Internal classes: `DrawableGL`, `ContextGL`, `PeerInfo`
 
 ## OpenGL ES
 - [ ] Everything (5 stubs, `Display.create(PixelFormatLWJGL, ...)`)
 
 ## Display
-- [ ] Shared contexts: `SharedDrawable`, `Pbuffer`
+- [x] Shared contexts: `SharedDrawable`
+- [ ] `Pbuffer`
 - [x] `setParent` / AWT embedding, `AWTGLCanvas`: not supported, throws
 - [x] `setDisplayConfiguration`: not supported, throws
 - [ ] `Drawable.setCLSharingProperties`
