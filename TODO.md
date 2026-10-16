@@ -26,7 +26,7 @@
 - [x] Debug output callbacks (KHR, ARB, AMD) and their callback classes
 - [ ] Debug output callbacks with a real driver (Windows or Linux)
 - [x] `OpenGLException`, `Util.checkGLError`
-- [ ] Remaining constructors (`ARBProgram`, `NVProgram`, `ARBBufferObject`)
+- [x] Remaining constructors (`ARBProgram`, `NVProgram`, `ARBBufferObject`)
 - [ ] `glCreateSyncFromCLeventARB`, `glMapTexture2DINTEL`, `glPathTexGenNV`
 - [x] Internal classes: `DrawableGL`, `ContextGL`, `PeerInfo`
 

@@ -6,9 +6,7 @@ import java.nio.ByteBuffer;
 
 @Generated
 public class MappedHelper {
-	@Todo("port")
 	public MappedHelper() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Todo("port")

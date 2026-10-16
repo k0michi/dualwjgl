@@ -5,9 +5,7 @@ import com.koyomiji.lwjgl2w3.inject.Todo;
 
 @Generated
 public class MappedSet {
-	@Todo("port")
 	public MappedSet() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Todo("port")

@@ -5,9 +5,7 @@ import com.koyomiji.lwjgl2w3.inject.Todo;
 
 @Generated
 public class MappedObjectTransformer {
-	@Todo("port")
 	public MappedObjectTransformer() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Todo("port")

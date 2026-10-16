@@ -28,9 +28,7 @@ public class ARBBufferObject {
 	public static final int GL_BUFFER_MAPPED_ARB = 0x88BC;
 	public static final int GL_BUFFER_MAP_POINTER_ARB = 0x88BD;
 
-	@Todo("gl")
 	public ARBBufferObject() {
-		throw new UnsupportedOperationException();
 	}
 
 	public static void glBindBufferARB(int target, int buffer) {

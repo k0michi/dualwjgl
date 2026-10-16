@@ -73,9 +73,7 @@ public class ARBProgram {
 	public static final int GL_MATRIX30_ARB = 0x88DE;
 	public static final int GL_MATRIX31_ARB = 0x88DF;
 
-	@Todo("gl")
 	public ARBProgram() {
-		throw new UnsupportedOperationException();
 	}
 
 	public static void glProgramStringARB(int target, int format, ByteBuffer string) {

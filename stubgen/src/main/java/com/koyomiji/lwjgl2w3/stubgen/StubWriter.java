@@ -145,7 +145,9 @@ final class StubWriter {
 				code.close();
 			}
 			for (ExecutableElement c : visible) {
-				constructor(c, te.getSimpleName().toString(), null, true);
+				// javac's default constructor (LWJGL 2 declared none): it only calls super(), which the empty body does too
+				boolean implicit = lwjgl2.elements.getOrigin(c) == javax.lang.model.util.Elements.Origin.MANDATED;
+				constructor(c, te.getSimpleName().toString(), null, !implicit);
 			}
 			first = false;
 		}
@@ -193,7 +195,10 @@ final class StubWriter {
 		}
 	}
 
-	/** {@code annotation}: an inject-api annotation name or null; {@code stub}: a @Todo body, otherwise an empty one. */
+	/**
+	 * {@code annotation}: an inject-api annotation name or null; {@code stub}: a @Todo body, otherwise an empty one (for
+	 * @Widen, which the merger ignores, or for a default constructor, which it is).
+	 */
 	void constructor(ExecutableElement c, String simple, String annotation, boolean stub) {
 		members++;
 		deprecated(c);

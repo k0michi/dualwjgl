@@ -5,9 +5,7 @@ import com.koyomiji.lwjgl2w3.inject.Todo;
 
 @Generated
 public class XRandR {
-	@Todo("sdl")
 	public XRandR() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Todo("sdl")

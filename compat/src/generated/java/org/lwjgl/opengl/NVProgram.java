@@ -1,7 +1,6 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -14,9 +13,7 @@ public class NVProgram {
 	public static final int GL_PROGRAM_ERROR_POSITION_NV = 0x864B;
 	public static final int GL_PROGRAM_ERROR_STRING_NV = 0x8874;
 
-	@Todo("gl")
 	public NVProgram() {
-		throw new UnsupportedOperationException();
 	}
 
 	public static void glLoadProgramNV(int target, int programID, ByteBuffer string) {
