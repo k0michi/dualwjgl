@@ -11,8 +11,8 @@ import com.koyomiji.lwjgl2w3.inject.Into;
 @Into(CLCapabilities.class)
 final class CLCapabilitiesFragment {
 
-	static final boolean CL_APPLE_ContextLoggingFunctions = has("clLogMessagesToSystemLogAPPLE")
-		& has("clLogMessagesToStdoutAPPLE") & has("clLogMessagesToStderrAPPLE");
+	/** DEVIATION(out-of-scope): missing, so that capabilities agree with APPLEContextLoggingUtil's null callbacks. */
+	static final boolean CL_APPLE_ContextLoggingFunctions = false;
 	static final boolean CL_APPLE_SetMemObjectDestructor = has("clSetMemObjectDestructorAPPLE");
 	static final boolean CL_APPLE_gl_sharing = has("clGetGLContextInfoAPPLE");
 	static final boolean CL_EXT_device_fission = has("clRetainDeviceEXT") & has("clReleaseDeviceEXT") & has("clCreateSubDevicesEXT");

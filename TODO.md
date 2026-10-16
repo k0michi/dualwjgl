@@ -18,7 +18,7 @@
 - [ ] CL bindings (CL10/11/12, extensions): extend R3 (`@PointerWrapper` with params, `@Code`)
 - [x] Functions LWJGL 3 also has that LWJGL 2 registers objects in (`clGetPlatformIDs`, ...)
 - [x] `CLFunctionAddress`
-- [ ] `APPLEContextLoggingUtil`, `CLPrintfCallback`
+- [x] `APPLEContextLoggingUtil`, `CLPrintfCallback`: out of scope, as where the extension is missing
 - [x] `CL.isCreated`
 - [x] `CL.create()` once LWJGL 3 has loaded the library: throws as LWJGL 3; LWJGL 2 programs set `org.lwjgl.opencl.explicitInit`
 

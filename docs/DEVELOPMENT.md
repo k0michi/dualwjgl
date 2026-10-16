@@ -61,6 +61,9 @@ marks every place that decision affects.
     `PointerBuffer.put(ByteBuffer, long)` and `put(ByteBuffer, int, long)` included, which are LWJGL 3's (same
     descriptors). Those write at the target's address, which also crashes the JVM for a heap buffer, where LWJGL 2 wrote
     through `ByteBuffer.putLong`/`putInt`.
+  - `out-of-scope`: LWJGL 2 API for extensions LWJGL 3 does not cover (see the README) behaves as in LWJGL 2 where the
+    extension was missing: `APPLEContextLoggingUtil`'s callbacks are null and `CL_APPLE_ContextLoggingFunctions` is
+    false; `CLPrintfCallback` can be created but `clSetPrintfCallback` throws "Function is not supported".
   - `awt`: AWT embedding (`AWTGLCanvas`, `Display.setParent` with a parent) throws `LWJGLException`.
   - `pbuffer`: `Pbuffer.getCapabilities()` is 0 and its constructors throw `LWJGLException`, as LWJGL 2 did where the
     platform had no pbuffers; SDL has no off-screen drawable. `RenderTexture` is LWJGL 2's, unchanged.
