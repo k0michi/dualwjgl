@@ -11,7 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.ALC10.*;
 
-/** LWJGL 3's own OpenAL lifecycle, through the wrapped AL.destroy and ALC.destroy (ALSOFT_DRIVERS=null). */
+/**
+ * LWJGL 3's own OpenAL lifecycle, twice, with the LWJGL 2 code merged in (ALSOFT_DRIVERS=null). Not ALC.destroy and
+ * ALC.create again: LWJGL 3 keeps the first library's function pointers, so that crashes where it really unloads (Linux).
+ */
 class Lwjgl3OpenALTest {
 
 	@Test
@@ -28,11 +31,6 @@ class Lwjgl3OpenALTest {
 			alcMakeContextCurrent(0L);
 			alcDestroyContext(context);
 			assertTrue(alcCloseDevice(device));
-
-			ALC.destroy();
-			assertThrows(IllegalStateException.class, ALC::getFunctionProvider);
-			assertThrows(IllegalStateException.class, AL::getCapabilities);
-			ALC.create();
 		}
 	}
 

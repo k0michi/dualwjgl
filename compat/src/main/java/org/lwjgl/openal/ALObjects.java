@@ -14,7 +14,9 @@ import java.util.HashMap;
  * forward their LWJGL 2 members here, where the bodies are LWJGL 2's with its natives replaced by LWJGL 3's functions.
  *
  * <p>LWJGL 3's ALC owns the library: AL.create loads it only when nothing has yet (explicit init), and AL.destroy
- * closes only the device and context AL.create opened, unloading the library only if AL.create loaded it.</p>
+ * closes only the device and context AL.create opened. Unlike LWJGL 2's, it leaves the library loaded: LWJGL 3's ALC
+ * keeps the first library's function pointers for good (ALC.ICDStatic), so loading it again after unloading it crashes
+ * where the platform really unloads it (Linux), and LWJGL 2 programs do destroy and create AL again to reset sound.</p>
  */
 final class ALObjects {
 
@@ -26,10 +28,6 @@ final class ALObjects {
 	private static ALCdevice device;
 	private static ALCcontext context;
 	private static boolean created;
-	/** whether AL.create loaded LWJGL 3's ALC, so that AL.destroy unloads it */
-	private static boolean loadedLibrary;
-	/** inside ALC.destroy, which calls AL.destroy and then unloads the library itself */
-	private static boolean alcDestroying;
 
 	private ALObjects() {
 	}
@@ -52,13 +50,12 @@ final class ALObjects {
 		if (created) {
 			throw new IllegalStateException("Only one OpenAL context may be instantiated at any one time.");
 		}
-		if (!libraryLoaded()) { // explicit init (org.lwjgl.openal.explicitInit), or unloaded by ALC.destroy
+		if (!libraryLoaded()) { // explicit init (org.lwjgl.openal.explicitInit), or unloaded by LWJGL 3 code
 			try {
 				ALC.create();
 			} catch (RuntimeException e) {
 				throw new LWJGLException("Could not locate OpenAL library.", e);
 			}
-			loadedLibrary = true;
 		}
 		created = true;
 		try {
@@ -91,11 +88,8 @@ final class ALObjects {
 		}
 	}
 
-	/**
-	 * AL.destroy's LWJGL 2 part: closes what AL.create opened. Returns whether the caller should unload the library:
-	 * AL.create loaded it, and this is not ALC.destroy's own call.
-	 */
-	static boolean destroy() {
+	/** AL.destroy's LWJGL 2 part: closes what AL.create opened. The library stays (see the class comment). */
+	static void destroy() {
 		if (context != null) {
 			alcMakeContextCurrent(null);
 			alcDestroyContext(context);
@@ -106,20 +100,6 @@ final class ALObjects {
 			device = null;
 		}
 		created = false;
-		boolean unload = loadedLibrary && !alcDestroying;
-		if (unload) {
-			loadedLibrary = false;
-		}
-		return unload;
-	}
-
-	static void beginALCDestroy() {
-		alcDestroying = true;
-	}
-
-	static void endALCDestroy() {
-		alcDestroying = false;
-		loadedLibrary = false; // whoever loaded it, it is gone
 	}
 
 	// ---- ALC10

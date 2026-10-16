@@ -131,8 +131,10 @@ LWJGL 2's `ALCdevice` and `ALCcontext` are its sources, unchanged; they wrap LWJ
 LWJGL 3's functions in place of the natives; the `@Into` fragments in `compat/src/inject/java/org/lwjgl/openal` forward
 to it. LWJGL 3's `ALC` owns the library, so `AL.create` loads it only when nothing has (explicit init), and makes the
 first context made current create AL's capabilities, which LWJGL 3 needs a current context for. `AL.destroy` (LWJGL 3's
-is package-private, called by `ALC.destroy`, and is wrapped) closes only the context and device `AL.create` opened,
-then clears the capabilities, and unloads the library only if `AL.create` loaded it and this is not `ALC.destroy`'s call.
+is package-private, called by `ALC.destroy`, and is wrapped) closes only the context and device `AL.create` opened, then
+clears the capabilities. Unlike LWJGL 2's, it leaves the library loaded: LWJGL 3's ALC keeps the first library's function
+pointers for good (`ALC.ICDStatic`), so loading it again after unloading crashes where the library really unloads
+(Linux), and LWJGL 2 programs destroy and create AL again to reset sound.
 
 The link tests open devices on OpenAL Soft's null backend (`ALSOFT_DRIVERS=null`).
 

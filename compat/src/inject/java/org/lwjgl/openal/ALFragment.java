@@ -28,16 +28,13 @@ final class ALFragment {
 
 	/**
 	 * LWJGL 3's AL.destroy (package-private, called by ALC.destroy) clears AL's capabilities; LWJGL 2's, public, also
-	 * closed AL.create's context and device and unloaded the library. Both in one: AL.create's context and device are
-	 * closed when there are any, then the capabilities cleared, and the library unloaded only if AL.create loaded it.
+	 * closed AL.create's context and device and unloaded the library. Both in one, but for unloading the library (see
+	 * ALObjects): AL.create's context and device are closed when there are any, then the capabilities cleared.
 	 */
 	@Wrap
 	public static void destroy() {
-		boolean unload = ALObjects.destroy();
+		ALObjects.destroy();
 		destroy$lwjgl3();
-		if (unload) {
-			ALC.destroy();
-		}
 	}
 
 	static native void destroy$lwjgl3();
