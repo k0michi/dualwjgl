@@ -6,7 +6,7 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
 
 | Project | Role |
 |---|---|
-| `inject-api` | Annotations read by the merger (`@Widen`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
+| `inject-api` | Annotations read by the merger (`@Widen`, `@Wrap`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
 | `compat` | The LWJGL 2 implementation, written against LWJGL 3 (and SDL). |
 | `merger` | ASM tool that merges `compat` into the LWJGL 3 jars. |
 | `dist` | Runs the merger: `build/patched/*.jar`. |
@@ -21,6 +21,9 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
   `com.koyomiji.lwjgl2w3.inject.<package>.<Name>`. The merger copies their members into `<package>.<Name>` and remaps references.
   - Adding a member that LWJGL 3 already declares (same name and descriptor) is an error.
   - `@Widen` on a member LWJGL 3 already declares: keep LWJGL 3's member, only widen its access.
+  - `@Wrap` on a method LWJGL 3 already declares: replace it, keeping the original as `<name>$lwjgl3` (synthetic) for
+    the inject class to call (declare it `abstract` there). Every caller, LWJGL 3's own included, goes through the
+    wrapper; e.g. `PointerBuffer.create(...)` sends LWJGL 2 subclasses through `newInstance`.
   - `@Hidden`: emit as synthetic, so LWJGL 2 binaries link to it but javac does not see it (prevents overload hijacking
     of LWJGL 3 source).
   - Nested classes in inject classes are not supported yet.
