@@ -17,9 +17,10 @@ public final class GL41 {
 	public static int glCreateShaderProgram(int type, ByteBuffer[] strings) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static int glCreateShaderProgram(int type, CharSequence string) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, 1, org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(string, true)));
+		}
 	}
 	public static int glCreateShaderProgram(int type, CharSequence[] strings) {
 		return org.lwjgl.opengl.GL41.glCreateShaderProgramv(type, strings);

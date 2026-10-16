@@ -32,11 +32,11 @@ When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins
 
 `./gradlew :stubgen:generateStubs` rewrites `compat/src/generated/java` from scratch; never edit it. For each LWJGL 2
 member LWJGL 3 does not provide it writes a delegation when a rule proves one (R1: an LWJGL 3 method with the same
-signature that makes the same native calls; R2: LWJGL 3's raw `n` method for a single native call; R3, for now GL20 and
-ARB classes only: LWJGL 2's generator template for the method, from the tagged LWJGL 2 source archive, expanded into a
-call to the raw `n` method), and otherwise a stub marked `@Todo("<area>")`. Every rule checks its result against the
-native calls LWJGL 2's own bytecode makes (`NativeTrace`); `stubgen/build/template-declines.tsv` says why R3 left
-methods in its scope alone. Hand-written code goes in
+signature that makes the same native calls; R2: LWJGL 3's raw `n` method for a single native call; R3, for OpenGL
+classes: LWJGL 2's generator template for the method, from the tagged LWJGL 2 source archive, expanded into a call to
+the raw `n` method), and otherwise a stub marked `@Todo("<area>")`. Every rule checks its result against the native
+calls LWJGL 2's own bytecode makes (`NativeTrace`); `stubgen/build/template-declines.tsv` says why R3 left methods in
+its scope alone. Hand-written code goes in
 `main`, `inject` or `replace` and wins: a hand-written member overrides the generated one, and a hand-written whole
 class keeps stubgen from generating that class. The merger prints the `@Todo`s that remain.
 

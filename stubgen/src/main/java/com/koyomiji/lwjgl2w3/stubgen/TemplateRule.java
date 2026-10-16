@@ -28,8 +28,7 @@ final class TemplateRule implements Rule {
 
 	/** Where this rule is tried for now. */
 	static boolean inScope(String cls) {
-		String simple = cls.substring(cls.lastIndexOf('/') + 1);
-		return cls.startsWith("org/lwjgl/opengl/") && (simple.equals("GL20") || simple.startsWith("ARB"));
+		return cls.startsWith("org/lwjgl/opengl/");
 	}
 
 	// ---- LWJGL 2's GLTypeMap
@@ -665,7 +664,10 @@ final class TemplateRule implements Rule {
 					boolean fits = true;
 					for (int i = 0; i < pts.length && fits; i++) {
 						String from = args.get(i).desc();
-						fits = from.length() == 1 && Overloads.WIDENING.get(from).contains(pts[i].getDescriptor());
+						// integral widening only: an int where LWJGL 3 takes a float means the template's native type was
+						// wrong (NVPathRendering.glPathStencilDepthOffsetNV), and converting would change what C receives
+						String to = pts[i].getDescriptor();
+						fits = from.equals(to) || "BSCI".contains(from) && "IJ".contains(to) && Overloads.WIDENING.get(from).contains(to);
 					}
 					NativeTrace.Summary s3 = trace3.summarize(owner3, n.name, n.desc, 0);
 					if (!fits || s3.unresolved || !NativeTrace.norm(s3).equals(List.of(identity))

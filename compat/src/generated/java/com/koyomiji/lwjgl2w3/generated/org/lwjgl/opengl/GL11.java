@@ -19,9 +19,8 @@ public final class GL11 {
 	public static void glColorPointer(int size, int stride, FloatBuffer pointer) {
 		org.lwjgl.opengl.GL11.nglColorPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
 	}
-	@Todo("gl")
 	public static void glColorPointer(int size, boolean unsigned, int stride, ByteBuffer pointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL11.nglColorPointer(size, (unsigned ? 5121 : 5120), stride, org.lwjgl.system.MemoryUtil.memAddress(pointer));
 	}
 	public static void glDrawElements(int mode, int count, int type, ByteBuffer indices) {
 		org.lwjgl.opengl.GL11.nglDrawElements(mode, count, type, org.lwjgl.system.MemoryUtil.memAddressSafe(indices));

@@ -1,6 +1,5 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -25,8 +24,7 @@ public final class GL14 {
 	public static void glSecondaryColorPointer(int size, int stride, FloatBuffer data) {
 		org.lwjgl.opengl.GL14.nglSecondaryColorPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
-	@Todo("gl")
 	public static void glSecondaryColorPointer(int size, boolean unsigned, int stride, ByteBuffer data) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL14.nglSecondaryColorPointer(size, (unsigned ? 5121 : 5120), stride, org.lwjgl.system.MemoryUtil.memAddress(data));
 	}
 }
