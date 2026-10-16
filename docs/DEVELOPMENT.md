@@ -54,9 +54,10 @@ marks every place that decision affects.
     lacks, even when the driver has it. Generated unsupported members (`UnsupportedRule`) are all of this kind.
   - `text-encoding`: strings are encoded as LWJGL 3 encodes that function's (ASCII or UTF-8), where LWJGL 2 truncated
     every char to a byte; only non-ASCII text differs.
-  - `pointer-buffer-static-order`: LWJGL 2's static `PointerBuffer.put(ByteBuffer, ...)` and `get(ByteBuffer, ...)`
-    use the target buffer's byte order; LWJGL 3's, which have the same descriptors and win, always use native order.
-    Only buffers in non-native order differ.
+  - `pointer-buffer-static-order`: LWJGL 2's static `PointerBuffer.put(ByteBuffer, long)` and
+    `put(ByteBuffer, int, long)` write through the ByteBuffer, in its order; LWJGL 3's, which have the same descriptors
+    and win, write native-order values at its address. A buffer in non-native order gets swapped values; a heap buffer
+    crashes the JVM.
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
   `@Todo("<area>")` annotation instead, which the merger counts.
 - **`TODO(verify)`**: hand-written code that no test compares with LWJGL 2's behaviour (DelegationTest only covers

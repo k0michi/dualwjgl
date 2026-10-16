@@ -27,8 +27,10 @@ import static org.lwjgl.system.Pointer.*;
  * two calls. Without a view both hooks return at once, so LWJGL 3's own buffers pay a field check per call
  * ({@code :verify:pointerBufferBench} measures it). Without sun.misc.Unsafe, a mark set on the view is not pulled.</p>
  *
- * <p>DEVIATION(pointer-buffer-static-order): the static put(ByteBuffer, ...) and get(ByteBuffer, ...) are LWJGL 3's
- * (same descriptors), which use native order where LWJGL 2's used the target buffer's.</p>
+ * <p>DEVIATION(pointer-buffer-static-order): LWJGL 2's static put(ByteBuffer, long) and put(ByteBuffer, int, long)
+ * have LWJGL 3's descriptors, so LWJGL 3's run. LWJGL 2's wrote through ByteBuffer.putLong/putInt: in the target's
+ * order, into any buffer. LWJGL 3's write native-order values at the buffer's address: a buffer in non-native order
+ * gets byte-swapped values, and a heap (non-direct) buffer crashes the JVM.</p>
  *
  * <p>Extends CustomBuffer, like PointerBuffer, so that its constructors can call super(...) and its members can call
  * CustomBuffer's and read its state. In LWJGL 2's package so that it can create the package-private
