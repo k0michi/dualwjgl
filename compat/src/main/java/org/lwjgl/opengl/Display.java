@@ -4,6 +4,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.sdl.SDL_DisplayMode;
 import org.lwjgl.sdl.SDL_Event;
@@ -30,11 +31,10 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * LWJGL 2's Display, on LWJGL 3's SDL 3 bindings: one SDL window with an OpenGL context, made current on the creating
  * thread with LWJGL 3's GL capabilities.
  *
- * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse (compiled unchanged)
- * reaches through getImplementation(), as in LWJGL 2.</p>
+ * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse and Keyboard (compiled
+ * unchanged) reach through getImplementation(), as in LWJGL 2.</p>
  *
- * <p>Not there yet: Keyboard (LWJGL 2 creates it in create() and polls it in processMessages()), shared contexts and
- * Pbuffers, OpenGL ES, setParent (AWT embedding) and setDisplayConfiguration (gamma).</p>
+ * <p>Not there yet: shared contexts and Pbuffers, OpenGL ES, setParent (AWT embedding) and setDisplayConfiguration (gamma).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
  * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
@@ -484,7 +484,7 @@ public final class Display {
 		}
 	}
 
-	/** As LWJGL 2: the input devices, unless org.lwjgl.opengl.Display.noinput (or .nomouse) is set. */
+	/** As LWJGL 2: the input devices, unless org.lwjgl.opengl.Display.noinput (or .nomouse, .nokeyboard) is set. */
 	private static void initControls() {
 		if (LWJGLUtil.getPrivilegedBoolean("org.lwjgl.opengl.Display.noinput")) {
 			return;
@@ -496,7 +496,13 @@ public final class Display {
 				LWJGLUtil.log("Failed to create Mouse: " + e);
 			}
 		}
-		// TODO(sdl): Keyboard, unless org.lwjgl.opengl.Display.nokeyboard is set
+		if (!Keyboard.isCreated() && !LWJGLUtil.getPrivilegedBoolean("org.lwjgl.opengl.Display.nokeyboard")) {
+			try {
+				Keyboard.create();
+			} catch (LWJGLException e) {
+				LWJGLUtil.log("Failed to create Keyboard: " + e);
+			}
+		}
 	}
 
 	/** PixelFormat and ContextAttribs as SDL OpenGL attributes, before the window is created. */
@@ -592,6 +598,9 @@ public final class Display {
 			if (Mouse.isCreated()) {
 				Mouse.destroy();
 			}
+			if (Keyboard.isCreated()) {
+				Keyboard.destroy();
+			}
 			if (context != 0L) {
 				if (SDL_GL_GetCurrentContext() == context) {
 					SDL_GL_MakeCurrent(window, 0L);
@@ -673,13 +682,16 @@ public final class Display {
 					handle(event);
 					input.handle(event);
 				}
+				input.flushKeyboard();
 			}
 			// as LWJGL 2's pollDevices
 			if (Mouse.isCreated()) {
 				Mouse.poll();
 				Mouse.updateCursor();
 			}
-			// TODO(sdl): poll Keyboard
+			if (Keyboard.isCreated()) {
+				Keyboard.poll();
+			}
 		}
 	}
 

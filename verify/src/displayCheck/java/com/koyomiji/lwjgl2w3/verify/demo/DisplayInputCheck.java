@@ -2,18 +2,24 @@ package com.koyomiji.lwjgl2w3.verify.demo;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Cursor;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.sdl.SDL_Event;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLMouse.*;
+import static org.lwjgl.sdl.SDLScancode.*;
+import static org.lwjgl.system.MemoryUtil.memFree;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 /**
- * Opens a Display and feeds SDL synthetic mouse events, then checks what LWJGL 2's Mouse reports. Compiled against the
+ * Opens a Display and feeds SDL synthetic mouse and keyboard events, then checks what LWJGL 2's Mouse and Keyboard
+ * report. Compiled against the
  * patched jars and LWJGL 3's SDL module (it pushes SDL events); needs a display, so it is not part of check.
  */
 public final class DisplayInputCheck {
@@ -52,6 +58,64 @@ public final class DisplayInputCheck {
 		e.wheel().type(SDL_EVENT_MOUSE_WHEEL).y(y).direction(SDL_MOUSEWHEEL_NORMAL);
 		push(e);
 		e.free();
+	}
+
+	static void key(int scancode, boolean down, boolean repeat) {
+		SDL_Event e = SDL_Event.calloc();
+		e.key().type(down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP).scancode(scancode).down(down).repeat(repeat);
+		push(e);
+		e.free();
+	}
+
+	/** SDL copies nothing: the text must stay alive until the event is polled. */
+	static ByteBuffer text(String text) {
+		ByteBuffer utf8 = memUTF8(text);
+		SDL_Event e = SDL_Event.calloc();
+		e.text().type(SDL_EVENT_TEXT_INPUT).text(utf8);
+		push(e);
+		e.free();
+		return utf8;
+	}
+
+	static void checkKeyboard() {
+		check("Display.create() creates the Keyboard", Keyboard.isCreated());
+		while (Keyboard.next()) {
+			// drain whatever the real keyboard did
+		}
+		key(SDL_SCANCODE_A, true, false);
+		ByteBuffer a = text("a");
+		key(SDL_SCANCODE_RETURN, true, false);
+		key(SDL_SCANCODE_RETURN, false, false);
+		key(SDL_SCANCODE_A, true, true); // a repeat, with its text
+		ByteBuffer a2 = text("a");
+		Display.update();
+
+		check("A held", Keyboard.isKeyDown(Keyboard.KEY_A) && !Keyboard.isKeyDown(Keyboard.KEY_RETURN));
+		check("key 1: A down with its character", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_A
+			&& Keyboard.getEventKeyState() && Keyboard.getEventCharacter() == 'a');
+		check("key 2: Return down, with LWJGL 2's control character", Keyboard.next()
+			&& Keyboard.getEventKey() == Keyboard.KEY_RETURN && Keyboard.getEventCharacter() == '\r');
+		check("key 3: Return up", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_RETURN && !Keyboard.getEventKeyState());
+		check("repeats skipped unless enabled", !Keyboard.next());
+
+		Keyboard.enableRepeatEvents(true);
+		key(SDL_SCANCODE_A, true, true);
+		Display.update();
+		check("repeat delivered when enabled", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_A && Keyboard.isRepeatEvent());
+		Keyboard.enableRepeatEvents(false);
+
+		key(SDL_SCANCODE_A, false, false);
+		ByteBuffer accent = text("\u00e9"); // text with no press before it: an input method
+		Display.update();
+		check("A released", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_A && !Keyboard.getEventKeyState()
+			&& !Keyboard.isKeyDown(Keyboard.KEY_A));
+		check("text without a press: a KEY_NONE event", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_NONE
+			&& Keyboard.getEventCharacter() == '\u00e9');
+		check("no more events", !Keyboard.next());
+		memFree(a);
+		memFree(a2);
+		memFree(accent);
+		check("key names", "A".equals(Keyboard.getKeyName(Keyboard.KEY_A)) && Keyboard.getKeyIndex("RETURN") == Keyboard.KEY_RETURN);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -106,8 +170,10 @@ public final class DisplayInputCheck {
 		Mouse.setNativeCursor(null);
 		cursor.destroy();
 
+		checkKeyboard();
+
 		Display.destroy();
-		check("Display.destroy() destroys the Mouse", !Mouse.isCreated());
+		check("Display.destroy() destroys the Mouse and the Keyboard", !Mouse.isCreated() && !Keyboard.isCreated());
 		System.out.println(failures == 0 ? "all checks passed" : failures + " checks failed");
 		System.exit(failures == 0 ? 0 : 1);
 	}

@@ -3,27 +3,34 @@ package org.lwjgl.opengl;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.sdl.SDL_Event;
+import org.lwjgl.sdl.SDL_KeyboardEvent;
 import org.lwjgl.sdl.SDL_MouseButtonEvent;
 import org.lwjgl.sdl.SDL_MouseMotionEvent;
 import org.lwjgl.sdl.SDL_MouseWheelEvent;
 import org.lwjgl.sdl.SDL_Surface;
+import org.lwjgl.sdl.SDL_TextInputEvent;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.sdl.SDLError.SDL_GetError;
 import static org.lwjgl.sdl.SDLEvents.*;
+import static org.lwjgl.sdl.SDLKeyboard.SDL_StartTextInput;
+import static org.lwjgl.sdl.SDLKeyboard.SDL_StopTextInput;
 import static org.lwjgl.sdl.SDLMouse.*;
 import static org.lwjgl.sdl.SDLPixels.SDL_PIXELFORMAT_ABGR8888;
 import static org.lwjgl.sdl.SDLPixels.SDL_PIXELFORMAT_ARGB8888;
 import static org.lwjgl.sdl.SDLSurface.SDL_CreateSurfaceFrom;
 import static org.lwjgl.sdl.SDLSurface.SDL_DestroySurface;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 /**
- * The Display's input, what LWJGL 2's platform display classes implemented: LWJGL 2's Mouse (compiled unchanged) reads
- * it, Display.processMessages() feeds it SDL's events. Coordinates are LWJGL 2's: window points, y up from the bottom.
+ * The Display's input, what LWJGL 2's platform display classes implemented: LWJGL 2's Mouse and Keyboard (compiled
+ * unchanged) read it, Display.processMessages() feeds it SDL's events. Coordinates are LWJGL 2's: window points, y up from
+ * the bottom. Keys are LWJGL 2's key codes ({@link SDLKeys}); the characters come from SDL's text input.
  */
 final class SDLInput implements InputImplementation {
 
@@ -46,8 +53,24 @@ final class SDLInput implements InputImplementation {
 	private float restY;
 	private float restWheel;
 
+	private final EventQueue keyEvents = new EventQueue(Keyboard.EVENT_SIZE);
+	private final ByteBuffer keyEvent = ByteBuffer.allocate(Keyboard.EVENT_SIZE);
+	private final boolean[] keys = new boolean[Keyboard.KEYBOARD_SIZE];
+	private boolean keyboardCreated;
+	/**
+	 * The last key press, held back until SDL's text for it: SDL sends a press, then the text it typed, and LWJGL 2's
+	 * press carries its character. -1 when there is none to complete.
+	 */
+	private int pendingKey = -1;
+	private int pendingCharacter;
+	private long pendingNanos;
+	private boolean pendingRepeat;
+
 	/** An SDL event, while Display.processMessages() empties SDL's queue. */
 	void handle(SDL_Event e) {
+		if (keyboardCreated) {
+			handleKeyboard(e);
+		}
 		if (!mouseCreated) {
 			return;
 		}
@@ -90,6 +113,56 @@ final class SDLInput implements InputImplementation {
 		} else if (type == SDL_EVENT_WINDOW_MOUSE_LEAVE) {
 			inside = false;
 		}
+	}
+
+	private void handleKeyboard(SDL_Event e) {
+		int type = e.type();
+		if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP) {
+			SDL_KeyboardEvent k = e.key();
+			int key = SDLKeys.key(k.scancode());
+			if (key == Keyboard.KEY_NONE) {
+				return;
+			}
+			flushKeyboard();
+			keys[key] = k.down();
+			if (k.down()) {
+				pendingKey = key;
+				pendingCharacter = 0;
+				pendingNanos = k.timestamp();
+				pendingRepeat = k.repeat();
+			} else {
+				putKey(key, false, 0, k.timestamp(), false);
+			}
+		} else if (type == SDL_EVENT_TEXT_INPUT) {
+			SDL_TextInputEvent t = e.text();
+			String text = memUTF8(t.text());
+			for (int i = 0; i < text.length(); i++) {
+				char c = text.charAt(i);
+				if (pendingKey >= 0 && pendingCharacter == 0) {
+					pendingCharacter = c;
+				} else {
+					// more characters than presses (an input method, a dead key): LWJGL 2's character-only events
+					flushKeyboard();
+					putKey(Keyboard.KEY_NONE, true, c, t.timestamp(), false);
+				}
+			}
+		}
+	}
+
+	/** Queues the held-back press, once SDL's queue is empty or another key event comes. */
+	void flushKeyboard() {
+		if (pendingKey >= 0) {
+			int c = pendingCharacter != 0 ? pendingCharacter : SDLKeys.controlCharacter(pendingKey);
+			putKey(pendingKey, true, c, pendingNanos, pendingRepeat);
+			pendingKey = -1;
+		}
+	}
+
+	private void putKey(int key, boolean state, int character, long nanos, boolean repeat) {
+		keyEvent.clear();
+		keyEvent.putInt(key).put((byte)(state ? 1 : 0)).putInt(character).putLong(nanos).put((byte)(repeat ? 1 : 0));
+		keyEvent.flip();
+		keyEvents.putEvent(keyEvent);
 	}
 
 	/** Whole pixels of a relative motion, keeping the fraction for the next one. */
@@ -280,22 +353,35 @@ final class SDLInput implements InputImplementation {
 
 	// ---- keyboard
 
+	/** Starts SDL's text input on the window, which LWJGL 2's characters come from. */
 	@Override
 	public void createKeyboard() throws LWJGLException {
-		// TODO(sdl): Keyboard
-		throw new LWJGLException("Keyboard is not supported yet");
+		if (!SDL_StartTextInput(Display.window())) {
+			throw new LWJGLException("Could not start text input: " + SDL_GetError());
+		}
+		keyboardCreated = true;
+		java.util.Arrays.fill(keys, false);
+		pendingKey = -1;
+		keyEvents.clearEvents();
 	}
 
 	@Override
 	public void destroyKeyboard() {
+		SDL_StopTextInput(Display.window());
+		keyboardCreated = false;
 	}
 
 	@Override
 	public void pollKeyboard(ByteBuffer keyDownBuffer) {
+		int position = keyDownBuffer.position();
+		for (int i = 0; i < keys.length && i < keyDownBuffer.remaining(); i++) {
+			keyDownBuffer.put(position + i, (byte)(keys[i] ? 1 : 0));
+		}
 	}
 
 	@Override
 	public void readKeyboard(ByteBuffer buffer) {
+		keyEvents.copyEvents(buffer);
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.lwjgl;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.system.Pointer;
 
 import static org.lwjgl.sdl.SDLClipboard.SDL_GetClipboardText;
@@ -41,7 +42,11 @@ public final class Sys {
 	 * off the first thread), the message goes to standard error, so that alert never fails.
 	 */
 	public static void alert(String title, String message) {
-		// TODO(sdl): release a grabbed Mouse while the box is shown, as LWJGL 2 does
+		// as LWJGL 2: a grabbed mouse is released while the box is shown
+		boolean grabbed = Mouse.isGrabbed();
+		if (grabbed) {
+			Mouse.setGrabbed(false);
+		}
 		if (title == null) {
 			title = "";
 		}
@@ -56,6 +61,9 @@ public final class Sys {
 		}
 		if (!shown) {
 			System.err.println("[LWJGL] " + title + ": " + message);
+		}
+		if (grabbed) {
+			Mouse.setGrabbed(true);
 		}
 	}
 
