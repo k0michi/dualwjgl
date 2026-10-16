@@ -43,7 +43,7 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
             'org/lwjgl/opengl/OpenGLException.java', 'org/lwjgl/opengl/Util.java'
         // the Drawable internals over ContextGL and DrawableGL, which compat writes on SDL
         include 'org/lwjgl/opengl/Context.java', 'org/lwjgl/opengl/DrawableLWJGL.java', 'org/lwjgl/opengl/PeerInfo.java',
-            'org/lwjgl/opengl/SharedDrawable.java'
+            'org/lwjgl/opengl/SharedDrawable.java', 'org/lwjgl/opengl/RenderTexture.java'
         // input over Display's InputImplementation, which compat writes on SDL; Cursor is hand-written (compat/src/main)
         include 'org/lwjgl/input/Mouse.java', 'org/lwjgl/input/Keyboard.java',
             'org/lwjgl/input/OpenGLPackageAccess.java', 'org/lwjgl/input/Controller.java', 'org/lwjgl/input/ControllerEvent.java',

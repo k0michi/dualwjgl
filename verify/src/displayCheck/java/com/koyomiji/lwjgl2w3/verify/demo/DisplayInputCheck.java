@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.OpenGLException;
+import org.lwjgl.opengl.Pbuffer;
+import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.opengl.SharedDrawable;
 import org.lwjgl.opengl.Util;
 import org.lwjgl.sdl.SDL_Event;
@@ -221,6 +223,18 @@ public final class DisplayInputCheck {
 		check("destroyed SharedDrawable: no context", destroyed && Display.isCurrent());
 	}
 
+	/** DEVIATION(pbuffer): no capabilities, and the constructors throw. */
+	static void checkPbuffer() {
+		String unsupported = null;
+		try {
+			new Pbuffer(64, 64, new PixelFormat(), null);
+		} catch (Exception e) {
+			unsupported = e.getMessage();
+		}
+		check("Pbuffer: no capabilities, not supported", Pbuffer.getCapabilities() == 0
+			&& "Pbuffers are not supported".equals(unsupported));
+	}
+
 	/** Util.checkGLError: LWJGL 2's OpenGLException with its message. */
 	static void checkGLError() {
 		Util.checkGLError();
@@ -333,6 +347,7 @@ public final class DisplayInputCheck {
 		checkContext();
 		checkSharedDrawable();
 		checkGLError();
+		checkPbuffer();
 		checkDisplayConfiguration();
 
 		Display.destroy();

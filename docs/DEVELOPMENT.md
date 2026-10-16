@@ -61,6 +61,8 @@ marks every place that decision affects.
     descriptors). Those write at the target's address, which also crashes the JVM for a heap buffer, where LWJGL 2 wrote
     through `ByteBuffer.putLong`/`putInt`.
   - `awt`: AWT embedding (`AWTGLCanvas`, `Display.setParent` with a parent) throws `LWJGLException`.
+  - `pbuffer`: `Pbuffer.getCapabilities()` is 0 and its constructors throw `LWJGLException`, as LWJGL 2 did where the
+    platform had no pbuffers; SDL has no off-screen drawable. `RenderTexture` is LWJGL 2's, unchanged.
   - `cursor-native-animation`: cursors report `CURSOR_ANIMATION` everywhere and an animated `Cursor` is one SDL animated
     cursor; LWJGL 2 animated natively only on Linux and switched single images from Java elsewhere.
   - `controllers-sdl`: Controllers are SDL's gamepads (standard layout) and joysticks, not JInput's, whose names, order
@@ -95,8 +97,8 @@ its platform context implementations; the peer (`SDLPeerInfo`) is an SDL window.
 `ContextAttribs`, `Drawable`, `Sync`, `PeerInfo`, `SharedDrawable`, `OpenGLException` and `Util` are LWJGL 2's sources,
 unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
 classes implemented), which Display feeds SDL's events; `Mouse`, `Keyboard` and their helpers are LWJGL 2's sources, and
-`Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. Pbuffers
-and OpenGL ES are still TODO(sdl); AWT embedding is not supported (`DEVIATION(awt)`).
+`Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. OpenGL ES
+is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embedding is not supported (`DEVIATION(awt)`).
 
 `Controllers` is written on SDL's gamepad and joystick API (`Controller` and `ControllerEvent` are LWJGL 2's sources).
 `./gradlew :verify:controllersCheck` drives an SDL virtual gamepad and joystick through it.
