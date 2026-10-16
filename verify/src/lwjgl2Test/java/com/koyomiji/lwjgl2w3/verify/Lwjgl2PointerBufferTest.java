@@ -12,6 +12,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.nio.InvalidMarkException;
 import java.nio.ReadOnlyBufferException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -115,17 +116,15 @@ class Lwjgl2PointerBufferTest {
 
 		PointerBuffer s = p.slice();
 		PointerBuffer d = p.duplicate();
-		// LWJGL 2 binaries call LWJGL 2's slice()/duplicate(), which go through newInstance. Source compiled against
-		// the patched jars calls LWJGL 3's (same signature, LWJGL 3 wins): see DEVIATION(newInstance).
-		boolean binary = "original".equals(System.getProperty("lwjgl2w3.compiledAgainst"));
-		assertEquals(binary, s instanceof Tagged);
-		assertEquals(binary, d instanceof Tagged);
-		if (binary) {
-			assertEquals(ByteOrder.nativeOrder(), ((Tagged)s).sourceOrder);
-			assertEquals(ByteOrder.nativeOrder(), ((Tagged)d).sourceOrder);
-		}
+		// LWJGL 2 binaries call LWJGL 2's slice()/duplicate(); source compiled against the patched jars calls LWJGL 3's,
+		// which reach newInstance through PointerBuffer.create(...). Either way the subclass gets its own type.
+		assertInstanceOf(Tagged.class, s);
+		assertInstanceOf(Tagged.class, d);
+		assertEquals(ByteOrder.nativeOrder(), ((Tagged)s).sourceOrder);
+		assertEquals(ByteOrder.nativeOrder(), ((Tagged)d).sourceOrder);
+		assertInstanceOf(Tagged.class, s.slice());
 
-		// either way: the slice is the elements from position to limit, the duplicate has the same state and memory
+		// the slice is the elements from position to limit, the duplicate has the same state and memory
 		assertEquals(0, s.position());
 		assertEquals(2, s.capacity());
 		assertEquals(11L, s.get(0));
@@ -136,6 +135,18 @@ class Lwjgl2PointerBufferTest {
 		s.put(0, 21L);
 		assertEquals(21L, p.get(1));
 		assertEquals(21L, d.get(1));
+
+		// duplicate() and the mark: LWJGL 2 did not copy it (binaries), LWJGL 3 does (source): DEVIATION(duplicate-mark)
+		boolean binary = "original".equals(System.getProperty("lwjgl2w3.compiledAgainst"));
+		p.position(1).mark().position(2);
+		PointerBuffer dm = p.duplicate();
+		assertInstanceOf(Tagged.class, dm);
+		if (binary) {
+			assertThrows(InvalidMarkException.class, dm::reset);
+		} else {
+			dm.reset();
+			assertEquals(1, dm.position());
+		}
 
 		// slicing does not move the shared getBuffer() view
 		assertEquals(0, p.getBuffer().position());

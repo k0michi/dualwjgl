@@ -50,6 +50,15 @@ class Lwjgl3CoreTest {
 		assertEquals(2, s.remaining());
 		assertEquals(2L, s.get(1));
 		assertEquals(p, p.duplicate());
+		// create(...) is wrapped: PointerBuffer's own slices and duplicates are still exactly PointerBuffer
+		assertSame(PointerBuffer.class, p.slice().getClass());
+		assertSame(PointerBuffer.class, p.slice(0, 1).getClass());
+		assertSame(PointerBuffer.class, p.duplicate().getClass());
+		p.position(1).mark().position(2);
+		PointerBuffer dm = p.duplicate();
+		dm.reset();
+		assertEquals(1, dm.position());
+		p.clear();
 
 		// LWJGL 3's put(PointerBuffer) leaves the source where it is; LWJGL 2's (a hidden overload) advances it
 		PointerBuffer src = PointerBuffer.allocateDirect(2);

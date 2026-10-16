@@ -39,6 +39,9 @@ public final class Merger {
 	static final String ANNOTATION_PREFIX = "L" + INJECT_PREFIX;
 	static final String WIDEN = ANNOTATION_PREFIX + "Widen;";
 	static final String HIDDEN = ANNOTATION_PREFIX + "Hidden;";
+	static final String WRAP = ANNOTATION_PREFIX + "Wrap;";
+	/** Suffix of the original method a @Wrap method replaces */
+	static final String WRAPPED_SUFFIX = "$lwjgl3";
 	static final String INTO = ANNOTATION_PREFIX + "Into;";
 	static final String GENERATED = ANNOTATION_PREFIX + "Generated;";
 	static final String TODO = ANNOTATION_PREFIX + "Todo;";
@@ -320,19 +323,43 @@ public final class Merger {
 			log.add(entry + ": + field " + f.name + " " + f.desc);
 		}
 
+		List<MethodNode> declaredOnly = new ArrayList<>();
 		for (MethodNode m : inj.methods) {
 			MethodNode existing = find(t, m.name, m.desc);
 			boolean widen = has(m.invisibleAnnotations, WIDEN);
+			boolean wrap = has(m.invisibleAnnotations, WRAP);
 			boolean hidden = has(m.invisibleAnnotations, HIDDEN);
 			String todo = (m.access & Opcodes.ACC_BRIDGE) != 0 ? null : todoArea(m.invisibleAnnotations);
 			String key = t.name + "." + m.name + m.desc;
 			m.invisibleAnnotations = strip(m.invisibleAnnotations);
 
-			if ((m.access & Opcodes.ACC_BRIDGE) != 0 && inherits(t, m.name, m.desc)) {
+			if ((m.access & Opcodes.ACC_BRIDGE) != 0 && (inherits(t, m.name, m.desc) || existing != null)) {
 				// javac's bridge for an inject class that overrides a generic superclass method (PointerBufferFragment's
 				// PointerBuffer position(int) over CustomBuffer's SELF position(int)): merged, it would reroute LWJGL 3's
-				// calls to the inherited method into the LWJGL 2 member
+				// calls to the inherited method into the LWJGL 2 member. When the target has the bridge already (a @Wrap
+				// of create(...)), the target's calls the wrapped method by name and keeps working.
 				log.add(entry + ": skip bridge " + m.name + m.desc);
+				continue;
+			}
+			if ((m.access & Opcodes.ACC_ABSTRACT) != 0) {
+				// declared so that the inject class compiles (e.g. the original of a @Wrap method): must exist in the target
+				declaredOnly.add(m);
+				continue;
+			}
+			if (wrap) {
+				if (existing == null || generatedMembers.contains(key)) {
+					throw new IllegalStateException(entry + ": @Wrap method " + m.name + m.desc + " not found in LWJGL 3's target");
+				}
+				if (find(t, m.name + WRAPPED_SUFFIX, m.desc) != null) {
+					throw new IllegalStateException(entry + ": " + m.name + m.desc + " is wrapped twice");
+				}
+				existing.name = m.name + WRAPPED_SUFFIX;
+				existing.access |= Opcodes.ACC_SYNTHETIC;
+				// the wrapper takes the original's place, and its visibility to javac
+				int visibility = Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED | Opcodes.ACC_PRIVATE;
+				m.access = (m.access & ~(visibility | Opcodes.ACC_SYNTHETIC)) | (existing.access & visibility);
+				t.methods.add(m);
+				log.add(entry + ": wrap " + m.name + m.desc + " (original renamed " + existing.name + ")");
 				continue;
 			}
 			if (widen) {
@@ -375,6 +402,13 @@ public final class Merger {
 			t.methods.add(m);
 			track(key, generated, todo);
 			log.add(entry + ": + " + access(m.access) + " " + m.name + m.desc);
+		}
+
+		for (MethodNode m : declaredOnly) {
+			MethodNode found = find(t, m.name, m.desc);
+			if (found == null && !inherits(t, m.name, m.desc) && !declaredAbstract(t, m.name, m.desc)) {
+				throw new IllegalStateException(entry + ": abstract " + m.name + m.desc + " is neither in the target nor merged");
+			}
 		}
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -433,6 +467,23 @@ public final class Merger {
 			MethodNode m = find(sc, name, desc);
 			if (m != null) {
 				return (m.access & Opcodes.ACC_ABSTRACT) == 0;
+			}
+			s = sc.superName;
+		}
+		return false;
+	}
+
+	/** Whether a superclass of {@code t} declares {@code name desc} abstract (implemented by the target, or a subclass). */
+	boolean declaredAbstract(ClassNode t, String name, String desc) {
+		for (String s = t.superName; s != null; ) {
+			JarImage owner = classOwner.get(s);
+			if (owner == null) {
+				return false;
+			}
+			ClassNode sc = new ClassNode();
+			new ClassReader(owner.entries.get(s + ".class")).accept(sc, ClassReader.SKIP_CODE);
+			if (find(sc, name, desc) != null) {
+				return true;
 			}
 			s = sc.superName;
 		}
