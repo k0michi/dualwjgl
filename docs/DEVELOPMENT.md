@@ -60,6 +60,7 @@ marks every place that decision affects.
     `PointerBuffer.put(ByteBuffer, long)` and `put(ByteBuffer, int, long)` included, which are LWJGL 3's (same
     descriptors). Those write at the target's address, which also crashes the JVM for a heap buffer, where LWJGL 2 wrote
     through `ByteBuffer.putLong`/`putInt`.
+  - `macos-first-thread`: on macOS the Display needs `-XstartOnFirstThread` (SDL's video runs on the first thread).
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
   `@Todo("<area>")` annotation instead, which the merger counts.
 - **`TODO(verify)`**: hand-written code that no test compares with LWJGL 2's behaviour (DelegationTest only covers
@@ -75,6 +76,13 @@ synced, and push the buffer's on exit; the mark goes through `sun.misc.Unsafe`, 
 LWJGL 3's own buffers have no view and pay a null check per call.
 
 `./gradlew :verify:pointerBufferBench` compares PointerBuffer's speed on the original and the patched jars.
+
+### Display
+
+`org.lwjgl.opengl.Display` is written on LWJGL 3's SDL 3 bindings (`compat/src/main`): one SDL window and OpenGL context,
+made current with LWJGL 3's GL capabilities. `DisplayMode`, `PixelFormat`, `ContextAttribs`, `Drawable` and `Sync` are
+LWJGL 2's sources, unchanged. Keyboard, Mouse, shared contexts, OpenGL ES and AWT embedding are still TODO(sdl).
+`./gradlew :verify:displayDemo` (not part of check; `-Pframes=N` to stop) runs an LWJGL 2 program that opens a window.
 
 ### Generated code
 

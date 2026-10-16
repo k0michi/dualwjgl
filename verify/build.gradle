@@ -130,3 +130,30 @@ tasks.register('pointerBufferBench') {
 }
 b3Patched.configure { mustRunAfter b3Original }
 b2Patched.configure { mustRunAfter b3Patched }
+
+// Not part of check (it opens a window): ./gradlew :verify:displayDemo runs an LWJGL 2 program, compiled against LWJGL
+// 2.9.3, on the patched jars and LWJGL 3's SDL module. -Pframes=N stops after N frames.
+configurations {
+    demoRuntime { transitive = false }
+}
+dependencies {
+    demoRuntime libs.lwjgl3.sdl
+    demoRuntime(variantOf(libs.lwjgl3.core) { classifier(nativesClassifier) })
+    demoRuntime(variantOf(libs.lwjgl3.opengl) { classifier(nativesClassifier) })
+    demoRuntime(variantOf(libs.lwjgl3.sdl) { classifier(nativesClassifier) })
+}
+sourceSets {
+    demo2 { compileClasspath += configurations.lwjgl2Api }
+}
+tasks.register('displayDemo', JavaExec) {
+    group = 'verification'
+    classpath = sourceSets.demo2.output + patched + configurations.demoRuntime
+    mainClass = 'com.koyomiji.lwjgl2w3.verify.demo.DisplayDemo'
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+        jvmArgs '-XstartOnFirstThread'
+    }
+    if (project.hasProperty('frames')) {
+        args project.property('frames')
+    }
+}

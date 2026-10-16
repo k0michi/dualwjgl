@@ -37,6 +37,9 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
             'org/lwjgl/opencl/OpenCLException.java', 'org/lwjgl/opencl/CLPlatformCapabilities.java',
             'org/lwjgl/opencl/CLDeviceCapabilities.java', 'org/lwjgl/opencl/CLBuildProgramCallback.java',
             'org/lwjgl/opencl/CLCompileProgramCallback.java', 'org/lwjgl/opencl/CLLinkProgramCallback.java'
+        // what Display takes and returns; Display itself is written on SDL (compat/src/main)
+        include 'org/lwjgl/opengl/DisplayMode.java', 'org/lwjgl/opengl/PixelFormat.java', 'org/lwjgl/opengl/PixelFormatLWJGL.java',
+            'org/lwjgl/opengl/ContextAttribs.java', 'org/lwjgl/opengl/Drawable.java', 'org/lwjgl/opengl/Sync.java'
     }
     into layout.buildDirectory.dir('lwjgl2-sources')
 }
