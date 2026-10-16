@@ -225,6 +225,21 @@ public final class DisplayInputCheck {
 		Mouse.setNativeCursor(null);
 		cursor.destroy();
 
+		check("cursor capabilities include animation", (Cursor.getCapabilities() & Cursor.CURSOR_ANIMATION) != 0);
+		IntBuffer frames = BufferUtils.createIntBuffer(2 * 16 * 16);
+		for (int i = 0; i < 16 * 16; i++) {
+			frames.put(i, 0xFFFF0000);
+			frames.put(16 * 16 + i, 0x800000FF);
+		}
+		IntBuffer delays = BufferUtils.createIntBuffer(2);
+		delays.put(0, 200).put(1, 300);
+		Cursor animated = new Cursor(16, 16, 8, 8, 2, frames, delays);
+		Mouse.setNativeCursor(animated);
+		Display.update(); // Mouse.updateCursor(): one native cursor, nothing to switch
+		check("animated cursor set", Mouse.getNativeCursor() == animated);
+		Mouse.setNativeCursor(null);
+		animated.destroy();
+
 		checkKeyboard();
 		checkContext();
 

@@ -38,7 +38,7 @@
 
 ## Input
 - [x] Controllers: on SDL instead of JInput
-- [ ] Animated cursors on Linux
+- [x] Animated cursors: SDL's native animation on every platform
 
 ## lwjgl_util
 - [ ] `org.lwjgl.util.mapped`

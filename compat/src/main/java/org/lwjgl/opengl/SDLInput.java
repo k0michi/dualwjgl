@@ -5,6 +5,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.sdl.SDL_CursorFrameInfo;
 import org.lwjgl.sdl.SDL_Event;
 import org.lwjgl.sdl.SDL_KeyboardEvent;
 import org.lwjgl.sdl.SDL_MouseButtonEvent;
@@ -25,6 +26,7 @@ import static org.lwjgl.sdl.SDLPixels.SDL_PIXELFORMAT_ABGR8888;
 import static org.lwjgl.sdl.SDLPixels.SDL_PIXELFORMAT_ARGB8888;
 import static org.lwjgl.sdl.SDLSurface.SDL_CreateSurfaceFrom;
 import static org.lwjgl.sdl.SDLSurface.SDL_DestroySurface;
+import static org.lwjgl.sdl.SDLSurface.SDL_DuplicateSurface;
 import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 /**
@@ -271,10 +273,11 @@ final class SDLInput implements InputImplementation {
 		restX = restY = 0f;
 	}
 
+	/** With animation everywhere: SDL animates cursors natively (DEVIATION(cursor-native-animation)). */
 	@Override
 	public int getNativeCursorCapabilities() {
-		// animation is LWJGL 2's Cursor switching images on macOS and Windows; X11's animated cursors are not in SDL
-		return org.lwjgl.input.Cursor.CURSOR_ONE_BIT_TRANSPARENCY | org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA;
+		return org.lwjgl.input.Cursor.CURSOR_ONE_BIT_TRANSPARENCY | org.lwjgl.input.Cursor.CURSOR_8_BIT_ALPHA
+			| org.lwjgl.input.Cursor.CURSOR_ANIMATION;
 	}
 
 	@Override
@@ -303,31 +306,59 @@ final class SDLInput implements InputImplementation {
 	}
 
 	/**
-	 * One image of LWJGL 2's Cursor, already flipped top-down with the hotspot from the top. Cursor converted it to
-	 * ABGR on macOS and keeps ARGB elsewhere; an X11 animation (several images) shows its first image.
+	 * LWJGL 2's Cursor images, already flipped top-down with the hotspot from the top. One image is in the platform's
+	 * format as LWJGL 2's Cursor prepares it (ABGR on macOS, ARGB elsewhere); an animation is ARGB on every platform,
+	 * with the frames' delays in milliseconds, and becomes an SDL animated cursor.
 	 */
 	@Override
 	public Object createCursor(int width, int height, int xHotspot, int yHotspot, int numImages, IntBuffer images, IntBuffer delays)
 		throws LWJGLException {
-		// TODO(sdl): animated cursors on Linux, which LWJGL 2 hands over whole
-		ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * 4);
-		IntBuffer argb = pixels.asIntBuffer();
-		for (int i = 0; i < width * height; i++) {
-			argb.put(i, images.get(images.position() + i));
-		}
-		int format = LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX ? SDL_PIXELFORMAT_ABGR8888 : SDL_PIXELFORMAT_ARGB8888;
-		SDL_Surface surface = SDL_CreateSurfaceFrom(width, height, format, pixels, width * 4);
-		if (surface == null) {
-			throw new LWJGLException("Could not create the cursor image: " + SDL_GetError());
-		}
+		boolean animated = numImages > 1;
+		int format = !animated && LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX ? SDL_PIXELFORMAT_ABGR8888 : SDL_PIXELFORMAT_ARGB8888;
+		SDL_Surface[] surfaces = new SDL_Surface[numImages];
 		try {
-			long cursor = SDL_CreateColorCursor(surface, xHotspot, yHotspot);
+			for (int frame = 0; frame < numImages; frame++) {
+				ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * 4);
+				IntBuffer argb = pixels.asIntBuffer();
+				int start = images.position() + frame * width * height;
+				for (int i = 0; i < width * height; i++) {
+					argb.put(i, images.get(start + i));
+				}
+				// SDL_CreateSurfaceFrom keeps the pixels: the surface owns a copy so that they need not outlive this call
+				SDL_Surface view = SDL_CreateSurfaceFrom(width, height, format, pixels, width * 4);
+				if (view == null) {
+					throw new LWJGLException("Could not create the cursor image: " + SDL_GetError());
+				}
+				surfaces[frame] = SDL_DuplicateSurface(view);
+				SDL_DestroySurface(view);
+				if (surfaces[frame] == null) {
+					throw new LWJGLException("Could not create the cursor image: " + SDL_GetError());
+				}
+			}
+			long cursor;
+			if (animated) {
+				SDL_CursorFrameInfo.Buffer frames = SDL_CursorFrameInfo.calloc(numImages);
+				try {
+					for (int frame = 0; frame < numImages; frame++) {
+						frames.get(frame).surface(surfaces[frame]).duration(delays == null ? 0 : delays.get(delays.position() + frame));
+					}
+					cursor = SDL_CreateAnimatedCursor(frames, xHotspot, yHotspot);
+				} finally {
+					frames.free();
+				}
+			} else {
+				cursor = SDL_CreateColorCursor(surfaces[0], xHotspot, yHotspot);
+			}
 			if (cursor == 0L) {
 				throw new LWJGLException("Could not create the cursor: " + SDL_GetError());
 			}
 			return cursor;
 		} finally {
-			SDL_DestroySurface(surface);
+			for (SDL_Surface surface : surfaces) {
+				if (surface != null) {
+					SDL_DestroySurface(surface);
+				}
+			}
 		}
 	}
 
