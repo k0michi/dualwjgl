@@ -1,46 +1,49 @@
 # lwjgl2w3
 
-**LWJGL 2 *with* 3**: one set of jars that works as both LWJGL 2 and LWJGL 3.
+**LWJGL 2 *with* 3**: a single set of jars that works as both LWJGL 2 and LWJGL 3.
 
 > [!WARNING]
-> This project is **experimental**. It describes a goal, not a finished product, and is not ready for real use.
+> lwjgl2w3 is an **experimental** work in progress and is not ready for real use.
 
-Unofficial; not affiliated with the LWJGL project.
+lwjgl2w3 is unofficial and not affiliated with the LWJGL project.
 
 ## Goal
 
 LWJGL 2 and LWJGL 3 share package and class names (`org.lwjgl.opengl.GL11`, `org.lwjgl.BufferUtils`, ...) but are not
-compatible, so they cannot be on the same classpath: whichever comes first hides the other.
+compatible with each other. They cannot share a classpath, because whichever comes first hides the other.
 
-lwjgl2w3 aims to **merge** the two into a single binary distribution:
+lwjgl2w3 aims to **merge** the two into one binary distribution, so that:
 
-- programs compiled against **LWJGL 2.9.3** link and run against it, unchanged;
-- programs compiled against **LWJGL 3.4.3** link and run against it, unchanged;
-- both kinds of program can be loaded together in the same JVM.
+- programs compiled against **LWJGL 2.9.3** link and run against it unchanged,
+- programs compiled against **LWJGL 3.4.3** link and run against it unchanged, and
+- both kinds of program can run side by side in the same JVM.
 
-It does this by taking the LWJGL 3 jars and adding the LWJGL 2 API to them, implemented on top of LWJGL 3.
-Where the two define the same method differently, LWJGL 3's behavior is kept.
+To do this, lwjgl2w3 takes the LWJGL 3 jars and adds the LWJGL 2 API to them, implemented on top of LWJGL 3.
+
+Extensions that LWJGL 2 binds but LWJGL 3 has dropped are currently out of scope.
 
 ## Building
 
-Requires JDK 21 to build; the merged jars themselves target Java 8.
+Building requires JDK 21. The jars it produces run on Java 8 or later.
 
 ```bash
 ./gradlew :dist:assemble
 ```
 
-The merged jars are written to `dist/build/patched/`. Use them in place of the LWJGL 3 jars of the same name, together
-with `lwjgl2w3-extra.jar` and the usual LWJGL 3 natives. To run the tests:
+The merged jars are written to `dist/build/patched/`. To use them, put them in place of the LWJGL 3 jars of the same
+name, and add `lwjgl2w3-extra.jar` along with the usual LWJGL 3 natives.
+
+To run the tests:
 
 ```bash
 ./gradlew check
 ```
 
-How the project is put together is described in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+For how the project is put together, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## License
 
 lwjgl2w3 is licensed under the [BSD 3-Clause License](LICENSE).
 
-The jars it builds contain LWJGL 3, and parts of its code are derived from LWJGL 2 and LWJGL 3; both are also under
+The jars it builds contain LWJGL 3, and parts of its code are derived from LWJGL 2 and LWJGL 3, both of which use
 BSD-style licenses. See [NOTICE](NOTICE) for details and the full license texts.
