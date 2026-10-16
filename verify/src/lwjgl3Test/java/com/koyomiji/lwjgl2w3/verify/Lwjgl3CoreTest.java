@@ -50,6 +50,13 @@ class Lwjgl3CoreTest {
 		assertEquals(2, s.remaining());
 		assertEquals(2L, s.get(1));
 		assertEquals(p, p.duplicate());
+
+		// LWJGL 3's put(PointerBuffer) leaves the source where it is; LWJGL 2's (a hidden overload) advances it
+		PointerBuffer src = PointerBuffer.allocateDirect(2);
+		PointerBuffer dst = PointerBuffer.allocateDirect(2);
+		dst.put(src);
+		assertEquals(0, src.position());
+		assertEquals(2, dst.position());
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			PointerBuffer q = stack.mallocPointer(2);
 			q.put(0, 9L).position(1);

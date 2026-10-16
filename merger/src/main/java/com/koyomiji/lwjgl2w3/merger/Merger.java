@@ -328,6 +328,13 @@ public final class Merger {
 			String key = t.name + "." + m.name + m.desc;
 			m.invisibleAnnotations = strip(m.invisibleAnnotations);
 
+			if ((m.access & Opcodes.ACC_BRIDGE) != 0 && inherits(t, m.name, m.desc)) {
+				// javac's bridge for an inject class that overrides a generic superclass method (PointerBufferFragment's
+				// PointerBuffer position(int) over CustomBuffer's SELF position(int)): merged, it would reroute LWJGL 3's
+				// calls to the inherited method into the LWJGL 2 member
+				log.add(entry + ": skip bridge " + m.name + m.desc);
+				continue;
+			}
 			if (widen) {
 				if (existing == null) {
 					throw new IllegalStateException(entry + ": @Widen method " + m.name + m.desc + " not found in target");
@@ -412,6 +419,24 @@ public final class Merger {
 			}
 		}
 		return ops.equals(Arrays.asList(Opcodes.ALOAD, Opcodes.INVOKESPECIAL, Opcodes.RETURN));
+	}
+
+	/** Whether a superclass of {@code t} (in the jars being patched) implements {@code name desc}. */
+	boolean inherits(ClassNode t, String name, String desc) {
+		for (String s = t.superName; s != null; ) {
+			JarImage owner = classOwner.get(s);
+			if (owner == null) {
+				return false;
+			}
+			ClassNode sc = new ClassNode();
+			new ClassReader(owner.entries.get(s + ".class")).accept(sc, ClassReader.SKIP_CODE);
+			MethodNode m = find(sc, name, desc);
+			if (m != null) {
+				return (m.access & Opcodes.ACC_ABSTRACT) == 0;
+			}
+			s = sc.superName;
+		}
+		return false;
 	}
 
 	static MethodNode find(ClassNode c, String name, String desc) {

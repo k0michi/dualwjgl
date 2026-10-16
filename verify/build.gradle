@@ -33,7 +33,7 @@ dependencies {
     natives(variantOf(libs.lwjgl3.core) { classifier(nativesClassifier) })
 }
 
-def registerSuite = { String suite, String sources, FileCollection compileAgainst ->
+def registerSuite = { String suite, String sources, FileCollection compileAgainst, String compiledAgainst ->
     def ss = sourceSets.create(suite) {
         java.srcDir sources
         compileClasspath += compileAgainst
@@ -49,14 +49,16 @@ def registerSuite = { String suite, String sources, FileCollection compileAgains
         testClassesDirs = ss.output.classesDirs
         classpath = ss.runtimeClasspath
         useJUnitPlatform()
+        // where the few tests that differ between binaries and source (a hidden LWJGL 2 overload) look
+        systemProperty 'lwjgl2w3.compiledAgainst', compiledAgainst
     }
     tasks.named('check') { dependsOn test }
 }
 
-registerSuite('lwjgl2Test', 'src/lwjgl2Test/java', configurations.lwjgl2Api)
-registerSuite('lwjgl3Test', 'src/lwjgl3Test/java', configurations.lwjgl3Api)
-registerSuite('lwjgl2SourceTest', 'src/lwjgl2Test/java', patched)
-registerSuite('lwjgl3SourceTest', 'src/lwjgl3Test/java', patched)
+registerSuite('lwjgl2Test', 'src/lwjgl2Test/java', configurations.lwjgl2Api, 'original')
+registerSuite('lwjgl3Test', 'src/lwjgl3Test/java', configurations.lwjgl3Api, 'original')
+registerSuite('lwjgl2SourceTest', 'src/lwjgl2Test/java', patched, 'patched')
+registerSuite('lwjgl3SourceTest', 'src/lwjgl3Test/java', patched, 'patched')
 
 tasks.withType(JavaCompile).configureEach {
     options.release = 8

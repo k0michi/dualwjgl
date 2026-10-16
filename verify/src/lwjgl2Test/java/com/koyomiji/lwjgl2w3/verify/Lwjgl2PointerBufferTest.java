@@ -8,6 +8,7 @@ import org.lwjgl.MemoryUtil;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.PointerWrapper;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -58,6 +59,37 @@ class Lwjgl2PointerBufferTest {
 		p.position(2);
 		p.compact();
 		assertEquals(12L, p.get(0));
+	}
+
+	@Test
+	void putPointerBufferAdvancesBoth() {
+		PointerBuffer src = new PointerBuffer(4);
+		src.put(0, 1L).put(1, 2L).put(2, 3L).put(3, 4L);
+		src.position(1).limit(3);
+		PointerBuffer dst = new PointerBuffer(4);
+		dst.position(1);
+
+		assertSame(dst, dst.put(src));
+		// An LWJGL 2 binary calls LWJGL 2's put (hidden overload), which advances the source as LWJGL 2 and NIO do.
+		// Source compiled against the patched jars only sees LWJGL 3's put, which has the same signature and wins.
+		boolean binary = "original".equals(System.getProperty("lwjgl2w3.compiledAgainst"));
+		assertEquals(binary ? 3 : 1, src.position());
+		assertEquals(3, dst.position());
+		assertEquals(2L, dst.get(1));
+		assertEquals(3L, dst.get(2));
+
+		// nothing moves when it does not fit, or the source is the buffer itself
+		PointerBuffer big = new PointerBuffer(3);
+		PointerBuffer small = new PointerBuffer(2);
+		assertThrows(BufferOverflowException.class, () -> small.put(big));
+		assertEquals(0, big.position());
+		assertEquals(0, small.position());
+		assertThrows(IllegalArgumentException.class, () -> small.put(small));
+
+		// a read-only source can be read
+		PointerBuffer ro = new PointerBuffer(2).asReadOnlyBuffer();
+		new PointerBuffer(2).put(ro);
+		assertEquals(binary ? 2 : 0, ro.position());
 	}
 
 	@Test

@@ -86,7 +86,8 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 	}
 
 	// LWJGL 3 declares these in CustomBuffer<SELF>, so in bytecode they return CustomBuffer; LWJGL 2 binaries call the
-	// PointerBuffer versions. Hidden, so that javac keeps seeing only LWJGL 3's.
+	// PointerBuffer versions. Hidden, so that javac keeps seeing only LWJGL 3's. javac also writes bridges from the
+	// CustomBuffer versions to these; the merger drops them, so LWJGL 3's calls still reach CustomBuffer's.
 
 	@Hidden
 	@Override
@@ -142,10 +143,14 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 		return super.duplicate();
 	}
 
+	/** As NIO's and LWJGL 2's: advances {@code src} too, where LWJGL 3's put(PointerBuffer) leaves it. */
 	@Hidden
 	@Override
 	public PointerBuffer put(PointerBuffer src) {
-		return super.put(src);
+		int n = src.remaining();
+		super.put(src);
+		src.position(src.position() + n);
+		return self();
 	}
 
 	@Hidden
