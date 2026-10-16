@@ -27,6 +27,8 @@ Unofficial; not affiliated with the LWJGL project.
   - Nested classes in inject classes are not supported yet.
 
 When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins.
+Strings follow LWJGL 3 too: each function's strings are encoded as LWJGL 3 encodes them (ASCII or UTF-8), where LWJGL 2
+truncated every char to a byte.
 
 ### Generated code
 

@@ -1,9 +1,8 @@
 package com.koyomiji.lwjgl2w3.stubgen;
 
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.tree.*;
 
 import javax.lang.model.element.VariableElement;
 import java.io.IOException;
@@ -342,9 +341,12 @@ final class TemplateRule implements Rule {
 		final List<String> checks = new ArrayList<>();
 		boolean stack;
 		boolean scratch;
+		final Set<String> encodedStrings = new HashSet<>();
 		/** @GLreturn: the temporary holding the result, and whether it is a string (heap-allocated, freed after). */
 		Templates.Param returned;
 		String returnedType;
+		/** For a string result: how LWJGL 3 decodes it. */
+		String returnedEncoding;
 
 		Binder(Target t, Templates.Method tm, Mode mode, Map<String, TypeInfo> instance, List<Templates.Param> java) {
 			this.t = t;
@@ -439,6 +441,7 @@ final class TemplateRule implements Rule {
 					throw new Decline("@GLreturn string with forceMaxLength or offset");
 				}
 				int j = javaIndex(r.get("maxLength", ""));
+				returnedEncoding = encodingOf(tm.function(), t.cls());
 				temps.add("java.nio.IntBuffer " + v + "_length = __stack.mallocInt(1);");
 				// memAlloc(0) may return null
 				temps.add("java.nio.ByteBuffer " + v + " = " + MU + "memAlloc(Math.max(" + paramName(j) + ", 1));");
@@ -534,8 +537,7 @@ final class TemplateRule implements Rule {
 				if (stringOffset(p)) {
 					throw new Decline("string offset");
 				}
-				stack = true;
-				return new Arg(MU + "memAddress(__stack.ASCII(" + x + ", " + p.has("NullTerminated") + "))", "str($" + j + "$)", "J");
+				return new Arg(encoded(p) + "Address", "str($" + j + "$)", "J");
 			}
 			if (type.startsWith("java.nio.") || type.equals("org.lwjgl.PointerBuffer")) {
 				Templates.Ann check = p.ann("Check");
@@ -574,6 +576,10 @@ final class TemplateRule implements Rule {
 			}
 			if ((m = Pattern.compile("(\\w+)\\.length\\(\\)").matcher(v)).matches()) {
 				int j = javaIndex(m.group(1));
+				if (instance.get(java.get(j).name()).type().equals("java.lang.CharSequence")) {
+					// the encoded length: in UTF-8, bytes are not chars
+					return new Arg(encoded(java.get(j)) + "Length", "strlen($" + j + "$)", "I");
+				}
 				return new Arg(paramName(j) + ".length()", "strlen($" + j + "$)", "I");
 			}
 			if ((m = Pattern.compile("(\\w+)\\.remaining\\(\\) << (\\d)").matcher(v)).matches()) {
@@ -618,6 +624,21 @@ final class TemplateRule implements Rule {
 				return new Arg(paramName(j), "$" + j + "$", lwjgl2.desc(t.method().getParameters().get(j).asType()));
 			}
 			throw new Decline("constant " + v);
+		}
+
+		/**
+		 * The variable prefix of string parameter {@code p} encoded on the stack, as LWJGL 3 encodes that function's
+		 * strings: {@code <prefix>Length} bytes (without the terminator) at {@code <prefix>Address}.
+		 */
+		String encoded(Templates.Param p) throws Decline {
+			String v = "__" + p.name() + "Encoded";
+			if (encodedStrings.add(p.name())) {
+				stack = true;
+				int j = java.indexOf(p);
+				temps.add("int " + v + "Length = __stack.n" + encodingOf(tm.function(), t.cls()) + "(" + paramName(j) + ", " + p.has("NullTerminated") + ");");
+				temps.add("long " + v + "Address = __stack.getPointerAddress();");
+			}
+			return v;
 		}
 
 		void useScratch() {
@@ -705,7 +726,7 @@ final class TemplateRule implements Rule {
 				String v = "__" + returned.name();
 				lines.add("\ttry {");
 				lines.add("\t\t" + call + ";");
-				lines.add("\t\treturn " + MU + "memASCII(" + v + ", " + v + "_length.get(0));");
+				lines.add("\t\treturn " + MU + "mem" + returnedEncoding + "(" + v + ", " + v + "_length.get(0));");
 				lines.add("\t} finally {");
 				lines.add("\t\t" + MU + "memFree(" + v + ");");
 				lines.add("\t}");
@@ -717,6 +738,66 @@ final class TemplateRule implements Rule {
 			return String.join("\n", lines);
 		}
 
+	}
+
+	private final Map<String, String> encodings = new HashMap<>();
+
+	/**
+	 * How LWJGL 3 encodes strings of {@code fn}: {@code UTF8} or {@code ASCII}, read from the MemoryStack/MemoryUtil
+	 * helpers its own methods for {@code fn} call (its templates' GLcharUTF8 and GLcharASCII). ASCII, as LWJGL 2 and the
+	 * extension specs have it, when LWJGL 3 has no string form of {@code fn} (glProgramStringARB takes bytes); null when
+	 * its methods use both.
+	 */
+	private String encoding(String fn, String cls) {
+		return encodings.computeIfAbsent(fn, k -> {
+			Set<String> found = new HashSet<>();
+			for (String owner3 : lwjgl3.owners(cls)) {
+				ClassNode cn = trace3.classes.get(owner3);
+				if (cn == null) {
+					continue;
+				}
+				for (MethodNode m : cn.methods) {
+					if (!Lwjgl3Api.isPublicStatic(m) || m.name.equals("n" + fn)) {
+						continue;
+					}
+					boolean calls = false;
+					Set<String> used = new HashSet<>();
+					for (AbstractInsnNode i : m.instructions) {
+						if (i instanceof MethodInsnNode mi) {
+							calls |= mi.name.equals("n" + fn) || mi.name.equals(fn) && !mi.owner.startsWith("org/lwjgl/system/");
+							if (mi.owner.equals("org/lwjgl/system/MemoryStack") || mi.owner.equals("org/lwjgl/system/MemoryUtil")) {
+								used.add(textEncoding(mi.name));
+							}
+						} else if (i instanceof InvokeDynamicInsnNode d) {
+							// encoders passed as method references, e.g. apiArray(stack, MemoryUtil::memUTF8, strings)
+							for (Object a : d.bsmArgs) {
+								if (a instanceof Handle h) {
+									used.add(textEncoding(h.getName()));
+								}
+							}
+						}
+					}
+					if (calls) {
+						found.addAll(used);
+					}
+				}
+			}
+			found.remove(null);
+			return found.size() > 1 ? null : found.contains("UTF8") ? "UTF8" : "ASCII";
+		});
+	}
+
+	/** {@link #encoding}, declining when LWJGL 3's methods for {@code fn} encode strings both ways. */
+	private String encodingOf(String fn, String cls) throws Decline {
+		String e = encoding(fn, cls);
+		if (e == null) {
+			throw new Decline("LWJGL 3 encodes strings of " + fn + " both as ASCII and as UTF-8");
+		}
+		return e;
+	}
+
+	private static String textEncoding(String helper) {
+		return helper.contains("UTF8") ? "UTF8" : helper.contains("ASCII") ? "ASCII" : null;
 	}
 
 	/** A GL constant such as {@code GL11.GL_FLOAT}, from LWJGL 3's class or its {@code C} class. */

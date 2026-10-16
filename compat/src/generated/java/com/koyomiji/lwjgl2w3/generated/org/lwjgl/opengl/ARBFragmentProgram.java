@@ -75,7 +75,9 @@ public final class ARBFragmentProgram {
 	}
 	public static void glProgramStringARB(int target, int format, CharSequence string) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.ARBVertexProgram.nglProgramStringARB(target, format, string.length(), org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(string, false)));
+			int __stringEncodedLength = __stack.nASCII(string, false);
+			long __stringEncodedAddress = __stack.getPointerAddress();
+			org.lwjgl.opengl.ARBVertexProgram.nglProgramStringARB(target, format, __stringEncodedLength, __stringEncodedAddress);
 		}
 	}
 	public static void glBindProgramARB(int target, int program) {

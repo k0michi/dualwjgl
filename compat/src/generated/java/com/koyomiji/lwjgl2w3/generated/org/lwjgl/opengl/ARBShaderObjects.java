@@ -61,7 +61,7 @@ public final class ARBShaderObjects {
 			java.nio.ByteBuffer __name = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(maxLength, 1));
 			try {
 				org.lwjgl.opengl.ARBShaderObjects.nglGetActiveUniformARB(programObj, index, maxLength, org.lwjgl.system.MemoryUtil.memAddress(__name_length), org.lwjgl.system.MemoryUtil.memAddress(sizeType), org.lwjgl.system.MemoryUtil.memAddress(sizeType, sizeType.position() + 1), org.lwjgl.system.MemoryUtil.memAddress(__name));
-				return org.lwjgl.system.MemoryUtil.memASCII(__name, __name_length.get(0));
+				return org.lwjgl.system.MemoryUtil.memUTF8(__name, __name_length.get(0));
 			} finally {
 				org.lwjgl.system.MemoryUtil.memFree(__name);
 			}
@@ -74,7 +74,7 @@ public final class ARBShaderObjects {
 			java.nio.IntBuffer __scratch = __stack.mallocInt(2);
 			try {
 				org.lwjgl.opengl.ARBShaderObjects.nglGetActiveUniformARB(programObj, index, maxLength, org.lwjgl.system.MemoryUtil.memAddress(__name_length), org.lwjgl.system.MemoryUtil.memAddress(__scratch), org.lwjgl.system.MemoryUtil.memAddress(__scratch, 1), org.lwjgl.system.MemoryUtil.memAddress(__name));
-				return org.lwjgl.system.MemoryUtil.memASCII(__name, __name_length.get(0));
+				return org.lwjgl.system.MemoryUtil.memUTF8(__name, __name_length.get(0));
 			} finally {
 				org.lwjgl.system.MemoryUtil.memFree(__name);
 			}

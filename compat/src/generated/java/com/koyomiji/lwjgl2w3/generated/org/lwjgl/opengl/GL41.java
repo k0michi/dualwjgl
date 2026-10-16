@@ -19,7 +19,9 @@ public final class GL41 {
 	}
 	public static int glCreateShaderProgram(int type, CharSequence string) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, 1, org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(string, true)));
+			int __stringEncodedLength = __stack.nUTF8(string, true);
+			long __stringEncodedAddress = __stack.getPointerAddress();
+			return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, 1, __stringEncodedAddress);
 		}
 	}
 	public static int glCreateShaderProgram(int type, CharSequence[] strings) {

@@ -18,7 +18,9 @@ public final class GL43 {
 	}
 	public static void glObjectPtrLabel(PointerWrapper ptr, CharSequence label) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.GL43.nglObjectPtrLabel(ptr.getPointer(), label.length(), org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(label, false)));
+			int __labelEncodedLength = __stack.nUTF8(label, false);
+			long __labelEncodedAddress = __stack.getPointerAddress();
+			org.lwjgl.opengl.GL43.nglObjectPtrLabel(ptr.getPointer(), __labelEncodedLength, __labelEncodedAddress);
 		}
 	}
 	public static void glGetObjectPtrLabel(PointerWrapper ptr, IntBuffer length, ByteBuffer label) {
@@ -31,7 +33,7 @@ public final class GL43 {
 			java.nio.ByteBuffer __label = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(bufSize, 1));
 			try {
 				org.lwjgl.opengl.GL43.nglGetObjectPtrLabel(ptr.getPointer(), bufSize, org.lwjgl.system.MemoryUtil.memAddress(__label_length), org.lwjgl.system.MemoryUtil.memAddress(__label));
-				return org.lwjgl.system.MemoryUtil.memASCII(__label, __label_length.get(0));
+				return org.lwjgl.system.MemoryUtil.memUTF8(__label, __label_length.get(0));
 			} finally {
 				org.lwjgl.system.MemoryUtil.memFree(__label);
 			}
