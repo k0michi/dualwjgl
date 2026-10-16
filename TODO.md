@@ -1,8 +1,8 @@
 # TODO
 
 ## Context
-- [ ] `GLContext.getCapabilities()` and the rest of GLContext
-- [ ] `ContextCapabilities`
+- [x] `GLContext.getCapabilities()` and the rest of GLContext
+- [x] `ContextCapabilities`
 
 ## OpenAL
 - [ ] `AL.create` / `AL.destroy` (closes only what `AL.create` opened; leaves the library to ALC)

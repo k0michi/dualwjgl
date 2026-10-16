@@ -4,10 +4,16 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.sdl.SDL_Event;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -19,7 +25,7 @@ import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 /**
  * Opens a Display and feeds SDL synthetic mouse and keyboard events, then checks what LWJGL 2's Mouse and Keyboard
- * report. Compiled against the
+ * report; then checks GLContext and ContextCapabilities against LWJGL 3's. Compiled against the
  * patched jars and LWJGL 3's SDL module (it pushes SDL events); needs a display, so it is not part of check.
  */
 public final class DisplayInputCheck {
@@ -118,6 +124,55 @@ public final class DisplayInputCheck {
 		check("key names", "A".equals(Keyboard.getKeyName(Keyboard.KEY_A)) && Keyboard.getKeyIndex("RETURN") == Keyboard.KEY_RETURN);
 	}
 
+	static void checkContext() throws Exception {
+		ContextCapabilities caps = GLContext.getCapabilities();
+		check("GLContext.getCapabilities() is cached", caps == GLContext.getCapabilities());
+		GLCapabilities lwjgl3 = GL.getCapabilities();
+		int flags = 0;
+		int differ = 0;
+		for (Field f : ContextCapabilities.class.getFields()) {
+			if (f.getType() != boolean.class || Modifier.isStatic(f.getModifiers())) {
+				continue;
+			}
+			flags++;
+			boolean expected;
+			try {
+				expected = GLCapabilities.class.getField(f.getName()).getBoolean(lwjgl3);
+			} catch (NoSuchFieldException e) {
+				expected = false;
+			}
+			if (f.getBoolean(caps) != expected) {
+				differ++;
+			}
+		}
+		check(flags + " flags, all LWJGL 3's", flags > 300 && differ == 0);
+		check("OpenGL 2.0 and ARB_vertex_buffer_object", caps.OpenGL20 && caps.GL_ARB_vertex_buffer_object);
+
+		Throwable[] other = new Throwable[1];
+		Thread t = new Thread(() -> {
+			try {
+				GLContext.getCapabilities();
+			} catch (Throwable e) {
+				other[0] = e;
+			}
+		});
+		t.start();
+		t.join();
+		check("another thread has no context", other[0] instanceof RuntimeException);
+
+		Display.releaseContext();
+		boolean released;
+		try {
+			GLContext.getCapabilities();
+			released = false;
+		} catch (RuntimeException e) {
+			released = true;
+		}
+		check("releaseContext() clears it", released && !Display.isCurrent());
+		Display.makeCurrent();
+		check("makeCurrent() brings it back", Display.isCurrent() && GLContext.getCapabilities() == caps);
+	}
+
 	public static void main(String[] args) throws Exception {
 		Display.setDisplayMode(new DisplayMode(400, 300));
 		Display.create();
@@ -171,6 +226,7 @@ public final class DisplayInputCheck {
 		cursor.destroy();
 
 		checkKeyboard();
+		checkContext();
 
 		Display.destroy();
 		check("Display.destroy() destroys the Mouse and the Keyboard", !Mouse.isCreated() && !Keyboard.isCreated());

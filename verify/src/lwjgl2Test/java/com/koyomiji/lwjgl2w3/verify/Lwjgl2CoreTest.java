@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.opengl.GLContext;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -66,6 +67,13 @@ class Lwjgl2CoreTest {
 		Sys.initialize();
 		assertTrue(Sys.getVersion().startsWith("2.9"));
 		assertEquals(System.getProperty("os.arch").contains("64"), Sys.is64Bit());
+	}
+
+	@Test
+	void glContextWithoutAContext() {
+		assertNotNull(new GLContext());
+		RuntimeException e = assertThrows(RuntimeException.class, GLContext::getCapabilities);
+		assertEquals("No OpenGL context found in the current thread.", e.getMessage());
 	}
 
 	/** The link tests run without lwjgl-sdl: Sys falls back as LWJGL 2 does when the platform cannot. */

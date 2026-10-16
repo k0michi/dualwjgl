@@ -4,9 +4,11 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
 
 import java.nio.ByteBuffer;
 
@@ -28,6 +30,9 @@ public final class DisplayDemo {
 		Display.create();
 		System.out.println("Created " + Display.getWidth() + "x" + Display.getHeight() + ", OpenGL "
 			+ GL11.glGetString(GL11.GL_VERSION) + " (" + GL11.glGetString(GL11.GL_RENDERER) + ")");
+		ContextCapabilities caps = GLContext.getCapabilities();
+		System.out.println("OpenGL 2.0: " + caps.OpenGL20 + ", 3.0: " + caps.OpenGL30 + ", ARB_vertex_buffer_object: "
+			+ caps.GL_ARB_vertex_buffer_object);
 
 		long start = Sys.getTime();
 		int frame = 0;
