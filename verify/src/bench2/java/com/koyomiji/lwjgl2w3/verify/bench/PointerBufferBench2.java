@@ -3,11 +3,9 @@ package com.koyomiji.lwjgl2w3.verify.bench;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.function.LongSupplier;
 
-/** LWJGL 2 code using PointerBuffer, compiled against LWJGL 2.9.3: plain buffers, a subclass, a non-native source. */
+/** LWJGL 2 code using PointerBuffer, compiled against LWJGL 2.9.3: a plain buffer and a subclass (synced view). */
 public final class PointerBufferBench2 {
 
 	static long sink;
@@ -53,9 +51,6 @@ public final class PointerBufferBench2 {
 		long ops = 2L * 1024 * 2000;
 		time("new PointerBuffer(1024): put/get", ops, loop(new PointerBuffer(1024)));
 		time("subclass (synced view): put/get", ops, loop(new Sub(1024)));
-		ByteOrder other = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
-		ByteBuffer source = BufferUtils.createByteBuffer(1024 * PointerBuffer.getPointerSize()).order(other);
-		time("non-native source (synced, swapped): put/get", ops, loop(new PointerBuffer(source)));
 	}
 
 }

@@ -41,7 +41,6 @@ public final class Merger {
 	static final String HIDDEN = ANNOTATION_PREFIX + "Hidden;";
 	static final String WRAP = ANNOTATION_PREFIX + "Wrap;";
 	static final String AROUND = ANNOTATION_PREFIX + "Around;";
-	static final String REDIRECT = ANNOTATION_PREFIX + "Redirect;";
 	/** Suffix of the original method a @Wrap method replaces */
 	static final String WRAPPED_SUFFIX = "$lwjgl3";
 	static final String INTO = ANNOTATION_PREFIX + "Into;";
@@ -74,8 +73,6 @@ public final class Merger {
 	int overrides;
 	/** target -> {enter, exit} from @Around, applied once every inject class is merged */
 	final Map<String, String[]> arounds = new TreeMap<>();
-	/** target -> {owner, name, desc, helper} from @Redirect */
-	final Map<String, List<String[]>> redirects = new TreeMap<>();
 
 	public static void main(String[] args) throws IOException {
 		Merger m = new Merger();
@@ -436,20 +433,6 @@ public final class Merger {
 				}
 			}
 		}
-		for (MethodNode m : inj.methods) {
-			if (m.invisibleAnnotations == null) {
-				continue;
-			}
-			for (AnnotationNode a : m.invisibleAnnotations) {
-				if (a.desc.equals(REDIRECT)) {
-					if ((m.access & Opcodes.ACC_STATIC) != 0) {
-						throw new IllegalStateException(target + ": @Redirect method " + m.name + " must be an instance method");
-					}
-					redirects.computeIfAbsent(target, k -> new ArrayList<>()).add(new String[] {
-						((org.objectweb.asm.Type)value(a, "owner")).getInternalName(), (String)value(a, "name"), m.desc, m.name});
-				}
-			}
-		}
 	}
 
 	static Object value(AnnotationNode a, String name) {
@@ -461,81 +444,29 @@ public final class Merger {
 		throw new IllegalStateException(a.desc + " has no " + name);
 	}
 
-	/** @Redirect, then @Around, on each target, once all inject classes are merged into it. */
+	/** @Around on each target, once all inject classes are merged into it. */
 	void instrument() {
-		Set<String> targets = new TreeSet<>(arounds.keySet());
-		targets.addAll(redirects.keySet());
-		for (String target : targets) {
+		for (Map.Entry<String, String[]> e : arounds.entrySet()) {
+			String target = e.getKey();
+			String[] hooks = e.getValue();
 			JarImage owner = classOwner.get(target);
 			String entry = target + ".class";
 			ClassNode t = new ClassNode();
 			new ClassReader(owner.entries.get(entry)).accept(t, 0);
-			Set<String> skip = new HashSet<>();
-			for (String[] r : redirects.getOrDefault(target, List.of())) {
-				skip.add(r[3] + r[2]);
-			}
-			int redirected = 0;
-			for (String[] r : redirects.getOrDefault(target, List.of())) {
-				for (MethodNode m : t.methods) {
-					if ((m.access & Opcodes.ACC_STATIC) == 0 && !skip.contains(m.name + m.desc)) {
-						redirected += redirect(t, m, r);
-					}
+			Set<String> skip = Set.of(hooks[0] + "()V", hooks[1] + "()V");
+			int overridden = overrideInherited(t);
+			int wrapped = 0;
+			for (MethodNode m : t.methods) {
+				if (!skip.contains(m.name + m.desc) && wrap(t, m, hooks)) {
+					wrapped++;
 				}
 			}
-			if (redirected > 0) {
-				log.add(entry + ": redirected " + redirected + " calls");
-			}
-			String[] hooks = arounds.get(target);
-			if (hooks != null) {
-				skip.add(hooks[0] + "()V");
-				skip.add(hooks[1] + "()V");
-				int overridden = overrideInherited(t);
-				int wrapped = 0;
-				for (MethodNode m : t.methods) {
-					if (!skip.contains(m.name + m.desc) && wrap(t, m, hooks)) {
-						wrapped++;
-					}
-				}
-				log.add(entry + ": around " + hooks[0] + "/" + hooks[1] + ": " + overridden + " inherited methods overridden, "
-					+ wrapped + " methods wrapped");
-			}
+			log.add(entry + ": around " + hooks[0] + "/" + hooks[1] + ": " + overridden + " inherited methods overridden, "
+				+ wrapped + " methods wrapped");
 			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			t.accept(cw);
 			owner.entries.put(entry, cw.toByteArray());
 		}
-	}
-
-	/** Replaces {@code invokestatic owner.name desc} in {@code m} with {@code this.helper(...)}. */
-	static int redirect(ClassNode t, MethodNode m, String[] r) {
-		int n = 0;
-		for (AbstractInsnNode i : m.instructions.toArray()) {
-			if (!(i instanceof MethodInsnNode mi) || mi.getOpcode() != Opcodes.INVOKESTATIC || !mi.owner.equals(r[0])
-				|| !mi.name.equals(r[1]) || !mi.desc.equals(r[2])) {
-				continue;
-			}
-			// the arguments are on the stack: park them in fresh locals, push this, reload them
-			org.objectweb.asm.Type[] args = org.objectweb.asm.Type.getArgumentTypes(r[2]);
-			int[] slots = new int[args.length];
-			int next = m.maxLocals;
-			for (int k = 0; k < args.length; k++) {
-				slots[k] = next;
-				next += args[k].getSize();
-			}
-			m.maxLocals = next;
-			InsnList c = new InsnList();
-			for (int k = args.length - 1; k >= 0; k--) {
-				c.add(new VarInsnNode(args[k].getOpcode(Opcodes.ISTORE), slots[k]));
-			}
-			c.add(new VarInsnNode(Opcodes.ALOAD, 0));
-			for (int k = 0; k < args.length; k++) {
-				c.add(new VarInsnNode(args[k].getOpcode(Opcodes.ILOAD), slots[k]));
-			}
-			c.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, t.name, r[3], r[2], false));
-			m.instructions.insertBefore(i, c);
-			m.instructions.remove(i);
-			n++;
-		}
-		return n;
 	}
 
 	/** A synthetic override, calling super, of every inherited overridable instance method {@code t} does not declare. */

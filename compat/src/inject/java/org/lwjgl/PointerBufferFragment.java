@@ -3,7 +3,6 @@ package org.lwjgl;
 import com.koyomiji.lwjgl2w3.inject.Around;
 import com.koyomiji.lwjgl2w3.inject.Hidden;
 import com.koyomiji.lwjgl2w3.inject.Into;
-import com.koyomiji.lwjgl2w3.inject.Redirect;
 import com.koyomiji.lwjgl2w3.inject.Wrap;
 import org.lwjgl.system.CustomBuffer;
 
@@ -19,18 +18,19 @@ import static org.lwjgl.system.Pointer.*;
 /**
  * LWJGL 2's PointerBuffer constructors and members, merged into LWJGL 3's PointerBuffer.
  *
- * <p>LWJGL 2's protected fields: {@code pointers} is {@link #getBuffer()}'s buffer, and an LWJGL 2 subclass (or a buffer
- * over a source in non-native order, whose elements LWJGL 2 reads in that order) also gets LWJGL 2's NIO views
- * {@code view}, {@code view32} and {@code view64}. Two owners of the state then: CustomBuffer's fields, which LWJGL 3
+ * <p>DEVIATION(pointer-buffer-native-order): a PointerBuffer always holds native-order pointers, as LWJGL 3's (a
+ * project decision, see docs/DEVELOPMENT.md). LWJGL 2's used its source's order: a buffer over a non-native ByteBuffer
+ * (e.g. ByteBuffer.allocateDirect without order(nativeOrder())) read and wrote byte-swapped values, which native code
+ * could not use. The static put(ByteBuffer, long) and put(ByteBuffer, int, long) are LWJGL 3's (same descriptors) and
+ * write native order at the target's address too; that also crashes the JVM for a heap (non-direct) buffer, where
+ * LWJGL 2's wrote through ByteBuffer.putLong/putInt.</p>
+ *
+ * <p>LWJGL 2's protected fields: {@code pointers} is {@link #getBuffer()}'s buffer, and an LWJGL 2 subclass also gets
+ * LWJGL 2's NIO views {@code view}, {@code view32} and {@code view64}. Two owners of the state then: CustomBuffer's fields, which LWJGL 3
  * code moves, and the view, which the subclass moves. {@link Around} makes every PointerBuffer method pull the view's
  * state on entry and push its own on exit, which keeps them in sync since the subclass can only move the view between
  * two calls. Without a view both hooks return at once, so LWJGL 3's own buffers pay a field check per call
  * ({@code :verify:pointerBufferBench} measures it). Without sun.misc.Unsafe, a mark set on the view is not pulled.</p>
- *
- * <p>DEVIATION(pointer-buffer-static-order): LWJGL 2's static put(ByteBuffer, long) and put(ByteBuffer, int, long)
- * have LWJGL 3's descriptors, so LWJGL 3's run. LWJGL 2's wrote through ByteBuffer.putLong/putInt: in the target's
- * order, into any buffer. LWJGL 3's write native-order values at the buffer's address: a buffer in non-native order
- * gets byte-swapped values, and a heap (non-direct) buffer crashes the JVM.</p>
  *
  * <p>Extends CustomBuffer, like PointerBuffer, so that its constructors can call super(...) and its members can call
  * CustomBuffer's and read its state. In LWJGL 2's package so that it can create the package-private
@@ -46,9 +46,9 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 
 	public PointerBufferFragment(ByteBuffer source) {
 		super(memAddress(checkSource(source)), source, -1, 0, source.remaining() >> POINTER_SHIFT, source.remaining() >> POINTER_SHIFT);
-		pointers = source.slice().order(source.order());
+		pointers = source.slice().order(ByteOrder.nativeOrder());
 		// getClass() is typed after this fragment here
-		if ((Object)getClass() != PointerBuffer.class || pointers.order() != ByteOrder.nativeOrder()) {
+		if ((Object)getClass() != PointerBuffer.class) {
 			if (BITS64) {
 				view32 = null;
 				view = view64 = pointers.asLongBuffer();
@@ -130,36 +130,6 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 		}
 	}
 
-	/** Whether LWJGL 2 reads and writes this buffer's elements in a non-native order: its source's. */
-	private boolean swapped() {
-		return lwjgl2$synced != null && pointers.order() != ByteOrder.nativeOrder();
-	}
-
-	private static long swap(long value) {
-		return BITS64 ? Long.reverseBytes(value) : Integer.toUnsignedLong(Integer.reverseBytes((int)value));
-	}
-
-	// PointerBuffer's element access, in its source's order as in LWJGL 2 when that is not native
-
-	@Hidden
-	@Redirect(owner = org.lwjgl.system.MemoryUtil.class, name = "memGetAddress")
-	final long lwjgl2$memGetAddress(long address) {
-		long value = memGetAddress(address);
-		return swapped() ? swap(value) : value;
-	}
-
-	@Hidden
-	@Redirect(owner = org.lwjgl.system.MemoryUtil.class, name = "memPutAddress")
-	final void lwjgl2$memPutAddress(long address, long value) {
-		memPutAddress(address, swapped() ? swap(value) : value);
-	}
-
-	@Hidden
-	@Redirect(owner = org.lwjgl.system.MemoryUtil.class, name = "memLongBuffer")
-	final LongBuffer lwjgl2$memLongBuffer(long address, int capacity) {
-		return swapped() ? memByteBuffer(address, capacity << 3).order(pointers.order()).asLongBuffer() : memLongBuffer(address, capacity);
-	}
-
 	private static ByteBuffer checkSource(ByteBuffer source) {
 		if (!source.isDirect()) {
 			throw new IllegalArgumentException("The source buffer is not direct.");
@@ -171,10 +141,10 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 	}
 
 	/**
-	 * The whole memory of this buffer, from element 0 to its capacity; always the same object. LWJGL 2's constructors
-	 * create it, as LWJGL 2 did, in the source's order; for other buffers it is created on first use, in native order,
-	 * from the buffer they were created from when there is one, so that it keeps that memory alive. Writable even for a
-	 * read-only buffer, as LWJGL 2's.
+	 * The whole memory of this buffer, from element 0 to its capacity, in native order; always the same object. LWJGL 2's
+	 * constructors create it, as LWJGL 2 did; for other buffers it is created on first use, from the buffer they were
+	 * created from when there is one, so that it keeps that memory alive. Writable even for a read-only buffer, as LWJGL
+	 * 2's.
 	 */
 	public ByteBuffer getBuffer() {
 		ByteBuffer buffer = pointers;
@@ -205,19 +175,18 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 	}
 
 	/**
-	 * LWJGL 3's slice(), slice(int, int) and duplicate() create their result here. For an LWJGL 2 subclass or a buffer
-	 * over a non-native source, through newInstance in the source's order, as LWJGL 2's slice() and duplicate() did, so
-	 * that a subclass overriding it gets its own type back from these too (LWJGL 2 source compiled against these jars
-	 * calls them) and the order is kept. LWJGL 3's own buffers, PointerBufferR and LWJGL 3 subclasses (which override
-	 * this) are unchanged.
+	 * LWJGL 3's slice(), slice(int, int) and duplicate() create their result here. For an LWJGL 2 subclass, through
+	 * newInstance, as LWJGL 2's slice() and duplicate() did, so that a subclass overriding it gets its own type back
+	 * from these too (LWJGL 2 source compiled against these jars calls them). PointerBuffer itself, PointerBufferR and
+	 * LWJGL 3 subclasses (which override this) are unchanged.
 	 */
 	@Wrap
 	protected PointerBuffer create(long address, ByteBuffer container, int mark, int position, int limit, int capacity) {
 		// in this fragment, getClass() is typed after PointerBufferFragment
-		if ((Object)getClass() == PointerBuffer.class && lwjgl2$synced == null) {
+		if ((Object)getClass() == PointerBuffer.class) {
 			return create$lwjgl3(address, container, mark, position, limit, capacity);
 		}
-		PointerBuffer buffer = newInstance(bytes(address, container, capacity).order(order()));
+		PointerBuffer buffer = newInstance(bytes(address, container, capacity));
 		buffer.limit(limit);
 		if (mark >= 0) {
 			buffer.position(mark);
@@ -299,7 +268,7 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 		ByteBuffer bytes = lwjgl2Bytes();
 		bytes.limit(limit << POINTER_SHIFT);
 		bytes.position(position << POINTER_SHIFT);
-		return newInstance(bytes.slice().order(bytes.order()));
+		return newInstance(bytes.slice().order(ByteOrder.nativeOrder()));
 	}
 
 	/**
@@ -316,10 +285,9 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 		return buffer;
 	}
 
-	/** A fresh view of {@link #getBuffer()}'s memory, in its order, so that slicing it does not move the shared one. */
+	/** A fresh view of {@link #getBuffer()}'s memory, so that slicing it does not move the shared one. */
 	private ByteBuffer lwjgl2Bytes() {
-		ByteBuffer buffer = getBuffer();
-		ByteBuffer bytes = buffer.duplicate().order(buffer.order());
+		ByteBuffer bytes = getBuffer().duplicate().order(ByteOrder.nativeOrder());
 		bytes.clear();
 		return bytes;
 	}
@@ -371,9 +339,9 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 		return self().put(index, pointer.getPointer());
 	}
 
-	/** As LWJGL 2's: the order of {@link #getBuffer()}, the source's. */
+	/** Native: see DEVIATION(pointer-buffer-native-order). */
 	public ByteOrder order() {
-		return getBuffer().order();
+		return ByteOrder.nativeOrder();
 	}
 
 }

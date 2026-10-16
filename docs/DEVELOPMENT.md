@@ -6,7 +6,7 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
 
 | Project | Role |
 |---|---|
-| `inject-api` | Annotations read by the merger (`@Widen`, `@Wrap`, `@Around`, `@Redirect`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
+| `inject-api` | Annotations read by the merger (`@Widen`, `@Wrap`, `@Around`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
 | `compat` | The LWJGL 2 implementation, written against LWJGL 3 (and SDL). |
 | `merger` | ASM tool that merges `compat` into the LWJGL 3 jars. |
 | `dist` | Runs the merger: `build/patched/*.jar`. |
@@ -27,8 +27,6 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
   - `@Around(enter, exit)` on an inject class: once everything is merged, every instance method of the target calls
     `enter` first and `exit` on return or exception, and inherited overridable methods get synthetic overrides so that
     calls on the target always go through such a pair. PointerBuffer uses it to keep LWJGL 2's NIO views in sync.
-  - `@Redirect(owner, name)` on an instance method: the target's instance methods call it instead of that static method
-    with the same descriptor (PointerBuffer: `MemoryUtil.memGetAddress` and friends, for LWJGL 2's byte order).
   - `@Hidden`: emit as synthetic, so LWJGL 2 binaries link to it but javac does not see it (prevents overload hijacking
     of LWJGL 3 source).
   - Nested classes in inject classes are not supported yet.
@@ -36,6 +34,10 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
     package-private classes there.
 
 When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins.
+PointerBuffer always holds native-order pointers, whatever the order of the ByteBuffer it is created from, as LWJGL 3's
+does (`DEVIATION(pointer-buffer-native-order)`). This is a project decision: LWJGL 2 kept the source's order, which native
+code cannot read, so a PointerBuffer over e.g. `ByteBuffer.allocateDirect(n)` without `order(nativeOrder())` only worked
+in LWJGL 2 as long as nothing native used it.
 Strings follow LWJGL 3 too: each function's strings are encoded as LWJGL 3 encodes them (ASCII or UTF-8), where LWJGL 2
 truncated every char to a byte (`DEVIATION(text-encoding)`).
 
@@ -54,10 +56,10 @@ marks every place that decision affects.
     lacks, even when the driver has it. Generated unsupported members (`UnsupportedRule`) are all of this kind.
   - `text-encoding`: strings are encoded as LWJGL 3 encodes that function's (ASCII or UTF-8), where LWJGL 2 truncated
     every char to a byte; only non-ASCII text differs.
-  - `pointer-buffer-static-order`: LWJGL 2's static `PointerBuffer.put(ByteBuffer, long)` and
-    `put(ByteBuffer, int, long)` write through the ByteBuffer, in its order; LWJGL 3's, which have the same descriptors
-    and win, write native-order values at its address. A buffer in non-native order gets swapped values; a heap buffer
-    crashes the JVM.
+  - `pointer-buffer-native-order`: PointerBuffer reads and writes native order (the decision above), the static
+    `PointerBuffer.put(ByteBuffer, long)` and `put(ByteBuffer, int, long)` included, which are LWJGL 3's (same
+    descriptors). Those write at the target's address, which also crashes the JVM for a heap buffer, where LWJGL 2 wrote
+    through `ByteBuffer.putLong`/`putInt`.
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
   `@Todo("<area>")` annotation instead, which the merger counts.
 - **`TODO(verify)`**: hand-written code that no test compares with LWJGL 2's behaviour (DelegationTest only covers
@@ -66,12 +68,11 @@ marks every place that decision affects.
 ### PointerBuffer
 
 LWJGL 2's PointerBuffer keeps its state in NIO views (`pointers`, `view`, `view32`, `view64`, protected), LWJGL 3's in
-CustomBuffer's fields. Buffers made by LWJGL 2's constructors get `pointers` (what `getBuffer()` returns, in the source's
-order), and the views too when they are an LWJGL 2 subclass, which can move the views, or have a source in non-native
-order, whose elements LWJGL 2 reads in that order. For those, `@Around` hooks pull the view's position, limit and mark
-on entry to every PointerBuffer method when the view differs from the state last synced, and push the buffer's on exit;
-the mark goes through `sun.misc.Unsafe`, as LWJGL 3 reads `Buffer.address`. LWJGL 3's own buffers have no view and pay a
-null check per call.
+CustomBuffer's fields. Buffers made by LWJGL 2's constructors get `pointers` (what `getBuffer()` returns, in native
+order), and the views too when they are an LWJGL 2 subclass, which can move the views. For those, `@Around` hooks pull
+the view's position, limit and mark on entry to every PointerBuffer method when the view differs from the state last
+synced, and push the buffer's on exit; the mark goes through `sun.misc.Unsafe`, as LWJGL 3 reads `Buffer.address`.
+LWJGL 3's own buffers have no view and pay a null check per call.
 
 `./gradlew :verify:pointerBufferBench` compares PointerBuffer's speed on the original and the patched jars.
 
