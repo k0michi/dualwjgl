@@ -2,6 +2,12 @@ package org.lwjgl;
 
 import org.lwjgl.system.Pointer;
 
+import static org.lwjgl.sdl.SDLClipboard.SDL_GetClipboardText;
+import static org.lwjgl.sdl.SDLInit.*;
+import static org.lwjgl.sdl.SDLMessageBox.SDL_MESSAGEBOX_INFORMATION;
+import static org.lwjgl.sdl.SDLMessageBox.SDL_ShowSimpleMessageBox;
+import static org.lwjgl.sdl.SDLMisc.SDL_OpenURL;
+
 public final class Sys {
 
 	private static final String VERSION = "2.9.3";
@@ -30,19 +36,48 @@ public final class Sys {
 		return Pointer.BITS64;
 	}
 
-	// TODO(sdl): SDL_ShowSimpleMessageBox
+	/**
+	 * A modal message box through SDL, without a parent window. Where SDL cannot show one (no video device, or on macOS
+	 * off the first thread), the message goes to standard error, so that alert never fails.
+	 */
 	public static void alert(String title, String message) {
-		System.err.println("[LWJGL] " + title + ": " + message);
+		// TODO(sdl): release a grabbed Mouse while the box is shown, as LWJGL 2 does
+		if (title == null) {
+			title = "";
+		}
+		if (message == null) {
+			message = "";
+		}
+		boolean shown;
+		try {
+			shown = SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, message, 0L);
+		} catch (LinkageError e) { // lwjgl-sdl or its natives missing
+			shown = false;
+		}
+		if (!shown) {
+			System.err.println("[LWJGL] " + title + ": " + message);
+		}
 	}
 
-	// TODO(sdl): SDL_OpenURL. LWJGL 2 returns false when the URL could not be opened.
+	/** Opens the URL in the system's browser, through SDL; false if it could not. */
 	public static boolean openURL(String url) {
-		return false;
+		try {
+			return SDL_OpenURL(url);
+		} catch (LinkageError e) {
+			return false;
+		}
 	}
 
-	// TODO(sdl): SDL_GetClipboardText. LWJGL 2 returns null when the clipboard is unavailable.
+	/** The clipboard's text, through SDL's video subsystem (initialized if needed); null when unavailable. */
 	public static String getClipboard() {
-		return null;
+		try {
+			if (SDL_WasInit(SDL_INIT_VIDEO) == 0 && !SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+				return null;
+			}
+			return SDL_GetClipboardText();
+		} catch (LinkageError e) {
+			return null;
+		}
 	}
 
 }

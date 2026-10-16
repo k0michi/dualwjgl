@@ -34,7 +34,7 @@ import static org.lwjgl.sdl.SDLVideo.*;
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
  * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
- * device". LWJGL 2 needed neither.</p>
+ * device". LWJGL 2 needed neither. Sys.alert and Sys.getClipboard need it too, and fall back without it.</p>
  */
 public final class Display {
 

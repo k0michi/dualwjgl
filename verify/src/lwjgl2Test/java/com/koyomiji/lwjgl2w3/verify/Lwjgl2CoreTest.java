@@ -68,6 +68,15 @@ class Lwjgl2CoreTest {
 		assertEquals(System.getProperty("os.arch").contains("64"), Sys.is64Bit());
 	}
 
+	/** The link tests run without lwjgl-sdl: Sys falls back as LWJGL 2 does when the platform cannot. */
+	@Test
+	void sysDesktopFunctionsNeverThrow() {
+		Sys.alert("lwjgl2w3", "Sys.alert from a test");
+		Sys.alert(null, null);
+		assertFalse(Sys.openURL("https://www.lwjgl.org"));
+		assertNull(Sys.getClipboard());
+	}
+
 	@Test
 	void lwjglExceptionCanBeCaughtAsChecked() {
 		try {
