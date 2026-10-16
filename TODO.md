@@ -5,9 +5,9 @@
 - [x] `ContextCapabilities`
 
 ## OpenAL
-- [ ] `AL.create` / `AL.destroy` (closes only what `AL.create` opened; leaves the library to ALC)
-- [ ] `AL.isCreated`, `AL.getContext`, `AL.getDevice`
-- [ ] ALC10 / ALC11: `ALCdevice` / `ALCcontext` wrappers, handle-to-wrapper table
+- [x] `AL.create` / `AL.destroy` (closes only what `AL.create` opened; leaves the library to ALC)
+- [x] `AL.isCreated`, `AL.getContext`, `AL.getDevice`
+- [x] ALC10 / ALC11: `ALCdevice` / `ALCcontext` wrappers, handle-to-wrapper table
 - [ ] EFX10
 
 ## OpenCL

@@ -31,6 +31,7 @@ dependencies {
     lwjgl2Api libs.bundles.lwjgl2
     lwjgl3Api libs.bundles.lwjgl3.patched
     natives(variantOf(libs.lwjgl3.core) { classifier(nativesClassifier) })
+    natives(variantOf(libs.lwjgl3.openal) { classifier(nativesClassifier) })
 }
 
 def registerSuite = { String suite, String sources, FileCollection compileAgainst, String compiledAgainst ->
@@ -51,6 +52,8 @@ def registerSuite = { String suite, String sources, FileCollection compileAgains
         useJUnitPlatform()
         // where the few tests that differ between binaries and source (a hidden LWJGL 2 overload) look
         systemProperty 'lwjgl2w3.compiledAgainst', compiledAgainst
+        // OpenAL Soft's null backend: a device to open without sound hardware
+        environment 'ALSOFT_DRIVERS', 'null'
     }
     tasks.named('check') { dependsOn test }
 }

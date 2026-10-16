@@ -346,8 +346,9 @@ public final class Merger {
 				log.add(entry + ": skip bridge " + m.name + m.desc);
 				continue;
 			}
-			if ((m.access & Opcodes.ACC_ABSTRACT) != 0) {
-				// declared so that the inject class compiles (e.g. the original of a @Wrap method): must exist in the target
+			if ((m.access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) != 0) {
+				// declared so that the inject class compiles (e.g. the original of a @Wrap method, native when static):
+				// must exist in the target
 				declaredOnly.add(m);
 				continue;
 			}

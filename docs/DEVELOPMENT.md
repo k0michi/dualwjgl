@@ -22,7 +22,8 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
   - Adding a member that LWJGL 3 already declares (same name and descriptor) is an error.
   - `@Widen` on a member LWJGL 3 already declares: keep LWJGL 3's member, only widen its access.
   - `@Wrap` on a method LWJGL 3 already declares: replace it, keeping the original as `<name>$lwjgl3` (synthetic) for
-    the inject class to call (declare it `abstract` there). Every caller, LWJGL 3's own included, goes through the
+    the inject class to call (declare it `abstract` there, or `static native` for a static method; either is only
+    declared, not merged). Every caller, LWJGL 3's own included, goes through the
     wrapper; e.g. `PointerBuffer.create(...)` sends LWJGL 2 subclasses through `newInstance`.
   - `@Around(enter, exit)` on an inject class: once everything is merged, every instance method of the target calls
     `enter` first and `exit` on return or exception, and inherited overridable methods get synthetic overrides so that
@@ -106,6 +107,18 @@ is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embed
 Not part of check, as they open a window: `./gradlew :verify:displayDemo` (`-Pframes=N` to stop) runs an LWJGL 2
 program; `./gradlew :verify:displayInputCheck` feeds the Display synthetic SDL events and checks LWJGL 2's Mouse and
 Keyboard.
+
+### OpenAL
+
+LWJGL 2's `ALCdevice` and `ALCcontext` are its sources, unchanged; they wrap LWJGL 3's handles. `ALObjects`
+(`compat/src/main`) holds LWJGL 2's handle-to-wrapper tables and the bodies of its `AL`, `ALC10` and `ALC11` members, with
+LWJGL 3's functions in place of the natives; the `@Into` fragments in `compat/src/inject/java/org/lwjgl/openal` forward
+to it. LWJGL 3's `ALC` owns the library, so `AL.create` loads it only when nothing has (explicit init), and makes the
+first context made current create AL's capabilities, which LWJGL 3 needs a current context for. `AL.destroy` (LWJGL 3's
+is package-private, called by `ALC.destroy`, and is wrapped) closes only the context and device `AL.create` opened,
+then clears the capabilities, and unloads the library only if `AL.create` loaded it and this is not `ALC.destroy`'s call.
+
+The link tests open devices on OpenAL Soft's null backend (`ALSOFT_DRIVERS=null`).
 
 ### Generated code
 
