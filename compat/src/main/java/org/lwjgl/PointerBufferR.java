@@ -40,7 +40,10 @@ final class PointerBufferR extends PointerBuffer {
 		return duplicate();
 	}
 
-	/** DEVIATION(newInstance): see PointerBuffer's; LWJGL 2's read-only buffer returned a read-only buffer here too. */
+	/**
+	 * As LWJGL 2's read-only buffer: LWJGL 2's slice() and duplicate() of a read-only buffer stay read-only through this.
+	 * DEVIATION(newInstance): see PointerBuffer's; LWJGL 3's slice() and duplicate() stay read-only through create(...).
+	 */
 	protected PointerBuffer newInstance(ByteBuffer source) {
 		int capacity = source.remaining() >> POINTER_SHIFT;
 		return new PointerBufferR(memAddress(source), source, -1, 0, capacity, capacity);

@@ -131,16 +131,34 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 		return super.rewind();
 	}
 
+	/** As LWJGL 2's: newInstance over the elements from position to limit. See DEVIATION(newInstance). */
 	@Hidden
 	@Override
 	public PointerBuffer slice() {
-		return super.slice();
+		ByteBuffer bytes = lwjgl2Bytes();
+		bytes.limit(limit << POINTER_SHIFT);
+		bytes.position(position << POINTER_SHIFT);
+		return newInstance(bytes.slice().order(ByteOrder.nativeOrder()));
 	}
 
+	/**
+	 * As LWJGL 2's: newInstance over the whole buffer, then this buffer's position and limit (not its mark, which LWJGL
+	 * 2 did not copy either). See DEVIATION(newInstance).
+	 */
 	@Hidden
 	@Override
 	public PointerBuffer duplicate() {
-		return super.duplicate();
+		PointerBuffer buffer = newInstance(lwjgl2Bytes());
+		buffer.position(position);
+		buffer.limit(limit);
+		return buffer;
+	}
+
+	/** A fresh view of {@link #getBuffer()}'s memory, so that slicing it does not move the shared view. */
+	private ByteBuffer lwjgl2Bytes() {
+		ByteBuffer bytes = getBuffer().duplicate();
+		bytes.clear();
+		return bytes.order(ByteOrder.nativeOrder());
 	}
 
 	/** As NIO's and LWJGL 2's: advances {@code src} too, where LWJGL 3's put(PointerBuffer) leaves it. */
@@ -160,9 +178,16 @@ abstract class PointerBufferFragment extends CustomBuffer<PointerBuffer> {
 	}
 
 	/**
-	 * DEVIATION(newInstance): LWJGL 2's slice() and duplicate() create their result with newInstance, so a subclass
-	 * overriding it got its own type back. LWJGL 3's create them with create(...) and never call newInstance: an
-	 * override here has no effect on them. Few, if any, LWJGL 2 users subclass PointerBuffer; revisit if one does.
+	 * DEVIATION(newInstance): LWJGL 2 binaries call LWJGL 2's slice() and duplicate() (the hidden overloads above), which
+	 * create their result here, as in LWJGL 2, so a subclass overriding this gets its own type back. Two paths still
+	 * bypass it, and return a plain PointerBuffer (a PointerBufferR when read-only):
+	 * <ul>
+	 * <li>LWJGL 3 code calling slice() or duplicate();</li>
+	 * <li>LWJGL 2 source compiled against these jars: javac sees only LWJGL 3's slice() and duplicate(), which have the
+	 * same signature and win.</li>
+	 * </ul>
+	 * Both go through LWJGL 3's create(...). Few, if any, LWJGL 2 users subclass PointerBuffer; revisit if one needs
+	 * these paths too.
 	 */
 	protected PointerBuffer newInstance(ByteBuffer source) {
 		return PointerBuffer.create(source);

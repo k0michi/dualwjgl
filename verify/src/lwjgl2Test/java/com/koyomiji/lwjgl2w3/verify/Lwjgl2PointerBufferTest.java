@@ -92,6 +92,70 @@ class Lwjgl2PointerBufferTest {
 		assertEquals(binary ? 2 : 0, ro.position());
 	}
 
+	/** An LWJGL 2 subclass that keeps its type through slice() and duplicate(), as LWJGL 2 allowed. */
+	static final class Tagged extends PointerBuffer {
+		final ByteOrder sourceOrder;
+
+		Tagged(ByteBuffer source) {
+			super(source);
+			sourceOrder = source.order();
+		}
+
+		@Override
+		protected PointerBuffer newInstance(ByteBuffer source) {
+			return new Tagged(source);
+		}
+	}
+
+	@Test
+	void subclassNewInstanceDrivesSliceAndDuplicate() {
+		Tagged p = new Tagged(BufferUtils.createByteBuffer(4 * SIZE));
+		p.put(0, 10L).put(1, 11L).put(2, 12L).put(3, 13L);
+		p.position(1).limit(3);
+
+		PointerBuffer s = p.slice();
+		PointerBuffer d = p.duplicate();
+		// LWJGL 2 binaries call LWJGL 2's slice()/duplicate(), which go through newInstance. Source compiled against
+		// the patched jars calls LWJGL 3's (same signature, LWJGL 3 wins): see DEVIATION(newInstance).
+		boolean binary = "original".equals(System.getProperty("lwjgl2w3.compiledAgainst"));
+		assertEquals(binary, s instanceof Tagged);
+		assertEquals(binary, d instanceof Tagged);
+		if (binary) {
+			assertEquals(ByteOrder.nativeOrder(), ((Tagged)s).sourceOrder);
+			assertEquals(ByteOrder.nativeOrder(), ((Tagged)d).sourceOrder);
+		}
+
+		// either way: the slice is the elements from position to limit, the duplicate has the same state and memory
+		assertEquals(0, s.position());
+		assertEquals(2, s.capacity());
+		assertEquals(11L, s.get(0));
+		assertEquals(12L, s.get(1));
+		assertEquals(1, d.position());
+		assertEquals(3, d.limit());
+		assertEquals(4, d.capacity());
+		s.put(0, 21L);
+		assertEquals(21L, p.get(1));
+		assertEquals(21L, d.get(1));
+
+		// slicing does not move the shared getBuffer() view
+		assertEquals(0, p.getBuffer().position());
+		assertEquals(4 * SIZE, p.getBuffer().limit());
+	}
+
+	@Test
+	void readOnlySliceAndDuplicateStayReadOnly() {
+		PointerBuffer r = new PointerBuffer(4).asReadOnlyBuffer();
+		r.position(1);
+		PointerBuffer s = r.slice();
+		PointerBuffer d = r.duplicate();
+		assertTrue(s.isReadOnly());
+		assertTrue(d.isReadOnly());
+		assertEquals(3, s.capacity());
+		assertEquals(1, d.position());
+		assertThrows(ReadOnlyBufferException.class, () -> s.put(0, 1L));
+		assertThrows(ReadOnlyBufferException.class, () -> d.put(0, 1L));
+	}
+
 	@Test
 	void getBufferIsTheSameViewOfTheWholeMemory() {
 		ByteBuffer source = BufferUtils.createByteBuffer(4 * SIZE);
