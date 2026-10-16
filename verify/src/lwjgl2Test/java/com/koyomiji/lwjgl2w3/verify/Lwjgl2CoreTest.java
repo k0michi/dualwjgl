@@ -85,6 +85,12 @@ class Lwjgl2CoreTest {
 		assertNull(Display.getParent());
 	}
 
+	@Test
+	void displayConfigurationBeforeCreate() {
+		LWJGLException e = assertThrows(LWJGLException.class, () -> Display.setDisplayConfiguration(1f, 0f, 1f));
+		assertEquals("Display not yet created.", e.getMessage());
+	}
+
 	/** As LWJGL 2 without JInput: the link tests run without lwjgl-sdl. */
 	@Test
 	void controllersWithoutSdl() {

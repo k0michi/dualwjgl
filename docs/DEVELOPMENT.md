@@ -65,6 +65,8 @@ marks every place that decision affects.
     cursor; LWJGL 2 animated natively only on Linux and switched single images from Java elsewhere.
   - `controllers-sdl`: Controllers are SDL's gamepads (standard layout) and joysticks, not JInput's, whose names, order
     and ranges varied by platform; JInput is not needed.
+  - `display-configuration`: `Display.setDisplayConfiguration` (gamma) throws "Display configuration not supported", as
+    LWJGL 2 did on platforms without a gamma ramp; SDL 3 has no gamma API.
   - `keyboard-physical-keys`: key codes name physical keys on every platform; LWJGL 2 on Linux followed the layout.
   - `macos-first-thread`: on macOS the Display needs `-XstartOnFirstThread` (SDL's video runs on the first thread).
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the

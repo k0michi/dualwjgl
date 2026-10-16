@@ -34,8 +34,8 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse and Keyboard (compiled
  * unchanged) reach through getImplementation(), as in LWJGL 2.</p>
  *
- * <p>Not there yet: shared contexts and Pbuffers, OpenGL ES and setDisplayConfiguration (gamma). Not supported:
- * setParent (AWT embedding, DEVIATION(awt)).</p>
+ * <p>Not there yet: shared contexts and Pbuffers, OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt))
+ * and setDisplayConfiguration (gamma, DEVIATION(display-configuration)).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
  * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
@@ -210,10 +210,23 @@ public final class Display {
 		return y == -1 ? SDL_WINDOWPOS_CENTERED : y;
 	}
 
-	/** Not supported: SDL 3 has no gamma ramps. LWJGL 2 throws too where the platform cannot. */
+	/**
+	 * DEVIATION(display-configuration): not supported, failing as LWJGL 2 did where the platform had no gamma ramp. SDL 3
+	 * has no gamma API. LWJGL 2's checks come first, in its order.
+	 */
 	public static void setDisplayConfiguration(float gamma, float brightness, float contrast) throws LWJGLException {
-		// TODO(sdl): gamma, brightness and contrast
-		throw new LWJGLException("Display configuration is not supported");
+		synchronized (lock) {
+			if (!isCreated()) {
+				throw new LWJGLException("Display not yet created.");
+			}
+			if (brightness < -1.0f || brightness > 1.0f) {
+				throw new IllegalArgumentException("Invalid brightness value");
+			}
+			if (contrast < 0.0f) {
+				throw new IllegalArgumentException("Invalid contrast value");
+			}
+			throw new LWJGLException("Display configuration not supported");
+		}
 	}
 
 	// ---- window

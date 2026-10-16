@@ -173,6 +173,34 @@ public final class DisplayInputCheck {
 		check("makeCurrent() brings it back", Display.isCurrent() && GLContext.getCapabilities() == caps);
 	}
 
+	/** DEVIATION(display-configuration): LWJGL 2's argument checks, then not supported. */
+	static void checkDisplayConfiguration() {
+		boolean brightness = false;
+		boolean contrast = false;
+		String unsupported = null;
+		try {
+			Display.setDisplayConfiguration(1f, 2f, 1f);
+		} catch (IllegalArgumentException e) {
+			brightness = true;
+		} catch (Exception e) {
+			// wrong
+		}
+		try {
+			Display.setDisplayConfiguration(1f, 0f, -1f);
+		} catch (IllegalArgumentException e) {
+			contrast = true;
+		} catch (Exception e) {
+			// wrong
+		}
+		try {
+			Display.setDisplayConfiguration(1f, 0f, 1f);
+		} catch (Exception e) {
+			unsupported = e.getMessage();
+		}
+		check("setDisplayConfiguration: LWJGL 2's checks, then not supported", brightness && contrast
+			&& "Display configuration not supported".equals(unsupported));
+	}
+
 	public static void main(String[] args) throws Exception {
 		Display.setDisplayMode(new DisplayMode(400, 300));
 		Display.create();
@@ -242,6 +270,7 @@ public final class DisplayInputCheck {
 
 		checkKeyboard();
 		checkContext();
+		checkDisplayConfiguration();
 
 		Display.destroy();
 		check("Display.destroy() destroys the Mouse and the Keyboard", !Mouse.isCreated() && !Keyboard.isCreated());
