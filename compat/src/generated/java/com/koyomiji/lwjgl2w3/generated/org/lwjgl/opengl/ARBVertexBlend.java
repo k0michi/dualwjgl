@@ -1,6 +1,5 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -38,16 +37,13 @@ public final class ARBVertexBlend {
 	public static void glWeightPointerARB(int size, int stride, FloatBuffer pPointer) {
 		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
 	}
-	@Todo("gl")
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, ByteBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, (unsigned ? 5121 : 5120), stride, org.lwjgl.system.MemoryUtil.memAddress(pPointer));
 	}
-	@Todo("gl")
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, IntBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, (unsigned ? 5125 : 5124), stride, org.lwjgl.system.MemoryUtil.memAddress(pPointer));
 	}
-	@Todo("gl")
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, ShortBuffer pPointer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, (unsigned ? 5123 : 5122), stride, org.lwjgl.system.MemoryUtil.memAddress(pPointer));
 	}
 }

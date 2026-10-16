@@ -240,7 +240,9 @@ final class StubWriter {
 				} else {
 					delegations++;
 				}
-				code.line(delegate);
+				for (String line : delegate.split("\n")) {
+					code.line(line);
+				}
 			} else {
 				code.line(THROW);
 			}

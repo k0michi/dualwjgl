@@ -1,6 +1,5 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -45,28 +44,55 @@ public final class ARBShaderObjects {
 	public static void glGetObjectParameterARB(int obj, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.ARBShaderObjects.glGetObjectParameterfvARB(obj, pname, params);
 	}
-	@Todo("gl")
 	public static float glGetObjectParameterfARB(int obj, int pname) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.FloatBuffer __params = __stack.mallocFloat(2);
+			org.lwjgl.opengl.ARBShaderObjects.nglGetObjectParameterfvARB(obj, pname, org.lwjgl.system.MemoryUtil.memAddress(__params));
+			return __params.get(0);
+		}
 	}
 	public static void glGetObjectParameterARB(int obj, int pname, IntBuffer params) {
 		org.lwjgl.opengl.ARBShaderObjects.glGetObjectParameterivARB(obj, pname, params);
 	}
-	@Todo("gl")
 	public static String glGetActiveUniformARB(int programObj, int index, int maxLength, IntBuffer sizeType) {
-		throw new UnsupportedOperationException();
+		if (org.lwjgl.system.Checks.CHECKS) org.lwjgl.system.Checks.check(sizeType, 2);
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __name_length = __stack.mallocInt(1);
+			java.nio.ByteBuffer __name = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(maxLength, 1));
+			try {
+				org.lwjgl.opengl.ARBShaderObjects.nglGetActiveUniformARB(programObj, index, maxLength, org.lwjgl.system.MemoryUtil.memAddress(__name_length), org.lwjgl.system.MemoryUtil.memAddress(sizeType), org.lwjgl.system.MemoryUtil.memAddress(sizeType, sizeType.position() + 1), org.lwjgl.system.MemoryUtil.memAddress(__name));
+				return org.lwjgl.system.MemoryUtil.memASCII(__name, __name_length.get(0));
+			} finally {
+				org.lwjgl.system.MemoryUtil.memFree(__name);
+			}
+		}
 	}
-	@Todo("gl")
 	public static String glGetActiveUniformARB(int programObj, int index, int maxLength) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __name_length = __stack.mallocInt(1);
+			java.nio.ByteBuffer __name = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(maxLength, 1));
+			java.nio.IntBuffer __scratch = __stack.mallocInt(2);
+			try {
+				org.lwjgl.opengl.ARBShaderObjects.nglGetActiveUniformARB(programObj, index, maxLength, org.lwjgl.system.MemoryUtil.memAddress(__name_length), org.lwjgl.system.MemoryUtil.memAddress(__scratch), org.lwjgl.system.MemoryUtil.memAddress(__scratch, 1), org.lwjgl.system.MemoryUtil.memAddress(__name));
+				return org.lwjgl.system.MemoryUtil.memASCII(__name, __name_length.get(0));
+			} finally {
+				org.lwjgl.system.MemoryUtil.memFree(__name);
+			}
+		}
 	}
-	@Todo("gl")
 	public static int glGetActiveUniformSizeARB(int programObj, int index) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __size = __stack.mallocInt(2);
+			org.lwjgl.opengl.ARBShaderObjects.nglGetActiveUniformARB(programObj, index, 0, 0, org.lwjgl.system.MemoryUtil.memAddress(__size), org.lwjgl.system.MemoryUtil.memAddress(__size, 1), org.lwjgl.system.MemoryUtil.memAddress(__stack.malloc(1)));
+			return __size.get(0);
+		}
 	}
-	@Todo("gl")
 	public static int glGetActiveUniformTypeARB(int programObj, int index) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __type = __stack.mallocInt(2);
+			org.lwjgl.opengl.ARBShaderObjects.nglGetActiveUniformARB(programObj, index, 0, 0, org.lwjgl.system.MemoryUtil.memAddress(__type, 1), org.lwjgl.system.MemoryUtil.memAddress(__type), org.lwjgl.system.MemoryUtil.memAddress(__stack.malloc(1)));
+			return __type.get(0);
+		}
 	}
 	public static void glGetUniformARB(int programObj, int location, FloatBuffer params) {
 		org.lwjgl.opengl.ARBShaderObjects.glGetUniformfvARB(programObj, location, params);

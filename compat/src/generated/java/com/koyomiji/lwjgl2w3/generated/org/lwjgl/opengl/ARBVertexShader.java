@@ -14,33 +14,54 @@ public final class ARBVertexShader {
 	public static void glVertexAttribPointerARB(int index, int size, boolean normalized, int stride, FloatBuffer buffer) {
 		org.lwjgl.opengl.ARBVertexShader.nglVertexAttribPointerARB(index, size, 5126, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ByteBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexShader.nglVertexAttribPointerARB(index, size, (unsigned ? 5121 : 5120), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, IntBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexShader.nglVertexAttribPointerARB(index, size, (unsigned ? 5125 : 5124), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ShortBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexShader.nglVertexAttribPointerARB(index, size, (unsigned ? 5123 : 5122), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
 	}
-	@Todo("gl")
 	public static String glGetActiveAttribARB(int programObj, int index, int maxLength, IntBuffer sizeType) {
-		throw new UnsupportedOperationException();
+		if (org.lwjgl.system.Checks.CHECKS) org.lwjgl.system.Checks.check(sizeType, 2);
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __name_length = __stack.mallocInt(1);
+			java.nio.ByteBuffer __name = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(maxLength, 1));
+			try {
+				org.lwjgl.opengl.ARBVertexShader.nglGetActiveAttribARB(programObj, index, maxLength, org.lwjgl.system.MemoryUtil.memAddress(__name_length), org.lwjgl.system.MemoryUtil.memAddress(sizeType), org.lwjgl.system.MemoryUtil.memAddress(sizeType, sizeType.position() + 1), org.lwjgl.system.MemoryUtil.memAddress(__name));
+				return org.lwjgl.system.MemoryUtil.memASCII(__name, __name_length.get(0));
+			} finally {
+				org.lwjgl.system.MemoryUtil.memFree(__name);
+			}
+		}
 	}
-	@Todo("gl")
 	public static String glGetActiveAttribARB(int programObj, int index, int maxLength) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __name_length = __stack.mallocInt(1);
+			java.nio.ByteBuffer __name = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(maxLength, 1));
+			java.nio.IntBuffer __scratch = __stack.mallocInt(2);
+			try {
+				org.lwjgl.opengl.ARBVertexShader.nglGetActiveAttribARB(programObj, index, maxLength, org.lwjgl.system.MemoryUtil.memAddress(__name_length), org.lwjgl.system.MemoryUtil.memAddress(__scratch), org.lwjgl.system.MemoryUtil.memAddress(__scratch, 1), org.lwjgl.system.MemoryUtil.memAddress(__name));
+				return org.lwjgl.system.MemoryUtil.memASCII(__name, __name_length.get(0));
+			} finally {
+				org.lwjgl.system.MemoryUtil.memFree(__name);
+			}
+		}
 	}
-	@Todo("gl")
 	public static int glGetActiveAttribSizeARB(int programObj, int index) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __size = __stack.mallocInt(2);
+			org.lwjgl.opengl.ARBVertexShader.nglGetActiveAttribARB(programObj, index, 0, 0, org.lwjgl.system.MemoryUtil.memAddress(__size), org.lwjgl.system.MemoryUtil.memAddress(__size, 1), org.lwjgl.system.MemoryUtil.memAddress(__stack.malloc(1)));
+			return __size.get(0);
+		}
 	}
-	@Todo("gl")
 	public static int glGetActiveAttribTypeARB(int programObj, int index) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __type = __stack.mallocInt(2);
+			org.lwjgl.opengl.ARBVertexShader.nglGetActiveAttribARB(programObj, index, 0, 0, org.lwjgl.system.MemoryUtil.memAddress(__type, 1), org.lwjgl.system.MemoryUtil.memAddress(__type), org.lwjgl.system.MemoryUtil.memAddress(__stack.malloc(1)));
+			return __type.get(0);
+		}
 	}
 	public static void glGetVertexAttribARB(int index, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.ARBVertexShader.glGetVertexAttribfvARB(index, pname, params);

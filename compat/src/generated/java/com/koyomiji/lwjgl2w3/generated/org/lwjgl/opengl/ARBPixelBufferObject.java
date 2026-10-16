@@ -106,9 +106,12 @@ public final class ARBPixelBufferObject {
 		org.lwjgl.opengl.ARBVertexBufferObject.nglGetBufferParameterivARB(target, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 	@Deprecated
-	@Todo("gl")
 	public static int glGetBufferParameterARB(int target, int pname) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __params = __stack.mallocInt(2);
+			org.lwjgl.opengl.ARBVertexBufferObject.nglGetBufferParameterivARB(target, pname, org.lwjgl.system.MemoryUtil.memAddress(__params));
+			return __params.get(0);
+		}
 	}
 	public static int glGetBufferParameteriARB(int target, int pname) {
 		return org.lwjgl.opengl.ARBVertexBufferObject.glGetBufferParameteriARB(target, pname);

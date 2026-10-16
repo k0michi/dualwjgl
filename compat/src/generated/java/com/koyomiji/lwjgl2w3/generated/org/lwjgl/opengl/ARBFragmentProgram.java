@@ -73,9 +73,10 @@ public final class ARBFragmentProgram {
 	public static void glProgramStringARB(int target, int format, ByteBuffer string) {
 		org.lwjgl.opengl.ARBVertexProgram.glProgramStringARB(target, format, string);
 	}
-	@Todo("gl")
 	public static void glProgramStringARB(int target, int format, CharSequence string) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			org.lwjgl.opengl.ARBVertexProgram.nglProgramStringARB(target, format, string.length(), org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(string, false)));
+		}
 	}
 	public static void glBindProgramARB(int target, int program) {
 		org.lwjgl.opengl.ARBVertexProgram.glBindProgramARB(target, program);
@@ -83,9 +84,10 @@ public final class ARBFragmentProgram {
 	public static void glDeleteProgramsARB(IntBuffer programs) {
 		org.lwjgl.opengl.ARBVertexProgram.glDeleteProgramsARB(programs);
 	}
-	@Todo("gl")
 	public static void glDeleteProgramsARB(int program) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			org.lwjgl.opengl.ARBVertexProgram.nglDeleteProgramsARB(1, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(program)));
+		}
 	}
 	public static void glGenProgramsARB(IntBuffer programs) {
 		org.lwjgl.opengl.ARBVertexProgram.glGenProgramsARB(programs);
@@ -133,9 +135,12 @@ public final class ARBFragmentProgram {
 		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramivARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
 	}
 	@Deprecated
-	@Todo("gl")
 	public static int glGetProgramARB(int target, int parameterName) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __params = __stack.mallocInt(2);
+			org.lwjgl.opengl.ARBVertexProgram.nglGetProgramivARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddress(__params));
+			return __params.get(0);
+		}
 	}
 	public static int glGetProgramiARB(int target, int parameterName) {
 		return org.lwjgl.opengl.ARBVertexProgram.glGetProgramiARB(target, parameterName);

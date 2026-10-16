@@ -10,7 +10,7 @@ import java.util.Map;
 
 /** Command line: {@code --name value} pairs, see stubgen/build.gradle. */
 record Options(
-	List<String> sources, String classpath, List<String> lwjgl3, Path main, Path copied, Path replace, Path generated,
+	List<String> sources, Path templates, String classpath, List<String> lwjgl3, Path main, Path copied, Path replace, Path generated,
 	Path injectClasses, Path diagnostics
 ) {
 
@@ -20,7 +20,7 @@ record Options(
 			a.put(args[i], args[i + 1]);
 		}
 		return new Options(
-			split(a.get("--sources")), a.get("--classpath"), split(a.get("--lwjgl3")),
+			split(a.get("--sources")), Paths.get(a.get("--templates")), a.get("--classpath"), split(a.get("--lwjgl3")),
 			Paths.get(a.get("--main")), Paths.get(a.get("--copied")), Paths.get(a.get("--replace")), Paths.get(a.get("--generated")),
 			Paths.get(a.get("--inject-classes")), a.containsKey("--diagnostics") ? Paths.get(a.get("--diagnostics")) : null);
 	}

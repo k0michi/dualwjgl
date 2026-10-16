@@ -14,17 +14,14 @@ public final class ARBVertexProgram {
 	public static void glVertexAttribPointerARB(int index, int size, boolean normalized, int stride, FloatBuffer buffer) {
 		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, 5126, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ByteBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, (unsigned ? 5121 : 5120), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, IntBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, (unsigned ? 5125 : 5124), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
 	}
-	@Todo("gl")
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ShortBuffer buffer) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, (unsigned ? 5123 : 5122), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
 	}
 	public static void glGetVertexAttribARB(int index, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.ARBVertexProgram.glGetVertexAttribfvARB(index, pname, params);
@@ -39,13 +36,15 @@ public final class ARBVertexProgram {
 	public static ByteBuffer glGetVertexAttribPointerARB(int index, int pname, long result_size) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static void glProgramStringARB(int target, int format, CharSequence string) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			org.lwjgl.opengl.ARBVertexProgram.nglProgramStringARB(target, format, string.length(), org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(string, false)));
+		}
 	}
-	@Todo("gl")
 	public static void glDeleteProgramsARB(int program) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			org.lwjgl.opengl.ARBVertexProgram.nglDeleteProgramsARB(1, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(program)));
+		}
 	}
 	public static void glProgramEnvParameter4ARB(int target, int index, FloatBuffer params) {
 		org.lwjgl.opengl.ARBVertexProgram.glProgramEnvParameter4fvARB(target, index, params);
