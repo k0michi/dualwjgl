@@ -172,3 +172,11 @@ tasks.register('displayInputCheck', JavaExec) {
         jvmArgs '-XstartOnFirstThread'
     }
 }
+
+// SDL virtual gamepad and joystick against LWJGL 2's Controllers; needs no window.
+tasks.register('controllersCheck', JavaExec) {
+    group = 'verification'
+    classpath = sourceSets.displayCheck.output + patched + configurations.demoRuntime
+    mainClass = 'com.koyomiji.lwjgl2w3.verify.demo.ControllersCheck'
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+}

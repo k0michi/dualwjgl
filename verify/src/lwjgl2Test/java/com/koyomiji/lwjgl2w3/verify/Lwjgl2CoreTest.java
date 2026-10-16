@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.input.Controllers;
 import org.lwjgl.opengl.AWTGLCanvas;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GLContext;
@@ -82,6 +83,15 @@ class Lwjgl2CoreTest {
 		assertThrows(LWJGLException.class, () -> Display.setParent(new Canvas()));
 		assertDoesNotThrow(() -> Display.setParent(null));
 		assertNull(Display.getParent());
+	}
+
+	/** As LWJGL 2 without JInput: the link tests run without lwjgl-sdl. */
+	@Test
+	void controllersWithoutSdl() {
+		LWJGLException e = assertThrows(LWJGLException.class, Controllers::create);
+		assertEquals("Failed to initialise controllers", e.getMessage());
+		assertFalse(Controllers.isCreated());
+		assertEquals(0, Controllers.getControllerCount());
 	}
 
 	@Test

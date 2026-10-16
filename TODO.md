@@ -37,7 +37,7 @@
 - [ ] `Drawable.setCLSharingProperties`
 
 ## Input
-- [ ] Controllers (JInput)
+- [x] Controllers: on SDL instead of JInput
 - [ ] Animated cursors on Linux
 
 ## lwjgl_util
