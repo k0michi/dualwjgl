@@ -34,7 +34,8 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse and Keyboard (compiled
  * unchanged) reach through getImplementation(), as in LWJGL 2.</p>
  *
- * <p>Not there yet: shared contexts and Pbuffers, OpenGL ES, setParent (AWT embedding) and setDisplayConfiguration (gamma).</p>
+ * <p>Not there yet: shared contexts and Pbuffers, OpenGL ES and setDisplayConfiguration (gamma). Not supported:
+ * setParent (AWT embedding, DEVIATION(awt)).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
  * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
@@ -240,10 +241,9 @@ public final class Display {
 		return null;
 	}
 
-	/** Not supported yet: embedding in an AWT Canvas. A null parent, the default, is accepted. */
+	/** DEVIATION(awt): embedding in an AWT Canvas is not supported. A null parent, the default, is accepted. */
 	public static void setParent(Canvas parent) throws LWJGLException {
 		if (parent != null) {
-			// TODO(sdl): AWT embedding
 			throw new LWJGLException("Display.setParent is not supported");
 		}
 	}

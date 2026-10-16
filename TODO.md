@@ -32,7 +32,7 @@
 
 ## Display
 - [ ] Shared contexts: `SharedDrawable`, `Pbuffer`
-- [ ] `setParent` / AWT embedding, `AWTGLCanvas`
+- [x] `setParent` / AWT embedding, `AWTGLCanvas`: not supported, throws
 - [ ] `setDisplayConfiguration`
 - [ ] `Drawable.setCLSharingProperties`
 

@@ -60,6 +60,7 @@ marks every place that decision affects.
     `PointerBuffer.put(ByteBuffer, long)` and `put(ByteBuffer, int, long)` included, which are LWJGL 3's (same
     descriptors). Those write at the target's address, which also crashes the JVM for a heap buffer, where LWJGL 2 wrote
     through `ByteBuffer.putLong`/`putInt`.
+  - `awt`: AWT embedding (`AWTGLCanvas`, `Display.setParent` with a parent) throws `LWJGLException`.
   - `keyboard-physical-keys`: key codes name physical keys on every platform; LWJGL 2 on Linux followed the layout.
   - `macos-first-thread`: on macOS the Display needs `-XstartOnFirstThread` (SDL's video runs on the first thread).
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
@@ -85,7 +86,7 @@ made current with LWJGL 3's GL capabilities. `DisplayMode`, `PixelFormat`, `Cont
 LWJGL 2's sources, unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
 classes implemented), which Display feeds SDL's events; `Mouse`, `Keyboard`, `Cursor` and their helpers are LWJGL 2's
 sources. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. Shared
-contexts, OpenGL ES and AWT embedding are still TODO(sdl).
+contexts and OpenGL ES are still TODO(sdl); AWT embedding is not supported (`DEVIATION(awt)`).
 
 Not part of check, as they open a window: `./gradlew :verify:displayDemo` (`-Pframes=N` to stop) runs an LWJGL 2
 program; `./gradlew :verify:displayInputCheck` feeds the Display synthetic SDL events and checks LWJGL 2's Mouse and

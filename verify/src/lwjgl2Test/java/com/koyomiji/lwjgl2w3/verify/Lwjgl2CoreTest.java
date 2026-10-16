@@ -4,7 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.opengl.AWTGLCanvas;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.PixelFormat;
+
+import java.awt.Canvas;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -67,6 +72,16 @@ class Lwjgl2CoreTest {
 		Sys.initialize();
 		assertTrue(Sys.getVersion().startsWith("2.9"));
 		assertEquals(System.getProperty("os.arch").contains("64"), Sys.is64Bit());
+	}
+
+	/** DEVIATION(awt): AWT embedding is not supported; it fails as LWJGL 2 did when it could not create a context. */
+	@Test
+	void awtIsNotSupported() {
+		assertThrows(LWJGLException.class, AWTGLCanvas::new);
+		assertThrows(LWJGLException.class, () -> new AWTGLCanvas(new PixelFormat()));
+		assertThrows(LWJGLException.class, () -> Display.setParent(new Canvas()));
+		assertDoesNotThrow(() -> Display.setParent(null));
+		assertNull(Display.getParent());
 	}
 
 	@Test
