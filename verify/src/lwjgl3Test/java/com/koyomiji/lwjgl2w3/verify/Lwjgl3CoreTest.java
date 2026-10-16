@@ -41,6 +41,23 @@ class Lwjgl3CoreTest {
 		}
 	}
 
+	/** LWJGL 2's PointerBuffer members (synthetic overloads, a field, a read-only subclass) leave LWJGL 3's alone. */
+	@Test
+	void pointerBufferStillLwjgl3() {
+		PointerBuffer p = PointerBuffer.allocateDirect(4);
+		p.put(1L).put(2L);
+		PointerBuffer s = p.flip().slice();
+		assertEquals(2, s.remaining());
+		assertEquals(2L, s.get(1));
+		assertEquals(p, p.duplicate());
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			PointerBuffer q = stack.mallocPointer(2);
+			q.put(0, 9L).position(1);
+			assertEquals(9L, q.get(0));
+			assertEquals(1, q.remaining());
+		}
+	}
+
 	@Test
 	void version() {
 		assertTrue(Version.getVersion().startsWith("3.4.3"), Version.getVersion());

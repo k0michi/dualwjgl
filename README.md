@@ -25,6 +25,8 @@ Unofficial; not affiliated with the LWJGL project.
   - `@Hidden`: emit as synthetic, so LWJGL 2 binaries link to it but javac does not see it (prevents overload hijacking
     of LWJGL 3 source).
   - Nested classes in inject classes are not supported yet.
+  - An `@Into` inject class may live in the target's own package (e.g. `org.lwjgl.PointerBufferFragment`) to reach
+    package-private classes there.
 
 When LWJGL 2 and LWJGL 3 behave differently for the same signature, LWJGL 3 wins.
 Strings follow LWJGL 3 too: each function's strings are encoded as LWJGL 3 encodes them (ASCII or UTF-8), where LWJGL 2

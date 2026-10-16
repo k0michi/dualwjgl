@@ -21,7 +21,9 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
         exclude 'org/lwjgl/util/mapped/**', 'org/lwjgl/util/WaveData.java'
     }
     from({ zipTree(configurations.lwjgl2CoreSources.singleFile) }) {
-        include 'org/lwjgl/PointerWrapperAbstract.java'
+        include 'org/lwjgl/PointerWrapperAbstract.java', 'org/lwjgl/LWJGLUtil.java', 'org/lwjgl/BufferChecks.java'
+        // MemoryUtil finds buffer addresses through MemoryUtilSun$AccessorUnsafe, which compat writes on LWJGL 3
+        include 'org/lwjgl/MemoryUtil.java', 'org/lwjgl/opencl/api/*.java'
         // the AL and CL object models: pure Java over the LWJGL 2 API; their natives (CallbackUtil, ...) are rewritten
         include 'org/lwjgl/openal/ALCdevice.java', 'org/lwjgl/openal/ALCcontext.java', 'org/lwjgl/openal/OpenALException.java',
             'org/lwjgl/openal/Util.java', 'org/lwjgl/openal/EFXUtil.java'
