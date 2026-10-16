@@ -31,7 +31,6 @@
 - [ ] Everything (5 stubs, `Display.create(PixelFormatLWJGL, ...)`)
 
 ## Display
-- [ ] macOS without `-XstartOnFirstThread`
 - [ ] Shared contexts: `SharedDrawable`, `Pbuffer`
 - [ ] `setParent` / AWT embedding, `AWTGLCanvas`
 - [ ] `setDisplayConfiguration`
@@ -45,9 +44,6 @@
 - [ ] `org.lwjgl.util.mapped`
 - [ ] `WaveData`
 
-## PointerBuffer
-- [ ] Static `put(ByteBuffer, ...)` with a heap buffer: `@Wrap` to stop the JVM crash
-
 ## Verification
 - [ ] Comparison tests for hand-written code (`TODO(verify)`)
 - [ ] Display and input on Windows and Linux
@@ -56,4 +52,3 @@
 
 ## Build
 - [ ] `extractLwjgl2Sources` not rerunning when its includes change
-- [ ] Push `compat/import-al-cl-sources` and `compat/display-sdl`
