@@ -1,6 +1,14 @@
+def gitDescribe = providers.exec {
+    commandLine 'git', 'describe', '--tags', '--dirty', '--always'
+    ignoreExitValue = true
+}
+def gitVersion = gitDescribe.result.get().exitValue == 0
+        ? gitDescribe.standardOutput.asText.get().trim()
+        : 'unspecified'
+
 allprojects {
     group = 'com.koyomiji.lwjgl2w3'
-    version = '0.1.0-SNAPSHOT'
+    version = gitVersion
 }
 
 subprojects {
