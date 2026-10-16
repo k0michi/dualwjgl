@@ -8,6 +8,7 @@ import org.lwjgl.MemoryUtil;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.PointerWrapper;
 
+import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -153,6 +154,114 @@ class Lwjgl2PointerBufferTest {
 		assertEquals(4 * SIZE, p.getBuffer().limit());
 	}
 
+	/** An LWJGL 2 subclass that moves LWJGL 2's NIO view directly, as LWJGL 2 allowed. */
+	static final class ViewUser extends PointerBuffer {
+		ViewUser(ByteBuffer source) {
+			super(source);
+		}
+
+		long viewGet() {
+			return is64Bit() ? view64.get() : view32.get() & 0xFFFFFFFFL;
+		}
+
+		void viewPut(long v) {
+			if (is64Bit()) view64.put(v); else view32.put((int)v);
+		}
+
+		Buffer view() {
+			return view;
+		}
+
+		ByteBuffer pointers() {
+			return pointers;
+		}
+	}
+
+	@Test
+	void subclassViewStaysInSync() {
+		ByteBuffer source = BufferUtils.createByteBuffer(8 * SIZE);
+		ViewUser p = new ViewUser(source);
+		assertNotNull(p.view());
+		assertSame(p.pointers(), p.getBuffer());
+		assertEquals(8, p.view().limit());
+
+		p.put(11L).put(12L);
+		assertEquals(2, p.view().position(), "put() moves the view");
+		p.viewPut(13L);
+		assertEquals(3, p.position(), "the view's put() moves the buffer");
+		assertEquals(13L, p.get(2));
+
+		p.view().position(0);
+		assertEquals(11L, p.get());
+		assertEquals(1, p.view().position());
+		assertEquals(12L, p.viewGet());
+		assertEquals(2, p.position());
+
+		p.flip();
+		assertEquals(2, p.view().limit());
+		assertEquals(0, p.view().position());
+		p.view().limit(1);
+		assertEquals(1, p.remaining());
+		assertThrows(IndexOutOfBoundsException.class, () -> p.get(1));
+	}
+
+	@Test
+	void subclassMarkStaysInSync() {
+		ViewUser p = new ViewUser(BufferUtils.createByteBuffer(8 * SIZE));
+		p.position(3).mark().position(5);
+		p.view().reset();
+		assertEquals(3, p.position(), "mark() set on the buffer is the view's");
+
+		p.position(1);
+		p.view().mark();
+		p.position(4);
+		p.reset();
+		assertEquals(1, p.position(), "mark() set on the view is the buffer's");
+
+		p.view().position(0); // NIO drops a mark above the new position
+		assertThrows(InvalidMarkException.class, p::reset);
+	}
+
+	@Test
+	void plainBuffersHaveNoView() {
+		PointerBuffer plain = new PointerBuffer(4);
+		assertNotNull(plain.getBuffer());
+		assertSame(plain.getBuffer(), plain.getBuffer());
+		assertFalse(plain.asReadOnlyBuffer().getBuffer().isReadOnly());
+	}
+
+	@Test
+	void nonNativeSourceOrderIsKept() {
+		ByteOrder other = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+		ByteBuffer source = BufferUtils.createByteBuffer(4 * SIZE).order(other);
+		PointerBuffer p = new PointerBuffer(source);
+		assertEquals(other, p.order());
+		assertEquals(other, p.getBuffer().order());
+
+		p.put(0, 0x0102L);
+		// LWJGL 2 writes through its view, in the source's order
+		assertEquals(0x0102L, SIZE == 8 ? source.getLong(0) : source.getInt(0));
+		assertEquals(0x0102L, p.get(0));
+		p.put(0x0304L);
+		assertEquals(0x0304L, p.get(0));
+
+		source.putLong(SIZE == 8 ? SIZE : 0, 0); // clear before the bulk round trip
+		long[] values = {5L, 6L, 7L};
+		p.position(1);
+		p.put(values);
+		assertEquals(5L, SIZE == 8 ? source.getLong(SIZE) : source.getInt(SIZE));
+		p.position(1);
+		long[] read = new long[3];
+		p.get(read);
+		assertArrayEquals(values, read);
+
+		p.position(1);
+		PointerBuffer s = p.slice();
+		assertEquals(other, s.order());
+		assertEquals(5L, s.get(0));
+		assertEquals(other, p.duplicate().order());
+	}
+
 	@Test
 	void readOnlySliceAndDuplicateStayReadOnly() {
 		PointerBuffer r = new PointerBuffer(4).asReadOnlyBuffer();
@@ -210,7 +319,7 @@ class Lwjgl2PointerBufferTest {
 		assertThrows(ReadOnlyBufferException.class, r::compact);
 		assertTrue(r.slice().isReadOnly());
 		assertTrue(r.duplicate().isReadOnly());
-		assertTrue(r.getBuffer().isReadOnly());
+		assertFalse(r.getBuffer().isReadOnly()); // LWJGL 2's read-only buffer returns its writable source
 
 		// the writable buffer's changes show through
 		p.put(0, 6L);

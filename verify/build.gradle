@@ -101,3 +101,32 @@ def delegationTest = tasks.register('delegationTest', Test) {
     }
 }
 tasks.named('check') { dependsOn delegationTest }
+
+// Not part of check: ./gradlew :verify:pointerBufferBench prints what LWJGL 2's PointerBuffer sync costs. The LWJGL 3
+// benchmark runs on the original LWJGL 3 jars and on the patched ones; the LWJGL 2 one on the patched ones only (the
+// original LWJGL 2 needs its own natives).
+sourceSets {
+    bench3 { compileClasspath += configurations.lwjgl3Api }
+    bench2 { compileClasspath += configurations.lwjgl2Api }
+}
+
+def bench = { String name, SourceSet ss, String main, FileCollection jars, String label ->
+    tasks.register(name, JavaExec) {
+        classpath = ss.output + jars + configurations.natives
+        mainClass = main
+        args label
+        jvmArgs '--enable-native-access=ALL-UNNAMED'
+    }
+}
+def b3Original = bench('pointerBufferBench3Original', sourceSets.bench3,
+    'com.koyomiji.lwjgl2w3.verify.bench.PointerBufferBench3', configurations.lwjgl3Api, 'original LWJGL 3.4.3')
+def b3Patched = bench('pointerBufferBench3Patched', sourceSets.bench3,
+    'com.koyomiji.lwjgl2w3.verify.bench.PointerBufferBench3', patched, 'patched jars')
+def b2Patched = bench('pointerBufferBench2Patched', sourceSets.bench2,
+    'com.koyomiji.lwjgl2w3.verify.bench.PointerBufferBench2', patched, 'patched jars')
+tasks.register('pointerBufferBench') {
+    group = 'verification'
+    dependsOn b3Original, b3Patched, b2Patched
+}
+b3Patched.configure { mustRunAfter b3Original }
+b2Patched.configure { mustRunAfter b3Patched }

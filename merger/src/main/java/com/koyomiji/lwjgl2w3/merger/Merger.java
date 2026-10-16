@@ -40,6 +40,8 @@ public final class Merger {
 	static final String WIDEN = ANNOTATION_PREFIX + "Widen;";
 	static final String HIDDEN = ANNOTATION_PREFIX + "Hidden;";
 	static final String WRAP = ANNOTATION_PREFIX + "Wrap;";
+	static final String AROUND = ANNOTATION_PREFIX + "Around;";
+	static final String REDIRECT = ANNOTATION_PREFIX + "Redirect;";
 	/** Suffix of the original method a @Wrap method replaces */
 	static final String WRAPPED_SUFFIX = "$lwjgl3";
 	static final String INTO = ANNOTATION_PREFIX + "Into;";
@@ -70,6 +72,10 @@ public final class Merger {
 	/** generated members still marked @Todo -> area */
 	final Map<String, String> todos = new TreeMap<>();
 	int overrides;
+	/** target -> {enter, exit} from @Around, applied once every inject class is merged */
+	final Map<String, String[]> arounds = new TreeMap<>();
+	/** target -> {owner, name, desc, helper} from @Redirect */
+	final Map<String, List<String[]>> redirects = new TreeMap<>();
 
 	public static void main(String[] args) throws IOException {
 		Merger m = new Merger();
@@ -132,6 +138,7 @@ public final class Merger {
 		for (byte[] b : manualFragments) {
 			m.inject(b, false);
 		}
+		m.instrument();
 		for (JarImage j : m.jars) {
 			write(j);
 		}
@@ -282,6 +289,7 @@ public final class Merger {
 	byte[] merge(byte[] targetBytes, ClassNode inj, String entry, boolean generated) {
 		ClassNode t = new ClassNode();
 		new ClassReader(targetBytes).accept(t, 0);
+		recordInstrumentation(t.name, inj);
 
 		if (!inj.superName.equals("java/lang/Object") && !inj.superName.equals(t.superName)) {
 			throw new IllegalStateException(entry + ": inject class extends " + inj.superName + " but target extends " + t.superName);
@@ -414,6 +422,212 @@ public final class Merger {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		t.accept(cw);
 		return cw.toByteArray();
+	}
+
+	void recordInstrumentation(String target, ClassNode inj) {
+		if (inj.invisibleAnnotations != null) {
+			for (AnnotationNode a : inj.invisibleAnnotations) {
+				if (a.desc.equals(AROUND)) {
+					String[] hooks = {(String)value(a, "enter"), (String)value(a, "exit")};
+					String[] before = arounds.put(target, hooks);
+					if (before != null && !Arrays.equals(before, hooks)) {
+						throw new IllegalStateException(target + ": two different @Around");
+					}
+				}
+			}
+		}
+		for (MethodNode m : inj.methods) {
+			if (m.invisibleAnnotations == null) {
+				continue;
+			}
+			for (AnnotationNode a : m.invisibleAnnotations) {
+				if (a.desc.equals(REDIRECT)) {
+					if ((m.access & Opcodes.ACC_STATIC) != 0) {
+						throw new IllegalStateException(target + ": @Redirect method " + m.name + " must be an instance method");
+					}
+					redirects.computeIfAbsent(target, k -> new ArrayList<>()).add(new String[] {
+						((org.objectweb.asm.Type)value(a, "owner")).getInternalName(), (String)value(a, "name"), m.desc, m.name});
+				}
+			}
+		}
+	}
+
+	static Object value(AnnotationNode a, String name) {
+		for (int i = 0; i < a.values.size(); i += 2) {
+			if (a.values.get(i).equals(name)) {
+				return a.values.get(i + 1);
+			}
+		}
+		throw new IllegalStateException(a.desc + " has no " + name);
+	}
+
+	/** @Redirect, then @Around, on each target, once all inject classes are merged into it. */
+	void instrument() {
+		Set<String> targets = new TreeSet<>(arounds.keySet());
+		targets.addAll(redirects.keySet());
+		for (String target : targets) {
+			JarImage owner = classOwner.get(target);
+			String entry = target + ".class";
+			ClassNode t = new ClassNode();
+			new ClassReader(owner.entries.get(entry)).accept(t, 0);
+			Set<String> skip = new HashSet<>();
+			for (String[] r : redirects.getOrDefault(target, List.of())) {
+				skip.add(r[3] + r[2]);
+			}
+			int redirected = 0;
+			for (String[] r : redirects.getOrDefault(target, List.of())) {
+				for (MethodNode m : t.methods) {
+					if ((m.access & Opcodes.ACC_STATIC) == 0 && !skip.contains(m.name + m.desc)) {
+						redirected += redirect(t, m, r);
+					}
+				}
+			}
+			if (redirected > 0) {
+				log.add(entry + ": redirected " + redirected + " calls");
+			}
+			String[] hooks = arounds.get(target);
+			if (hooks != null) {
+				skip.add(hooks[0] + "()V");
+				skip.add(hooks[1] + "()V");
+				int overridden = overrideInherited(t);
+				int wrapped = 0;
+				for (MethodNode m : t.methods) {
+					if (!skip.contains(m.name + m.desc) && wrap(t, m, hooks)) {
+						wrapped++;
+					}
+				}
+				log.add(entry + ": around " + hooks[0] + "/" + hooks[1] + ": " + overridden + " inherited methods overridden, "
+					+ wrapped + " methods wrapped");
+			}
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			t.accept(cw);
+			owner.entries.put(entry, cw.toByteArray());
+		}
+	}
+
+	/** Replaces {@code invokestatic owner.name desc} in {@code m} with {@code this.helper(...)}. */
+	static int redirect(ClassNode t, MethodNode m, String[] r) {
+		int n = 0;
+		for (AbstractInsnNode i : m.instructions.toArray()) {
+			if (!(i instanceof MethodInsnNode mi) || mi.getOpcode() != Opcodes.INVOKESTATIC || !mi.owner.equals(r[0])
+				|| !mi.name.equals(r[1]) || !mi.desc.equals(r[2])) {
+				continue;
+			}
+			// the arguments are on the stack: park them in fresh locals, push this, reload them
+			org.objectweb.asm.Type[] args = org.objectweb.asm.Type.getArgumentTypes(r[2]);
+			int[] slots = new int[args.length];
+			int next = m.maxLocals;
+			for (int k = 0; k < args.length; k++) {
+				slots[k] = next;
+				next += args[k].getSize();
+			}
+			m.maxLocals = next;
+			InsnList c = new InsnList();
+			for (int k = args.length - 1; k >= 0; k--) {
+				c.add(new VarInsnNode(args[k].getOpcode(Opcodes.ISTORE), slots[k]));
+			}
+			c.add(new VarInsnNode(Opcodes.ALOAD, 0));
+			for (int k = 0; k < args.length; k++) {
+				c.add(new VarInsnNode(args[k].getOpcode(Opcodes.ILOAD), slots[k]));
+			}
+			c.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, t.name, r[3], r[2], false));
+			m.instructions.insertBefore(i, c);
+			m.instructions.remove(i);
+			n++;
+		}
+		return n;
+	}
+
+	/** A synthetic override, calling super, of every inherited overridable instance method {@code t} does not declare. */
+	int overrideInherited(ClassNode t) {
+		int n = 0;
+		Set<String> seen = new HashSet<>();
+		t.methods.forEach(m -> seen.add(m.name + m.desc));
+		for (String s = t.superName; s != null; ) {
+			JarImage owner = classOwner.get(s);
+			if (owner == null) {
+				break;
+			}
+			ClassNode sc = new ClassNode();
+			new ClassReader(owner.entries.get(s + ".class")).accept(sc, ClassReader.SKIP_CODE);
+			for (MethodNode sm : sc.methods) {
+				boolean overridable = (sm.access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) != 0
+					&& (sm.access & (Opcodes.ACC_STATIC | Opcodes.ACC_FINAL | Opcodes.ACC_PRIVATE | Opcodes.ACC_SYNTHETIC)) == 0
+					&& !sm.name.startsWith("<");
+				if (!seen.add(sm.name + sm.desc)) {
+					continue;
+				}
+				if (!overridable) {
+					if ((sm.access & Opcodes.ACC_FINAL) != 0 && (sm.access & Opcodes.ACC_STATIC) == 0 && !sm.name.startsWith("<")) {
+						log.add(t.name + ": final " + s + "." + sm.name + sm.desc + " cannot be wrapped");
+					}
+					continue;
+				}
+				if ((sm.access & Opcodes.ACC_ABSTRACT) != 0) {
+					continue; // t implements it, or t is abstract
+				}
+				MethodNode m = new MethodNode((sm.access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) | Opcodes.ACC_SYNTHETIC,
+					sm.name, sm.desc, null, sm.exceptions == null ? null : sm.exceptions.toArray(new String[0]));
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				int slot = 1;
+				for (org.objectweb.asm.Type a : org.objectweb.asm.Type.getArgumentTypes(sm.desc)) {
+					m.instructions.add(new VarInsnNode(a.getOpcode(Opcodes.ILOAD), slot));
+					slot += a.getSize();
+				}
+				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, s, sm.name, sm.desc, false));
+				m.instructions.add(new InsnNode(org.objectweb.asm.Type.getReturnType(sm.desc).getOpcode(Opcodes.IRETURN)));
+				m.maxLocals = slot;
+				t.methods.add(m);
+				n++;
+			}
+			s = sc.superName;
+		}
+		return n;
+	}
+
+	/** enter at the start, exit before every return and on any exception. */
+	static boolean wrap(ClassNode t, MethodNode m, String[] hooks) {
+		if ((m.access & (Opcodes.ACC_STATIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE | Opcodes.ACC_BRIDGE)) != 0
+			|| m.name.startsWith("<")) {
+			return false;
+		}
+		LabelNode start = new LabelNode();
+		InsnList entry = new InsnList();
+		entry.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		entry.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, t.name, hooks[0], "()V", false));
+		entry.add(start);
+		m.instructions.insert(entry);
+		for (AbstractInsnNode i : m.instructions.toArray()) {
+			if (i.getOpcode() >= Opcodes.IRETURN && i.getOpcode() <= Opcodes.RETURN) {
+				InsnList exit = new InsnList();
+				exit.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				exit.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, t.name, hooks[1], "()V", false));
+				m.instructions.insertBefore(i, exit);
+			}
+		}
+		LabelNode end = new LabelNode();
+		LabelNode handler = new LabelNode();
+		m.instructions.add(end);
+		m.instructions.add(handler);
+		// at the handler only this and the parameters are known: javac never stores another type into a parameter slot
+		List<Object> locals = new ArrayList<>();
+		locals.add(t.name);
+		for (org.objectweb.asm.Type a : org.objectweb.asm.Type.getArgumentTypes(m.desc)) {
+			locals.add(switch (a.getSort()) {
+				case org.objectweb.asm.Type.BOOLEAN, org.objectweb.asm.Type.BYTE, org.objectweb.asm.Type.CHAR,
+					org.objectweb.asm.Type.SHORT, org.objectweb.asm.Type.INT -> Opcodes.INTEGER;
+				case org.objectweb.asm.Type.LONG -> Opcodes.LONG;
+				case org.objectweb.asm.Type.FLOAT -> Opcodes.FLOAT;
+				case org.objectweb.asm.Type.DOUBLE -> Opcodes.DOUBLE;
+				default -> a.getInternalName();
+			});
+		}
+		m.instructions.add(new FrameNode(Opcodes.F_FULL, locals.size(), locals.toArray(), 1, new Object[] {"java/lang/Throwable"}));
+		m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, t.name, hooks[1], "()V", false));
+		m.instructions.add(new InsnNode(Opcodes.ATHROW));
+		m.tryCatchBlocks.add(new TryCatchBlockNode(start, end, handler, null));
+		return true;
 	}
 
 	void track(String key, boolean generated, String todo) {
