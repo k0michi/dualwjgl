@@ -8,7 +8,7 @@ public final class GL45 {
 	 * this function clears.
 	 */
 	public static void glClearNamedFramebufferfi(int framebuffer, int buffer, float depth, int stencil) {
-		org.lwjgl.opengl.GL45C.glClearNamedFramebufferfi(framebuffer, buffer, 0, depth, stencil);
+		org.lwjgl.opengl.GL45.glClearNamedFramebufferfi(framebuffer, buffer, 0, depth, stencil);
 	}
 
 }
