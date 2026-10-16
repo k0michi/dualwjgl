@@ -7,10 +7,11 @@ plugins {
 // inject:    hand-written members, com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>; these override
 //            generated members, so implementing something never means editing generated code
 // replace:   hand-written whole classes that replace LWJGL 3's, where the shapes cannot be merged member by member
-// lwjgl2:    lwjgl_util 2.9.3 sources, unpacked unchanged from the released sources jar at build time (pure Java on top
-//            of the LWJGL 2 API); compiled against LWJGL 2 itself
+// lwjgl2:    lwjgl_util 2.9.3 sources and a few pure Java core classes, unpacked unchanged from the released sources
+//            jars at build time (pure Java on top of the LWJGL 2 API); compiled against LWJGL 2 itself
 configurations {
     lwjgl2UtilSources { transitive = false }
+    lwjgl2CoreSources { transitive = false }
 }
 
 // mapped needs run-time bytecode transformation; WaveData needs a JDK-internal class (com.sun.media.sound)
@@ -18,6 +19,9 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
     from({ zipTree(configurations.lwjgl2UtilSources.singleFile) }) {
         include 'org/lwjgl/util/**/*.java'
         exclude 'org/lwjgl/util/mapped/**', 'org/lwjgl/util/WaveData.java'
+    }
+    from({ zipTree(configurations.lwjgl2CoreSources.singleFile) }) {
+        include 'org/lwjgl/PointerWrapperAbstract.java'
     }
     into layout.buildDirectory.dir('lwjgl2-sources')
 }
@@ -35,6 +39,7 @@ sourceSets {
 
 dependencies {
     lwjgl2UtilSources(variantOf(libs.lwjgl2.util) { classifier('sources') })
+    lwjgl2CoreSources(variantOf(libs.lwjgl2.core) { classifier('sources') })
 
     lwjgl2CompileOnly libs.lwjgl2.core
     lwjgl2CompileOnly libs.jinput

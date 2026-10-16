@@ -252,6 +252,16 @@ class DelegationTest {
 				case Type.ARRAY: return array(t, k);
 				default: break;
 			}
+			if (t.getClassName().equals("org.lwjgl.opengl.GLSync") || t.getClassName().equals("org.lwjgl.PointerWrapper")) {
+				// a handle wrapper (package-private constructor in LWJGL 2): a small handle shows as itself in the calls
+				try {
+					Constructor<?> c = Class.forName("org.lwjgl.opengl.GLSync", true, loader).getDeclaredConstructor(long.class);
+					c.setAccessible(true);
+					return c.newInstance(7000L + k);
+				} catch (ReflectiveOperationException e) {
+					throw new IllegalStateException(e);
+				}
+			}
 			// remaining: 4201 + 6k elements, not a multiple of 2, 3, 4, 8 or 12, so a wrong shift or divisor shows; and
 			// more than LWJGL 2's minimums for getters
 			int position = k + 1;

@@ -11,20 +11,28 @@ public final class KHRDebug {
 	public static void glDebugMessageCallback(KHRDebugCallback callback) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("gl")
 	public static void glObjectPtrLabel(PointerWrapper ptr, ByteBuffer label) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.KHRDebug.nglObjectPtrLabel(ptr.getPointer(), (label == null ? 0 : label.remaining()), org.lwjgl.system.MemoryUtil.memAddressSafe(label));
 	}
-	@Todo("gl")
 	public static void glObjectPtrLabel(PointerWrapper ptr, CharSequence label) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			org.lwjgl.opengl.KHRDebug.nglObjectPtrLabel(ptr.getPointer(), label.length(), org.lwjgl.system.MemoryUtil.memAddress(__stack.ASCII(label, false)));
+		}
 	}
-	@Todo("gl")
 	public static void glGetObjectPtrLabel(PointerWrapper ptr, IntBuffer length, ByteBuffer label) {
-		throw new UnsupportedOperationException();
+		if (org.lwjgl.system.Checks.CHECKS && length != null) org.lwjgl.system.Checks.check(length, 1);
+		org.lwjgl.opengl.KHRDebug.nglGetObjectPtrLabel(ptr.getPointer(), label.remaining(), org.lwjgl.system.MemoryUtil.memAddressSafe(length), org.lwjgl.system.MemoryUtil.memAddress(label));
 	}
-	@Todo("gl")
 	public static String glGetObjectPtrLabel(PointerWrapper ptr, int bufSize) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __label_length = __stack.mallocInt(1);
+			java.nio.ByteBuffer __label = org.lwjgl.system.MemoryUtil.memAlloc(Math.max(bufSize, 1));
+			try {
+				org.lwjgl.opengl.KHRDebug.nglGetObjectPtrLabel(ptr.getPointer(), bufSize, org.lwjgl.system.MemoryUtil.memAddress(__label_length), org.lwjgl.system.MemoryUtil.memAddress(__label));
+				return org.lwjgl.system.MemoryUtil.memASCII(__label, __label_length.get(0));
+			} finally {
+				org.lwjgl.system.MemoryUtil.memFree(__label);
+			}
+		}
 	}
 }

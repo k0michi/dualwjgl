@@ -242,8 +242,8 @@ final class TemplateRule implements Rule {
 		if (Character.isLowerCase(type.charAt(0))) {
 			return type;
 		}
-		if (type.equals("PointerBuffer")) {
-			return "org.lwjgl.PointerBuffer";
+		if (type.equals("PointerBuffer") || type.equals("PointerWrapper")) {
+			return "org.lwjgl." + type;
 		}
 		if (BUFFERS.contains(type)) {
 			return "java.nio." + type;
@@ -355,14 +355,20 @@ final class TemplateRule implements Rule {
 		}
 
 		String bind() throws Decline {
-			for (String a : List.of("Reuse", "Code", "CachedResult", "PointerWrapper", "AutoSize")) {
+			for (String a : List.of("Reuse", "Code", "CachedResult", "AutoSize")) {
 				if (tm.has(a)) {
 					throw new Decline("@" + a + " on the method");
 				}
 			}
 			String ret = t.method().getReturnType().toString();
 			Templates.Ann glreturn = tm.ann("GLreturn");
-			if (glreturn != null) {
+			Templates.Ann wrapper = tm.ann("PointerWrapper");
+			if (wrapper != null) {
+				// LWJGL 2 wraps the returned handle: new GLSync(handle)
+				if (!wrapper.get("factory", "").isEmpty() || !wrapper.get("params", "").isEmpty() || !qualify(tm.ret(), tm.owner()).equals(ret)) {
+					throw new Decline("@PointerWrapper result with a factory or parameters");
+				}
+			} else if (glreturn != null) {
 				glReturn(glreturn, ret);
 			} else if (!qualify(tm.ret(), tm.owner()).equals(ret) || !(tm.ret().equals("void") || Character.isLowerCase(tm.ret().charAt(0)))) {
 				throw new Decline("returns " + ret);
@@ -392,7 +398,8 @@ final class TemplateRule implements Rule {
 			String call = fn + "(" + args.stream().map(Arg::trace).collect(Collectors.joining(",")) + ")";
 			NativeTrace.Summary mine = new NativeTrace.Summary();
 			mine.natives.add(call);
-			String myRet = returned != null ? (returnedType.equals("String") ? "string" : "TMP.get(0)") : returns ? "R:" + call : "";
+			String myRet = returned != null ? (returnedType.equals("String") ? "string" : "TMP.get(0)")
+				: wrapper != null ? "new " + ret.substring(ret.lastIndexOf('.') + 1) : returns ? "R:" + call : "";
 			if (!myRet.isEmpty()) {
 				mine.returns.add(myRet);
 			}
@@ -400,8 +407,8 @@ final class TemplateRule implements Rule {
 				throw new Decline("expansion " + NativeTrace.fmt(mine) + " differs from LWJGL 2's " + String.join(" ; ", t.calls()) + " => " + t.ret());
 			}
 
-			String target = raw(fn, args, returns ? lwjgl2.desc(t.method().getReturnType()) : null);
-			return render(target, returns);
+			String target = raw(fn, args, wrapper != null ? "J" : returns ? lwjgl2.desc(t.method().getReturnType()) : null);
+			return render(wrapper != null ? "new " + ret + "(" + target + ")" : target, returns);
 		}
 
 		// -- @GLreturn: the value comes back through a temporary
@@ -516,7 +523,11 @@ final class TemplateRule implements Rule {
 				return new Arg(x, "$" + j + "$", "J");
 			}
 			if (p.has("PointerWrapper")) {
-				throw new Decline("@PointerWrapper parameter");
+				// the handle inside LWJGL 2's wrapper object (GLSync, or any PointerWrapper for glObjectPtrLabel)
+				if (p.ann("PointerWrapper").flag("canBeNull", false)) {
+					return new Arg("(" + x + " == null ? 0L : " + x + ".getPointer())", "phi($" + j + "$.getPointer()|0)", "J");
+				}
+				return new Arg(x + ".getPointer()", "$" + j + "$.getPointer()", "J");
 			}
 			String type = instance.get(p.name()).type();
 			if (type.equals("java.lang.CharSequence")) {

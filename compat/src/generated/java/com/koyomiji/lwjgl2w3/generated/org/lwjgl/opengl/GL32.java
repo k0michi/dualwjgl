@@ -1,7 +1,6 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Hidden;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
@@ -19,25 +18,20 @@ public final class GL32 {
 		org.lwjgl.opengl.GL32.glGetMultisamplefv(pname, index, val);
 	}
 	@Hidden
-	@Todo("gl")
 	public static GLSync glFenceSync(int condition, int flags) {
-		throw new UnsupportedOperationException();
+		return new org.lwjgl.opengl.GLSync(org.lwjgl.opengl.GL32.glFenceSync(condition, flags));
 	}
-	@Todo("gl")
 	public static boolean glIsSync(GLSync sync) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.GL32.nglIsSync(sync.getPointer());
 	}
-	@Todo("gl")
 	public static void glDeleteSync(GLSync sync) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL32.glDeleteSync(sync.getPointer());
 	}
-	@Todo("gl")
 	public static int glClientWaitSync(GLSync sync, int flags, long timeout) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opengl.GL32.nglClientWaitSync(sync.getPointer(), flags, timeout);
 	}
-	@Todo("gl")
 	public static void glWaitSync(GLSync sync, int flags, long timeout) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opengl.GL32.nglWaitSync(sync.getPointer(), flags, timeout);
 	}
 	public static void glGetInteger64(int pname, LongBuffer data) {
 		org.lwjgl.opengl.GL32.glGetInteger64v(pname, data);
@@ -48,17 +42,23 @@ public final class GL32 {
 	public static long glGetInteger64(int value, int index) {
 		return org.lwjgl.opengl.GL32.glGetInteger64i(value, index);
 	}
-	@Todo("gl")
 	public static void glGetSync(GLSync sync, int pname, IntBuffer length, IntBuffer values) {
-		throw new UnsupportedOperationException();
+		if (org.lwjgl.system.Checks.CHECKS && length != null) org.lwjgl.system.Checks.check(length, 1);
+		org.lwjgl.opengl.GL32.nglGetSynciv(sync.getPointer(), pname, values.remaining(), org.lwjgl.system.MemoryUtil.memAddressSafe(length), org.lwjgl.system.MemoryUtil.memAddress(values));
 	}
 	@Deprecated
-	@Todo("gl")
 	public static int glGetSync(GLSync sync, int pname) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __values = __stack.mallocInt(2);
+			org.lwjgl.opengl.GL32.nglGetSynciv(sync.getPointer(), pname, 1, 0, org.lwjgl.system.MemoryUtil.memAddress(__values));
+			return __values.get(0);
+		}
 	}
-	@Todo("gl")
 	public static int glGetSynci(GLSync sync, int pname) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __values = __stack.mallocInt(2);
+			org.lwjgl.opengl.GL32.nglGetSynciv(sync.getPointer(), pname, 1, 0, org.lwjgl.system.MemoryUtil.memAddress(__values));
+			return __values.get(0);
+		}
 	}
 }
