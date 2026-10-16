@@ -184,7 +184,7 @@ final class ContextGL implements Context {
 			try {
 				releaseDrawable();
 				SDL_GL_DestroyContext(handle);
-				// TODO(gl): CallbackUtil.unregisterCallbacks(this), with the debug output callbacks
+				CallbackUtil.unregisterCallbacks(this);
 				destroyed = true;
 				thread = null;
 				GLContext.unloadOpenGLLibrary();

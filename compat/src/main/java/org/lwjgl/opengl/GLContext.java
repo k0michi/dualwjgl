@@ -79,6 +79,11 @@ public final class GLContext {
 		}
 	}
 
+	/** The LWJGL 3 capabilities useContext made for a context, or null: CallbackUtil's key for it. */
+	static synchronized GLCapabilities getLWJGL3Capabilities(Object context) {
+		return contexts.get(context);
+	}
+
 	/** Reference counted, as LWJGL 2. LWJGL 3's GL may be loaded already (Display, or LWJGL 3 code): then it is left alone. */
 	public static synchronized void loadOpenGLLibrary() throws LWJGLException {
 		if (libraryRefCount == 0 && GL.getFunctionProvider() == null) {

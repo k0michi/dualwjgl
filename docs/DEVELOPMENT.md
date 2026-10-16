@@ -113,6 +113,14 @@ Not part of check, as they open a window: `./gradlew :verify:displayDemo` (`-Pfr
 program; `./gradlew :verify:displayInputCheck` feeds the Display synthetic SDL events and checks LWJGL 2's Mouse and
 Keyboard.
 
+### Debug output callbacks
+
+`KHRDebugCallback`, `ARBDebugOutputCallback` and `AMDDebugOutputCallback` are LWJGL 2's sources. Their pointer is a fixed
+function from `CallbackUtil` (`org.lwjgl.opengl`, `compat/src/main`), one LWJGL 3 callback per extension created once,
+as LWJGL 2's C functions were; `glDebugMessageCallback(KHRDebugCallback)` and the ARB and AMD functions pass the
+Handler's reference (an ID in CallbackUtil's table) as userParam, and `ContextGL` drops a context's references as it
+destroys it. Only checked by calling the fixed functions directly: macOS has none of the extensions.
+
 ### OpenAL
 
 LWJGL 2's `ALCdevice` and `ALCcontext` are its sources, unchanged; they wrap LWJGL 3's handles. `ALObjects`

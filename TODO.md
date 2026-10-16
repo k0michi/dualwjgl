@@ -23,7 +23,8 @@
 - [x] `CL.create()` once LWJGL 3 has loaded the library: throws as LWJGL 3; LWJGL 2 programs set `org.lwjgl.opencl.explicitInit`
 
 ## OpenGL
-- [ ] Debug output callbacks (KHR, ARB, AMD) and their callback classes
+- [x] Debug output callbacks (KHR, ARB, AMD) and their callback classes
+- [ ] Debug output callbacks with a real driver (Windows or Linux)
 - [x] `OpenGLException`, `Util.checkGLError`
 - [ ] Remaining constructors (`ARBProgram`, `NVProgram`, `ARBBufferObject`)
 - [ ] `glCreateSyncFromCLeventARB`, `glMapTexture2DINTEL`, `glPathTexGenNV`
