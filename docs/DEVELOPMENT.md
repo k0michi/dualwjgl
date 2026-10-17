@@ -136,7 +136,8 @@ Keyboard.
 
 lwjgl_util is LWJGL 2's sources, unchanged but for `WaveData`, filtered as it is extracted: its `create(URL)` read
 through the JDK-internal `com.sun.media.sound.WaveFileReader`, and reads through `javax.sound.sampled.AudioSystem`, as its
-other `create` methods do. `org.lwjgl.util.mapped` is not supported (`DEVIATION(out-of-scope)`).
+other `create` methods do; and it closes the URL's stream when that is no WAVE, which LWJGL 2 left open (an open file
+cannot be deleted on Windows). `org.lwjgl.util.mapped` is not supported (`DEVIATION(out-of-scope)`).
 
 ### CL/GL sharing
 

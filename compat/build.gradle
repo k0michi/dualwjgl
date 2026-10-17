@@ -54,12 +54,16 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
             'org/lwjgl/opengl/InputImplementation.java', 'org/lwjgl/opengl/EventQueue.java'
     }
     // WaveData.create(URL) read through the JDK-internal com.sun.media.sound.WaveFileReader; javax.sound.sampled's
-    // AudioSystem, which the other create methods use, picks the same WAVE reader
+    // AudioSystem, which the other create methods use, picks the same WAVE reader. LWJGL 2 left the URL's stream open
+    // when it was no WAVE (and returned null): closed here, as an open file cannot be deleted on Windows.
     filesMatching('org/lwjgl/util/WaveData.java') {
         filter { String line ->
             line.replace('import com.sun.media.sound.WaveFileReader;', '// lwjgl2w3: com.sun.media.sound.WaveFileReader -> AudioSystem')
                 .replace('WaveFileReader wfr = new WaveFileReader();', '// lwjgl2w3')
-                .replace('wfr.getAudioInputStream(', 'AudioSystem.getAudioInputStream(')
+                .replace('return create(wfr.getAudioInputStream(new BufferedInputStream(path.openStream())));',
+                    'InputStream is = new BufferedInputStream(path.openStream()); // lwjgl2w3: closed when no WAVE\n' +
+                    '\t\t\ttry {\n\t\t\t\treturn create(AudioSystem.getAudioInputStream(is));\n' +
+                    '\t\t\t} catch (Exception e) {\n\t\t\t\tis.close();\n\t\t\t\tthrow e;\n\t\t\t}')
         }
     }
     // InfoUtilFactory reads LWJGL 2's static CLCapabilities.clCreateContext (and clCreateImage2D/3D), which LWJGL 3's
