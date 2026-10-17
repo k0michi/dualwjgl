@@ -1,5 +1,6 @@
 package org.lwjgl.opengl;
 
+import com.koyomiji.dualwjgl.MainThread;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
@@ -8,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.sdl.SDL_DisplayMode;
 import org.lwjgl.sdl.SDL_Event;
+import org.lwjgl.sdl.SDLEvents;
 import org.lwjgl.sdl.SDL_Surface;
 import org.lwjgl.system.MemoryStack;
 
@@ -37,9 +39,11 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * <p>Not there yet: OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt)), Pbuffers (DEVIATION(pbuffer)),
  * setDisplayConfiguration (gamma, DEVIATION(display-configuration)) and auxiliary buffers (DEVIATION(aux-buffers)).</p>
  *
- * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
- * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
- * device". LWJGL 2 needed neither. Sys.alert and Sys.getClipboard need it too, and fall back without it.</p>
+ * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread. Run the program through
+ * {@link com.koyomiji.dualwjgl.Launcher} (with -XstartOnFirstThread): SDL then owns the main thread and the program's
+ * calls reach it through {@link MainThread}, from any thread, and AWT works beside it. Without the launcher, the JVM must
+ * run with -XstartOnFirstThread and the Display be used from main(), and AWT's native code loaded after SDL's window
+ * hangs (Java 8) or AWT's toolkit does (Java 9 and later). LWJGL 2 needed neither.</p>
  */
 public final class Display {
 
@@ -74,9 +78,11 @@ public final class Display {
 
 	/** The video subsystem, on first use: LWJGL 2 initialized the display in its static initializer. */
 	private static void video() throws LWJGLException {
-		if (SDL_WasInit(SDL_INIT_VIDEO) == 0 && !SDL_InitSubSystem(SDL_INIT_VIDEO)) {
-			throw new LWJGLException("Could not initialize SDL video: " + SDL_GetError()
-				+ (LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX ? " (on macOS, run the JVM with -XstartOnFirstThread)" : ""));
+		String error = MainThread.call(() -> SDL_WasInit(SDL_INIT_VIDEO) != 0 || SDL_InitSubSystem(SDL_INIT_VIDEO) ? null : SDL_GetError());
+		if (error != null) {
+			throw new LWJGLException("Could not initialize SDL video: " + error
+				+ (LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX ? " (on macOS, run the program through com.koyomiji.dualwjgl.Launcher,"
+				+ " or the JVM with -XstartOnFirstThread)" : ""));
 		}
 	}
 
@@ -92,11 +98,13 @@ public final class Display {
 				} catch (LWJGLException e) {
 					throw new RuntimeException(e);
 				}
-				SDL_DisplayMode m = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
-				if (m == null) {
-					throw new RuntimeException("Could not get the desktop display mode: " + SDL_GetError());
-				}
-				initialMode = mode(m);
+				initialMode = MainThread.call(() -> {
+					SDL_DisplayMode m = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+					if (m == null) {
+						throw new RuntimeException("Could not get the desktop display mode: " + SDL_GetError());
+					}
+					return mode(m);
+				});
 				if (currentMode == null) {
 					currentMode = initialMode;
 				}
@@ -110,19 +118,21 @@ public final class Display {
 	public static DisplayMode[] getAvailableDisplayModes() throws LWJGLException {
 		synchronized (lock) {
 			video();
-			PointerBuffer modes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay());
-			if (modes == null) {
-				throw new LWJGLException("Could not get the display modes: " + SDL_GetError());
-			}
-			try {
-				Set<DisplayMode> out = new LinkedHashSet<>();
-				for (int i = 0; i < modes.remaining(); i++) {
-					out.add(mode(SDL_DisplayMode.create(modes.get(i))));
+			return MainThread.call(() -> {
+				PointerBuffer modes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay());
+				if (modes == null) {
+					throw new LWJGLException("Could not get the display modes: " + SDL_GetError());
 				}
-				return out.toArray(new DisplayMode[0]);
-			} finally {
-				SDL_free(modes);
-			}
+				try {
+					Set<DisplayMode> out = new LinkedHashSet<>();
+					for (int i = 0; i < modes.remaining(); i++) {
+						out.add(mode(SDL_DisplayMode.create(modes.get(i))));
+					}
+					return out.toArray(new DisplayMode[0]);
+				} finally {
+					SDL_free(modes);
+				}
+			});
 		}
 	}
 
@@ -180,22 +190,27 @@ public final class Display {
 	/** The window's mode and size for the current mode and fullscreen setting. */
 	private static void applyMode() throws LWJGLException {
 		DisplayMode mode = currentMode;
-		if (isFullscreen()) {
-			SDL_DisplayMode closest = SDL_DisplayMode.malloc();
-			try {
-				if (!SDL_GetClosestFullscreenDisplayMode(SDL_GetPrimaryDisplay(), mode.getWidth(), mode.getHeight(), mode.getFrequency(),
-					false, closest) || !SDL_SetWindowFullscreenMode(window, closest) || !SDL_SetWindowFullscreen(window, true)) {
-					throw new LWJGLException("Could not switch to " + mode + ": " + SDL_GetError());
+		long window = Display.window;
+		boolean fullscreen = isFullscreen();
+		int windowX = windowX(), windowY = windowY();
+		MainThread.run(() -> {
+			if (fullscreen) {
+				SDL_DisplayMode closest = SDL_DisplayMode.malloc();
+				try {
+					if (!SDL_GetClosestFullscreenDisplayMode(SDL_GetPrimaryDisplay(), mode.getWidth(), mode.getHeight(), mode.getFrequency(),
+						false, closest) || !SDL_SetWindowFullscreenMode(window, closest) || !SDL_SetWindowFullscreen(window, true)) {
+						throw new LWJGLException("Could not switch to " + mode + ": " + SDL_GetError());
+					}
+				} finally {
+					closest.free();
 				}
-			} finally {
-				closest.free();
+			} else {
+				SDL_SetWindowFullscreen(window, false);
+				SDL_SetWindowFullscreenMode(window, null);
+				SDL_SetWindowSize(window, mode.getWidth(), mode.getHeight());
+				SDL_SetWindowPosition(window, windowX, windowY);
 			}
-		} else {
-			SDL_SetWindowFullscreen(window, false);
-			SDL_SetWindowFullscreenMode(window, null);
-			SDL_SetWindowSize(window, mode.getWidth(), mode.getHeight());
-			SDL_SetWindowPosition(window, windowX(), windowY());
-		}
+		});
 		width = mode.getWidth();
 		height = mode.getHeight();
 	}
@@ -243,7 +258,8 @@ public final class Display {
 		synchronized (lock) {
 			title = newTitle == null ? "" : newTitle;
 			if (isCreated()) {
-				SDL_SetWindowTitle(window, title);
+				String title = Display.title;
+				MainThread.run(() -> SDL_SetWindowTitle(window, title));
 			}
 		}
 	}
@@ -264,7 +280,8 @@ public final class Display {
 			x = new_x;
 			y = new_y;
 			if (isCreated() && !isFullscreen()) {
-				SDL_SetWindowPosition(window, windowX(), windowY());
+				int windowX = windowX(), windowY = windowY();
+				MainThread.run(() -> SDL_SetWindowPosition(window, windowX, windowY));
 			}
 		}
 	}
@@ -274,11 +291,13 @@ public final class Display {
 			if (isFullscreen() || !isCreated()) {
 				return isFullscreen() ? 0 : x;
 			}
-			try (MemoryStack stack = MemoryStack.stackPush()) {
-				IntBuffer px = stack.mallocInt(1);
-				SDL_GetWindowPosition(window, px, null);
-				return px.get(0);
-			}
+			return MainThread.call(() -> {
+				try (MemoryStack stack = MemoryStack.stackPush()) {
+					IntBuffer px = stack.mallocInt(1);
+					SDL_GetWindowPosition(window, px, null);
+					return px.get(0);
+				}
+			});
 		}
 	}
 
@@ -287,11 +306,13 @@ public final class Display {
 			if (isFullscreen() || !isCreated()) {
 				return isFullscreen() ? 0 : y;
 			}
-			try (MemoryStack stack = MemoryStack.stackPush()) {
-				IntBuffer py = stack.mallocInt(1);
-				SDL_GetWindowPosition(window, null, py);
-				return py.get(0);
-			}
+			return MainThread.call(() -> {
+				try (MemoryStack stack = MemoryStack.stackPush()) {
+					IntBuffer py = stack.mallocInt(1);
+					SDL_GetWindowPosition(window, null, py);
+					return py.get(0);
+				}
+			});
 		}
 	}
 
@@ -311,14 +332,14 @@ public final class Display {
 
 	/** 1 unless org.lwjgl.opengl.Display.enableHighDPI is set, as in LWJGL 2. */
 	public static float getPixelScaleFactor() {
-		return isCreated() ? SDL_GetWindowPixelDensity(window) : 1f;
+		return isCreated() ? MainThread.call(() -> SDL_GetWindowPixelDensity(window)) : 1f;
 	}
 
 	public static void setResizable(boolean resizable) {
 		synchronized (lock) {
 			Display.resizable = resizable;
 			if (isCreated()) {
-				SDL_SetWindowResizable(window, resizable);
+				MainThread.run(() -> SDL_SetWindowResizable(window, resizable));
 			}
 		}
 	}
@@ -349,7 +370,7 @@ public final class Display {
 			if (!isCreated()) {
 				throw new IllegalStateException("Cannot determine minimized state of uncreated window");
 			}
-			return (SDL_GetWindowFlags(window) & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) == 0;
+			return (windowFlags() & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) == 0;
 		}
 	}
 
@@ -358,8 +379,13 @@ public final class Display {
 			if (!isCreated()) {
 				throw new IllegalStateException("Cannot determine focused state of uncreated window");
 			}
-			return (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+			return (windowFlags() & SDL_WINDOW_INPUT_FOCUS) != 0;
 		}
+	}
+
+	private static long windowFlags() {
+		long window = Display.window;
+		return MainThread.call(() -> SDL_GetWindowFlags(window));
 	}
 
 	/** Never: the window keeps its contents, as with LWJGL 2's Windows and Mac implementations. */
@@ -404,15 +430,19 @@ public final class Display {
 			return 0;
 		}
 		int side = (int)Math.sqrt(largest.remaining() / 4);
-		SDL_Surface surface = SDL_CreateSurfaceFrom(side, side, SDL_PIXELFORMAT_RGBA32, largest, side * 4);
-		if (surface == null) {
-			return 0;
-		}
-		try {
-			return SDL_SetWindowIcon(window, surface) ? 1 : 0;
-		} finally {
-			SDL_DestroySurface(surface);
-		}
+		ByteBuffer pixels = largest;
+		long window = Display.window;
+		return MainThread.call(() -> {
+			SDL_Surface surface = SDL_CreateSurfaceFrom(side, side, SDL_PIXELFORMAT_RGBA32, pixels, side * 4);
+			if (surface == null) {
+				return 0;
+			}
+			try {
+				return SDL_SetWindowIcon(window, surface) ? 1 : 0;
+			} finally {
+				SDL_DestroySurface(surface);
+			}
+		});
 	}
 
 	public static String getAdapter() {
@@ -464,10 +494,15 @@ public final class Display {
 				flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 			}
 			DisplayMode mode = currentMode;
-			window = SDL_CreateWindow(title, mode.getWidth(), mode.getHeight(), flags);
-			if (window == 0L) {
-				throw new LWJGLException("Could not create the window: " + SDL_GetError());
-			}
+			long windowFlags = flags;
+			String title = Display.title;
+			window = MainThread.call(() -> {
+				long created = SDL_CreateWindow(title, mode.getWidth(), mode.getHeight(), windowFlags);
+				if (created == 0L) {
+					throw new LWJGLException("Could not create the window: " + SDL_GetError());
+				}
+				return created;
+			});
 			try {
 				drawable.context = new ContextGL(drawable.peer_info, attribs,
 					shared_drawable != null ? ((DrawableGL)shared_drawable).getContext() : null);
@@ -479,7 +514,8 @@ public final class Display {
 					LWJGLUtil.log("OpenGL error during context creation: " + e.getMessage());
 				}
 				applyMode();
-				SDL_ShowWindow(window);
+				long created = window;
+				MainThread.run(() -> SDL_ShowWindow(created));
 				setSwapInterval(swapInterval);
 				// as LWJGL 2: the window icon, the given one or LWJGL's
 				setIcon(cachedIcons != null ? cachedIcons : new ByteBuffer[] {LWJGLUtil.LWJGLIcon32x32, LWJGLUtil.LWJGLIcon16x16});
@@ -616,7 +652,8 @@ public final class Display {
 				drawable.destroyContext();
 			}
 			if (window != 0L) {
-				SDL_DestroyWindow(window);
+				long destroyed = window;
+				MainThread.run(() -> SDL_DestroyWindow(destroyed));
 				window = 0L;
 			}
 			closeRequested = false;
@@ -692,11 +729,17 @@ public final class Display {
 			if (!isCreated()) {
 				throw new IllegalStateException("Display not created");
 			}
+			// the main thread pumps (SDL's video events, and the joysticks); the queue is read here
+			MainThread.run(SDLEvents::SDL_PumpEvents);
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				SDL_Event event = SDL_Event.malloc(stack);
-				while (SDL_PollEvent(event)) {
-					handle(event);
-					input.handle(event);
+				SDL_Event.Buffer events = SDL_Event.malloc(16, stack);
+				int n;
+				while ((n = SDL_PeepEvents(events, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST)) > 0) {
+					for (int i = 0; i < n; i++) {
+						SDL_Event event = events.get(i);
+						handle(event);
+						input.handle(event);
+					}
 				}
 				input.flushKeyboard();
 			}

@@ -130,7 +130,9 @@ marks every place that decision affects.
     set outside the program, e.g. in `JAVA_TOOL_OPTIONS`). `AL.create` is LWJGL 2's own and works either way: it loads
     the library only if nothing has.
   - `keyboard-physical-keys`: key codes name physical keys on every platform; LWJGL 2 on Linux followed the layout.
-  - `macos-first-thread`: on macOS the Display needs `-XstartOnFirstThread` (SDL's video runs on the first thread).
+  - `macos-first-thread`: on macOS SDL's video runs on the first thread, so programs start through
+    `com.koyomiji.dualwjgl.Launcher` (with `-XstartOnFirstThread`); LWJGL 2 needed neither. Without the launcher the
+    program itself must run on the first thread, and AWT then hangs beside SDL (below).
 - **`TODO(area)`**: work left in hand-written code, `area` as for `@Todo` (`cl`, `sdl`, ...). Generated stubs use the
   `@Todo("<area>")` annotation instead, which the merger counts.
 - **`TODO(verify)`**: hand-written code that no test compares with LWJGL 2's behaviour (DelegationTest only covers
@@ -158,6 +160,20 @@ classes implemented), which Display feeds SDL's events; `Mouse`, `Keyboard` and 
 `Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. OpenGL ES
 is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embedding is not supported (`DEVIATION(awt)`); nor are auxiliary
 buffers (`DEVIATION(aux-buffers)`).
+
+On macOS, SDL's video (windows, events, cursors, the clipboard, message boxes) must run on the process's first
+thread, and AWT, which ImageIO and the clipboard load, needs a running application (`[NSApp run]`) on that thread: with
+SDL's own event loop there instead, AWT's native code loaded after the window hangs (Java 8), and AWT's toolkit does
+(Java 9 and later); and with AWT's application running, SDL misses key events, which it only sees through its own
+`NSApplication`. So `com.koyomiji.dualwjgl.Launcher` owns the first thread: it initializes SDL's video before the
+program can touch AWT (SDL then creates the application), starts the program's `main` on a thread named `main`, and
+runs the application (`[NSApplication sharedApplication]`, `run`: the only AppKit calls). SDL then sees every event, and
+AWT works beside it. The program's SDL calls go through `com.koyomiji.dualwjgl.MainThread`, which hands them to the
+first thread (libdispatch's main queue, which the application's run loop serves) and waits; GL context calls (create,
+make current, swap, destroy) stay on the program's thread, where the context is current. Calls run where they are made
+without the launcher, and off macOS. When the program's `main` returns, the launcher waits for the other non-daemon
+threads and exits, as the java launcher does. Tasks on the first thread run only SDL's calls: one taking a lock the
+program's thread holds while it waits would deadlock.
 
 `Controllers` is written on SDL's gamepad and joystick API (`Controller` and `ControllerEvent` are LWJGL 2's sources).
 `./gradlew :verify:controllersCheck` drives an SDL virtual gamepad and joystick through it.

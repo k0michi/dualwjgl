@@ -51,6 +51,9 @@
 - [x] `Drawable.setCLSharingProperties` (WGL, GLX, CGL; EGL as an extension)
 - [ ] `Drawable.setCLSharingProperties` on Windows and Linux (WGL, GLX, EGL)
 - [x] `XRandR`: not supported; every member throws (generated)
+- [x] macOS: `com.koyomiji.dualwjgl.Launcher` keeps the first thread for SDL (`[NSApp run]`), the program runs on another;
+  AWT (ImageIO, the clipboard) works beside SDL on Java 8 and 21
+- [ ] macOS launcher: live resize, menus and Cmd-Q in a real program by hand
 
 ## Input
 - [x] Controllers: on SDL instead of JInput

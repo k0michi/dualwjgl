@@ -1,5 +1,6 @@
 package org.lwjgl.opengl;
 
+import com.koyomiji.dualwjgl.MainThread;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
@@ -225,7 +226,7 @@ final class SDLInput implements InputImplementation {
 	public void createMouse() throws LWJGLException {
 		mouseCreated = true;
 		grabbed = false;
-		inside = SDL_GetMouseFocus() == Display.window();
+		inside = MainThread.call(() -> SDL_GetMouseFocus()) == Display.window();
 		dx = dy = dwheel = 0;
 		restX = restY = restWheel = 0f;
 		java.util.Arrays.fill(buttons, false);
@@ -264,8 +265,10 @@ final class SDLInput implements InputImplementation {
 
 	@Override
 	public void grabMouse(boolean grab) {
-		if (!SDL_SetWindowRelativeMouseMode(Display.window(), grab)) {
-			LWJGLUtil.log("Could not " + (grab ? "grab" : "release") + " the mouse: " + SDL_GetError());
+		long window = Display.window();
+		String error = MainThread.call(() -> SDL_SetWindowRelativeMouseMode(window, grab) ? null : SDL_GetError());
+		if (error != null) {
+			LWJGLUtil.log("Could not " + (grab ? "grab" : "release") + " the mouse: " + error);
 			return;
 		}
 		grabbed = grab;
@@ -282,17 +285,21 @@ final class SDLInput implements InputImplementation {
 
 	@Override
 	public void setCursorPosition(int x, int y) {
-		SDL_WarpMouseInWindow(Display.window(), x, Display.getHeight() - 1 - y);
+		long window = Display.window();
+		float sdlY = Display.getHeight() - 1 - y;
+		MainThread.run(() -> SDL_WarpMouseInWindow(window, x, sdlY));
 		this.x = x;
 		this.y = y;
 	}
 
 	@Override
 	public void setNativeCursor(Object handle) throws LWJGLException {
-		long cursor = handle == null ? SDL_GetDefaultCursor() : (Long)handle;
-		if (!SDL_SetCursor(cursor)) {
-			throw new LWJGLException("Could not set the cursor: " + SDL_GetError());
-		}
+		MainThread.run(() -> {
+			long cursor = handle == null ? SDL_GetDefaultCursor() : (Long)handle;
+			if (!SDL_SetCursor(cursor)) {
+				throw new LWJGLException("Could not set the cursor: " + SDL_GetError());
+			}
+		});
 	}
 
 	@Override
@@ -313,6 +320,11 @@ final class SDLInput implements InputImplementation {
 	@Override
 	public Object createCursor(int width, int height, int xHotspot, int yHotspot, int numImages, IntBuffer images, IntBuffer delays)
 		throws LWJGLException {
+		return MainThread.call(() -> createCursorOnMainThread(width, height, xHotspot, yHotspot, numImages, images, delays));
+	}
+
+	private static Object createCursorOnMainThread(int width, int height, int xHotspot, int yHotspot, int numImages, IntBuffer images,
+		IntBuffer delays) {
 		boolean animated = numImages > 1;
 		int format = !animated && LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX ? SDL_PIXELFORMAT_ABGR8888 : SDL_PIXELFORMAT_ARGB8888;
 		SDL_Surface[] surfaces = new SDL_Surface[numImages];
@@ -364,7 +376,7 @@ final class SDLInput implements InputImplementation {
 
 	@Override
 	public void destroyCursor(Object cursor_handle) {
-		SDL_DestroyCursor((Long)cursor_handle);
+		MainThread.run(() -> SDL_DestroyCursor((Long)cursor_handle));
 	}
 
 	@Override
@@ -387,8 +399,10 @@ final class SDLInput implements InputImplementation {
 	/** Starts SDL's text input on the window, which LWJGL 2's characters come from. */
 	@Override
 	public void createKeyboard() throws LWJGLException {
-		if (!SDL_StartTextInput(Display.window())) {
-			throw new LWJGLException("Could not start text input: " + SDL_GetError());
+		long window = Display.window();
+		String error = MainThread.call(() -> SDL_StartTextInput(window) ? null : SDL_GetError());
+		if (error != null) {
+			throw new LWJGLException("Could not start text input: " + error);
 		}
 		keyboardCreated = true;
 		java.util.Arrays.fill(keys, false);
@@ -398,7 +412,8 @@ final class SDLInput implements InputImplementation {
 
 	@Override
 	public void destroyKeyboard() {
-		SDL_StopTextInput(Display.window());
+		long window = Display.window();
+		MainThread.run(() -> SDL_StopTextInput(window));
 		keyboardCreated = false;
 	}
 

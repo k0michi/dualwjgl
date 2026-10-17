@@ -1,5 +1,6 @@
 package org.lwjgl.input;
 
+import com.koyomiji.dualwjgl.MainThread;
 import org.lwjgl.LWJGLException;
 
 import java.nio.IntBuffer;
@@ -34,29 +35,34 @@ public class Controllers {
 			return;
 		}
 		try {
-			if (!SDL_InitSubSystem(SDL_INIT_GAMEPAD)) { // and the joystick subsystem with it
-				throw new LWJGLException("Failed to initialise controllers: " + SDL_GetError());
-			}
-			IntBuffer ids = SDL_GetJoysticks();
-			if (ids == null) {
-				throw new LWJGLException("Failed to initialise controllers: " + SDL_GetError());
-			}
-			try {
-				for (int i = 0; i < ids.remaining(); i++) {
-					int id = ids.get(i);
-					SDLController c = SDL_IsGamepad(id) ? SDLController.gamepad(controllers.size(), id) : SDLController.joystick(controllers.size(), id);
-					if (c != null) {
-						controllers.add(c);
-					}
-				}
-			} finally {
-				SDL_free(ids);
-			}
+			// on the main thread, as their updates (SDL's joystick backend on macOS runs on the thread that started it)
+			MainThread.run(Controllers::open);
 			created = true;
 		} catch (LWJGLException e) {
 			throw e;
 		} catch (Throwable e) { // lwjgl-sdl or its natives missing, as LWJGL 2 without JInput
 			throw new LWJGLException("Failed to initialise controllers", e);
+		}
+	}
+
+	private static void open() {
+		if (!SDL_InitSubSystem(SDL_INIT_GAMEPAD)) { // and the joystick subsystem with it
+			throw new LWJGLException("Failed to initialise controllers: " + SDL_GetError());
+		}
+		IntBuffer ids = SDL_GetJoysticks();
+		if (ids == null) {
+			throw new LWJGLException("Failed to initialise controllers: " + SDL_GetError());
+		}
+		try {
+			for (int i = 0; i < ids.remaining(); i++) {
+				int id = ids.get(i);
+				SDLController c = SDL_IsGamepad(id) ? SDLController.gamepad(controllers.size(), id) : SDLController.joystick(controllers.size(), id);
+				if (c != null) {
+					controllers.add(c);
+				}
+			}
+		} finally {
+			SDL_free(ids);
 		}
 	}
 
@@ -70,7 +76,7 @@ public class Controllers {
 
 	public static void poll() {
 		if (created) {
-			SDL_UpdateJoysticks();
+			MainThread.run(() -> SDL_UpdateJoysticks());
 		}
 		for (int i = 0; i < controllers.size(); i++) {
 			getController(i).poll();

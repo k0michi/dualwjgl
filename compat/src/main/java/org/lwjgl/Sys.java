@@ -1,5 +1,6 @@
 package org.lwjgl;
 
+import com.koyomiji.dualwjgl.MainThread;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.system.Pointer;
 
@@ -55,7 +56,8 @@ public final class Sys {
 		}
 		boolean shown;
 		try {
-			shown = SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, message, 0L);
+			String t = title, m = message;
+			shown = MainThread.call(() -> SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, t, m, 0L));
 		} catch (LinkageError e) { // lwjgl-sdl or its natives missing
 			shown = false;
 		}
@@ -70,7 +72,7 @@ public final class Sys {
 	/** Opens the URL in the system's browser, through SDL; false if it could not. */
 	public static boolean openURL(String url) {
 		try {
-			return SDL_OpenURL(url);
+			return MainThread.call(() -> SDL_OpenURL(url));
 		} catch (LinkageError e) {
 			return false;
 		}
@@ -79,10 +81,7 @@ public final class Sys {
 	/** The clipboard's text, through SDL's video subsystem (initialized if needed); null when unavailable. */
 	public static String getClipboard() {
 		try {
-			if (SDL_WasInit(SDL_INIT_VIDEO) == 0 && !SDL_InitSubSystem(SDL_INIT_VIDEO)) {
-				return null;
-			}
-			return SDL_GetClipboardText();
+			return MainThread.call(() -> SDL_WasInit(SDL_INIT_VIDEO) == 0 && !SDL_InitSubSystem(SDL_INIT_VIDEO) ? null : SDL_GetClipboardText());
 		} catch (LinkageError e) {
 			return null;
 		}
