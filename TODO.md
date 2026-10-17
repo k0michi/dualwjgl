@@ -53,7 +53,7 @@
 
 ## lwjgl_util
 - [x] `org.lwjgl.util.mapped`: not supported; every member throws (generated)
-- [ ] `WaveData` (7): not generated; port (LWJGL 2's depends on `com.sun.media.sound`)
+- [x] `WaveData`: LWJGL 2's, `create(URL)` reading through `javax.sound.sampled.AudioSystem`
 
 ## Verification
 - [ ] Comparison tests for hand-written code (`TODO(verify)`)

@@ -120,6 +120,12 @@ Not part of check, as they open a window: `./gradlew :verify:displayDemo` (`-Pfr
 program; `./gradlew :verify:displayInputCheck` feeds the Display synthetic SDL events and checks LWJGL 2's Mouse and
 Keyboard.
 
+### lwjgl_util
+
+lwjgl_util is LWJGL 2's sources, unchanged but for `WaveData`, filtered as it is extracted: its `create(URL)` read
+through the JDK-internal `com.sun.media.sound.WaveFileReader`, and reads through `javax.sound.sampled.AudioSystem`, as its
+other `create` methods do. `org.lwjgl.util.mapped` is not supported (`DEVIATION(out-of-scope)`).
+
 ### Debug output callbacks
 
 `KHRDebugCallback`, `ARBDebugOutputCallback` and `AMDDebugOutputCallback` are LWJGL 2's sources. Their pointer is a fixed
@@ -144,8 +150,8 @@ The link tests open devices on OpenAL Soft's null backend (`ALSOFT_DRIVERS=null`
 
 ### OpenCL
 
-The CL object model (`CLPlatform`, `CLContext`, `CLObjectRegistry`, `InfoUtil*`, ...) is LWJGL 2's sources. The one
-change is in `InfoUtilFactory`, filtered as it is extracted: it read LWJGL 2's static `CLCapabilities.clCreateContext`
+The CL object model (`CLPlatform`, `CLContext`, `CLObjectRegistry`, `InfoUtil*`, ...) is LWJGL 2's sources. One change
+is in `InfoUtilFactory`, filtered as it is extracted (the other filtered source is `WaveData`, below): it read LWJGL 2's static `CLCapabilities.clCreateContext`
 (and `clCreateImage2D`/`3D`), which LWJGL 3's `CLCapabilities` cannot have next to its instance fields of those names,
 and calls `CL.getFunctionAddress` instead. Around it:
 
