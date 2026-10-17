@@ -1,7 +1,7 @@
 package org.lwjgl.opencl;
 
-import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Into;
+import com.koyomiji.dualwjgl.inject.Generated;
+import com.koyomiji.dualwjgl.inject.Into;
 import org.lwjgl.PointerBuffer;
 
 @Generated

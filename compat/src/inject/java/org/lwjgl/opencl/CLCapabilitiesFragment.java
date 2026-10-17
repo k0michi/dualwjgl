@@ -1,6 +1,6 @@
 package org.lwjgl.opencl;
 
-import com.koyomiji.lwjgl2w3.inject.Into;
+import com.koyomiji.dualwjgl.inject.Into;
 
 /**
  * LWJGL 2's CLCapabilities: the extension flags CLPlatformCapabilities and CLDeviceCapabilities (imported) combine with

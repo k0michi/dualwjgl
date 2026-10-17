@@ -1,6 +1,6 @@
 package org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Into;
+import com.koyomiji.dualwjgl.inject.Into;
 
 /** LWJGL 2's glDebugMessageCallback: CallbackUtil's fixed function, with the Handler's reference as userParam. */
 @Into(GL43.class)

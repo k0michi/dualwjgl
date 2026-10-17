@@ -1,9 +1,9 @@
 package org.lwjgl;
 
-import com.koyomiji.lwjgl2w3.inject.Around;
-import com.koyomiji.lwjgl2w3.inject.Hidden;
-import com.koyomiji.lwjgl2w3.inject.Into;
-import com.koyomiji.lwjgl2w3.inject.Wrap;
+import com.koyomiji.dualwjgl.inject.Around;
+import com.koyomiji.dualwjgl.inject.Hidden;
+import com.koyomiji.dualwjgl.inject.Into;
+import com.koyomiji.dualwjgl.inject.Wrap;
 import org.lwjgl.system.CustomBuffer;
 
 import java.nio.Buffer;

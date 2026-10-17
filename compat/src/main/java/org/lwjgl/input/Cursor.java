@@ -44,7 +44,7 @@ import org.lwjgl.Sys;
  * A class representing a native cursor. Instances of this
  * class can be used with Mouse.setCursor(), if available.
  *
- * lwjgl2w3: LWJGL 2's Cursor, changed only in createCursors to hand an animation over whole wherever the
+ * dualwjgl: LWJGL 2's Cursor, changed only in createCursors to hand an animation over whole wherever the
  * implementation can animate natively (DEVIATION(cursor-native-animation)).
  *
  * @author elias_naur <elias_naur@users.sourceforge.net>

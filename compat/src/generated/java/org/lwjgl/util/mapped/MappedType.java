@@ -1,6 +1,6 @@
 package org.lwjgl.util.mapped;
 
-import com.koyomiji.lwjgl2w3.inject.Generated;
+import com.koyomiji.dualwjgl.inject.Generated;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

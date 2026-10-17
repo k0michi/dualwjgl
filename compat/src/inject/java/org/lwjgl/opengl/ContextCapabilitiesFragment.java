@@ -1,6 +1,6 @@
 package org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Into;
+import com.koyomiji.dualwjgl.inject.Into;
 import org.lwjgl.LWJGLException;
 
 import java.lang.reflect.Field;

@@ -7,7 +7,7 @@ def gitVersion = gitDescribe.result.get().exitValue == 0
         : 'unspecified'
 
 allprojects {
-    group = 'com.koyomiji.lwjgl2w3'
+    group = 'com.koyomiji.dualwjgl'
     version = gitVersion
 }
 

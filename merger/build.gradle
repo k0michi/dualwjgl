@@ -13,5 +13,5 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 application {
-    mainClass = 'com.koyomiji.lwjgl2w3.merger.Merger'
+    mainClass = 'com.koyomiji.dualwjgl.merger.Merger'
 }

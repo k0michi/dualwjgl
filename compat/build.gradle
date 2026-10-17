@@ -4,7 +4,7 @@ plugins {
 
 // generated: written by :stubgen:generateStubs on every run; never edit. Compiled with main.
 // main:      hand-written LWJGL 2-only classes, in their real packages
-// inject:    hand-written members, com.koyomiji.lwjgl2w3.inject.<pkg>.<Name> -> <pkg>.<Name>; these override
+// inject:    hand-written members, com.koyomiji.dualwjgl.inject.<pkg>.<Name> -> <pkg>.<Name>; these override
 //            generated members, so implementing something never means editing generated code
 // replace:   hand-written whole classes that replace LWJGL 3's, where the shapes cannot be merged member by member
 // lwjgl2:    lwjgl_util 2.9.3 sources, the AL/CL object models and a few pure Java core classes, unpacked unchanged from the released sources
@@ -58,10 +58,10 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
     // when it was no WAVE (and returned null): closed here, as an open file cannot be deleted on Windows.
     filesMatching('org/lwjgl/util/WaveData.java') {
         filter { String line ->
-            line.replace('import com.sun.media.sound.WaveFileReader;', '// lwjgl2w3: com.sun.media.sound.WaveFileReader -> AudioSystem')
-                .replace('WaveFileReader wfr = new WaveFileReader();', '// lwjgl2w3')
+            line.replace('import com.sun.media.sound.WaveFileReader;', '// dualwjgl: com.sun.media.sound.WaveFileReader -> AudioSystem')
+                .replace('WaveFileReader wfr = new WaveFileReader();', '// dualwjgl')
                 .replace('return create(wfr.getAudioInputStream(new BufferedInputStream(path.openStream())));',
-                    'InputStream is = new BufferedInputStream(path.openStream()); // lwjgl2w3: closed when no WAVE\n' +
+                    'InputStream is = new BufferedInputStream(path.openStream()); // dualwjgl: closed when no WAVE\n' +
                     '\t\t\ttry {\n\t\t\t\treturn create(AudioSystem.getAudioInputStream(is));\n' +
                     '\t\t\t} catch (Exception e) {\n\t\t\t\tis.close();\n\t\t\t\tthrow e;\n\t\t\t}')
         }
@@ -71,7 +71,7 @@ def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
     // package-private, compat injects it) looks the function up instead.
     filesMatching('org/lwjgl/opencl/InfoUtilFactory.java') {
         filter { String line ->
-            line.replaceAll(/CLCapabilities\.(clCreateContext|clCreateImage2D|clCreateImage3D);/, 'CL.getFunctionAddress("$1"); // lwjgl2w3')
+            line.replaceAll(/CLCapabilities\.(clCreateContext|clCreateImage2D|clCreateImage3D);/, 'CL.getFunctionAddress("$1"); // dualwjgl')
         }
     }
     into layout.buildDirectory.dir('lwjgl2-sources')

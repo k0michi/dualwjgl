@@ -52,7 +52,7 @@ def registerSuite = { String suite, String sources, FileCollection compileAgains
         classpath = ss.runtimeClasspath
         useJUnitPlatform()
         // where the few tests that differ between binaries and source (a hidden LWJGL 2 overload) look
-        systemProperty 'lwjgl2w3.compiledAgainst', compiledAgainst
+        systemProperty 'dualwjgl.compiledAgainst', compiledAgainst
         // OpenAL Soft's null backend: a device to open without sound hardware
         environment 'ALSOFT_DRIVERS', 'null'
         systemProperties properties
@@ -102,10 +102,10 @@ def delegationTest = tasks.register('delegationTest', Test) {
     outputs.file(report)
     testLogging { showStandardStreams = true }
     doFirst {
-        systemProperty 'lwjgl2w3.lwjgl2.jars', configurations.lwjgl2Api.files.join(File.pathSeparator)
-        systemProperty 'lwjgl2w3.patched.jars', (patched.files + configurations.natives.files).join(File.pathSeparator)
-        systemProperty 'lwjgl2w3.compat.classes', compatClasses.files.join(File.pathSeparator)
-        systemProperty 'lwjgl2w3.report', report.get().asFile.path
+        systemProperty 'dualwjgl.lwjgl2.jars', configurations.lwjgl2Api.files.join(File.pathSeparator)
+        systemProperty 'dualwjgl.patched.jars', (patched.files + configurations.natives.files).join(File.pathSeparator)
+        systemProperty 'dualwjgl.compat.classes', compatClasses.files.join(File.pathSeparator)
+        systemProperty 'dualwjgl.report', report.get().asFile.path
     }
 }
 tasks.named('check') { dependsOn delegationTest }
@@ -127,11 +127,11 @@ def bench = { String name, SourceSet ss, String main, FileCollection jars, Strin
     }
 }
 def b3Original = bench('pointerBufferBench3Original', sourceSets.bench3,
-    'com.koyomiji.lwjgl2w3.verify.bench.PointerBufferBench3', configurations.lwjgl3Api, 'original LWJGL 3.4.3')
+    'com.koyomiji.dualwjgl.verify.bench.PointerBufferBench3', configurations.lwjgl3Api, 'original LWJGL 3.4.3')
 def b3Patched = bench('pointerBufferBench3Patched', sourceSets.bench3,
-    'com.koyomiji.lwjgl2w3.verify.bench.PointerBufferBench3', patched, 'patched jars')
+    'com.koyomiji.dualwjgl.verify.bench.PointerBufferBench3', patched, 'patched jars')
 def b2Patched = bench('pointerBufferBench2Patched', sourceSets.bench2,
-    'com.koyomiji.lwjgl2w3.verify.bench.PointerBufferBench2', patched, 'patched jars')
+    'com.koyomiji.dualwjgl.verify.bench.PointerBufferBench2', patched, 'patched jars')
 tasks.register('pointerBufferBench') {
     group = 'verification'
     dependsOn b3Original, b3Patched, b2Patched
@@ -156,7 +156,7 @@ sourceSets {
 tasks.register('displayDemo', JavaExec) {
     group = 'verification'
     classpath = sourceSets.demo2.output + patched + configurations.demoRuntime
-    mainClass = 'com.koyomiji.lwjgl2w3.verify.demo.DisplayDemo'
+    mainClass = 'com.koyomiji.dualwjgl.verify.demo.DisplayDemo'
     jvmArgs '--enable-native-access=ALL-UNNAMED'
     if (System.getProperty('os.name').toLowerCase().contains('mac')) {
         jvmArgs '-XstartOnFirstThread'
@@ -174,7 +174,7 @@ sourceSets {
 tasks.register('displayInputCheck', JavaExec) {
     group = 'verification'
     classpath = sourceSets.displayCheck.output + patched + configurations.demoRuntime
-    mainClass = 'com.koyomiji.lwjgl2w3.verify.demo.DisplayInputCheck'
+    mainClass = 'com.koyomiji.dualwjgl.verify.demo.DisplayInputCheck'
     jvmArgs '--enable-native-access=ALL-UNNAMED'
     if (System.getProperty('os.name').toLowerCase().contains('mac')) {
         jvmArgs '-XstartOnFirstThread'
@@ -185,6 +185,6 @@ tasks.register('displayInputCheck', JavaExec) {
 tasks.register('controllersCheck', JavaExec) {
     group = 'verification'
     classpath = sourceSets.displayCheck.output + patched + configurations.demoRuntime
-    mainClass = 'com.koyomiji.lwjgl2w3.verify.demo.ControllersCheck'
+    mainClass = 'com.koyomiji.dualwjgl.verify.demo.ControllersCheck'
     jvmArgs '--enable-native-access=ALL-UNNAMED'
 }

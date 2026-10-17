@@ -43,14 +43,14 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 application {
-    mainClass = 'com.koyomiji.lwjgl2w3.stubgen.StubGen'
+    mainClass = 'com.koyomiji.dualwjgl.stubgen.StubGen'
 }
 
 tasks.register('generateStubs', JavaExec) {
-    group = 'lwjgl2w3'
+    group = 'dualwjgl'
     description = 'Writes TODO stubs into compat for LWJGL 2 API members that are not implemented yet.'
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'com.koyomiji.lwjgl2w3.stubgen.StubGen'
+    mainClass = 'com.koyomiji.dualwjgl.stubgen.StubGen'
     dependsOn ':compat:injectClasses', ':compat:extractLwjgl2Sources'
     def compat = project(':compat').projectDir
     argumentProviders.add({

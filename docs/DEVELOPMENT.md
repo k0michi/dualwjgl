@@ -1,6 +1,6 @@
 # Development notes
 
-Internal notes on how lwjgl2w3 is built. For what the project is, see the [README](../README.md).
+Internal notes on how DuaLWJGL is built. For what the project is, see the [README](../README.md).
 
 ## Layout
 
@@ -9,17 +9,17 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
 | `inject-api` | Annotations read by the merger (`@Widen`, `@Wrap`, `@Around`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
 | `compat` | The LWJGL 2 implementation, written against LWJGL 3 (and SDL). |
 | `merger` | ASM tool that merges `compat` into the LWJGL 3 jars. |
-| `dist` | Runs the merger: patched LWJGL 3 module jars plus `lwjgl2w3` main and util jars in `build/patched/`; each filename ends in `-<git describe>`. |
+| `dist` | Runs the merger: patched LWJGL 3 module jars plus `dualwjgl` main and util jars in `build/patched/`; each filename ends in `-<git describe>`. |
 | `verify` | Link tests (see below). |
 | `stubgen` | Writes `compat/src/generated/java`: an implementation or a `@Todo` stub for every LWJGL 2 member LWJGL 3 lacks. |
 
-`dist/build/patched/` keeps the LWJGL 3 module suffixes and versions, replaces the leading `lwjgl` with `lwjgl2w3`,
+`dist/build/patched/` keeps the LWJGL 3 module suffixes and versions, replaces the leading `lwjgl` with `dualwjgl`,
 then appends the project version from `git describe` with a hyphen. Unowned LWJGL 2 classes go into the patched core jar,
-which is the `lwjgl2w3` main module. The `org.lwjgl.util` classes go into `lwjgl2w3-util-<git describe>.jar`.
+which is the `dualwjgl` main module. The `org.lwjgl.util` classes go into `dualwjgl-util-<git describe>.jar`.
 
 ### LWJGL 2's builds and what is covered
 
-lwjgl2w3 targets the jars LWJGL 2.9.3 published to Maven Central, `org.lwjgl.lwjgl:lwjgl` and
+DuaLWJGL targets the jars LWJGL 2.9.3 published to Maven Central, `org.lwjgl.lwjgl:lwjgl` and
 `org.lwjgl.lwjgl:lwjgl_util`: the API an LWJGL 2 binary links against. LWJGL 2's build (`build.xml`,
 `platform_build/`) made more than those:
 
@@ -41,7 +41,7 @@ in it, so that path did not work in LWJGL 2.9.3 itself.
 - **LWJGL 2-only classes** (`Sys`, `LWJGLException`, later `Display`, `Keyboard`, ...) go in `compat/src/main/java`, in their
   real package. The merger adds them to the LWJGL 3 jar that owns the package.
 - **Members of classes LWJGL 3 also has** (`BufferUtils`, `GL11`, ...) go in `compat/src/inject/java` as
-  `com.koyomiji.lwjgl2w3.inject.<package>.<Name>`. The merger copies their members into `<package>.<Name>` and remaps references.
+  `com.koyomiji.dualwjgl.inject.<package>.<Name>`. The merger copies their members into `<package>.<Name>` and remaps references.
   - Adding a member that LWJGL 3 already declares (same name and descriptor) is an error.
   - `@Widen` on a member LWJGL 3 already declares: keep LWJGL 3's member, only widen its access.
   - `@Wrap` on a method LWJGL 3 already declares: replace it, keeping the original as `<name>$lwjgl3` (synthetic) for

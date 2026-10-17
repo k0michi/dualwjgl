@@ -1,7 +1,7 @@
 package org.lwjgl.openal;
 
-import com.koyomiji.lwjgl2w3.inject.Into;
-import com.koyomiji.lwjgl2w3.inject.Wrap;
+import com.koyomiji.dualwjgl.inject.Into;
+import com.koyomiji.dualwjgl.inject.Wrap;
 import org.lwjgl.LWJGLException;
 
 /** LWJGL 2's AL startup and shutdown over LWJGL 3's ALC (see {@link ALObjects}). */

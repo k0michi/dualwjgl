@@ -1,6 +1,6 @@
 package org.lwjgl.openal;
 
-import com.koyomiji.lwjgl2w3.inject.Generated;
+import com.koyomiji.dualwjgl.inject.Generated;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
