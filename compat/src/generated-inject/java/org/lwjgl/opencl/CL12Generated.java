@@ -1,5 +1,7 @@
-package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opencl;
+package org.lwjgl.opencl;
 
+import com.koyomiji.lwjgl2w3.inject.Generated;
+import com.koyomiji.lwjgl2w3.inject.Into;
 import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -7,53 +9,49 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.opencl.CLCommandQueue;
-import org.lwjgl.opencl.CLCompileProgramCallback;
-import org.lwjgl.opencl.CLContext;
-import org.lwjgl.opencl.CLDevice;
-import org.lwjgl.opencl.CLKernel;
-import org.lwjgl.opencl.CLLinkProgramCallback;
-import org.lwjgl.opencl.CLMem;
-import org.lwjgl.opencl.CLPlatform;
-import org.lwjgl.opencl.CLPrintfCallback;
-import org.lwjgl.opencl.CLProgram;
 
-public final class CL12 {
-	@Todo("cl")
+@Generated
+@Into(CL12.class)
+final class CL12Generated {
 	public static int clRetainDevice(CLDevice device) {
-		throw new UnsupportedOperationException();
+		int __result = org.lwjgl.opencl.CL12.clRetainDevice(device.getPointer());
+		if ( __result == CL10.CL_SUCCESS ) device.retain();
+		return __result;
 	}
-	@Todo("cl")
 	public static int clReleaseDevice(CLDevice device) {
-		throw new UnsupportedOperationException();
+		APIUtil.releaseObjects(device);
+		int __result = org.lwjgl.opencl.CL12.clReleaseDevice(device.getPointer());
+		if ( __result == CL10.CL_SUCCESS ) device.release();
+		return __result;
 	}
-	@Todo("cl")
 	public static int clCreateSubDevices(CLDevice in_device, LongBuffer properties, PointerBuffer out_devices, IntBuffer num_devices_ret) {
-		throw new UnsupportedOperationException();
+		int __result = org.lwjgl.opencl.CL12.clCreateSubDevices(in_device.getPointer(), org.lwjgl.system.MemoryUtil.memPointerBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(properties), org.lwjgl.system.Checks.remainingSafe(properties)), out_devices, num_devices_ret);
+		if ( __result == CL10.CL_SUCCESS && out_devices != null ) in_device.registerSubCLDevices(out_devices);
+		return __result;
 	}
-	@Todo("cl")
 	public static CLMem clCreateImage(CLContext context, long flags, ByteBuffer image_format, ByteBuffer image_desc, ByteBuffer host_ptr, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opencl.CLMem __result = new org.lwjgl.opencl.CLMem(org.lwjgl.opencl.CL12.clCreateImage(context.getPointer(), flags, org.lwjgl.opencl.CLImageFormat.create(org.lwjgl.system.MemoryUtil.memAddress(image_format)), org.lwjgl.opencl.CLImageDesc.create(org.lwjgl.system.MemoryUtil.memAddress(image_desc)), host_ptr, errcode_ret), context);
+		return __result;
 	}
-	@Todo("cl")
 	public static CLMem clCreateImage(CLContext context, long flags, ByteBuffer image_format, ByteBuffer image_desc, FloatBuffer host_ptr, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opencl.CLMem __result = new org.lwjgl.opencl.CLMem(org.lwjgl.opencl.CL12.clCreateImage(context.getPointer(), flags, org.lwjgl.opencl.CLImageFormat.create(org.lwjgl.system.MemoryUtil.memAddress(image_format)), org.lwjgl.opencl.CLImageDesc.create(org.lwjgl.system.MemoryUtil.memAddress(image_desc)), host_ptr, errcode_ret), context);
+		return __result;
 	}
-	@Todo("cl")
 	public static CLMem clCreateImage(CLContext context, long flags, ByteBuffer image_format, ByteBuffer image_desc, IntBuffer host_ptr, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opencl.CLMem __result = new org.lwjgl.opencl.CLMem(org.lwjgl.opencl.CL12.clCreateImage(context.getPointer(), flags, org.lwjgl.opencl.CLImageFormat.create(org.lwjgl.system.MemoryUtil.memAddress(image_format)), org.lwjgl.opencl.CLImageDesc.create(org.lwjgl.system.MemoryUtil.memAddress(image_desc)), host_ptr, errcode_ret), context);
+		return __result;
 	}
-	@Todo("cl")
 	public static CLMem clCreateImage(CLContext context, long flags, ByteBuffer image_format, ByteBuffer image_desc, ShortBuffer host_ptr, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opencl.CLMem __result = new org.lwjgl.opencl.CLMem(org.lwjgl.opencl.CL12.clCreateImage(context.getPointer(), flags, org.lwjgl.opencl.CLImageFormat.create(org.lwjgl.system.MemoryUtil.memAddress(image_format)), org.lwjgl.opencl.CLImageDesc.create(org.lwjgl.system.MemoryUtil.memAddress(image_desc)), host_ptr, errcode_ret), context);
+		return __result;
 	}
-	@Todo("cl")
 	public static CLProgram clCreateProgramWithBuiltInKernels(CLContext context, PointerBuffer device_list, ByteBuffer kernel_names, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opencl.CLProgram __result = new org.lwjgl.opencl.CLProgram(org.lwjgl.opencl.CL12.clCreateProgramWithBuiltInKernels(context.getPointer(), device_list, kernel_names, errcode_ret), context);
+		return __result;
 	}
-	@Todo("cl")
 	public static CLProgram clCreateProgramWithBuiltInKernels(CLContext context, PointerBuffer device_list, CharSequence kernel_names, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.opencl.CLProgram __result = new org.lwjgl.opencl.CLProgram(org.lwjgl.opencl.CL12.clCreateProgramWithBuiltInKernels(context.getPointer(), device_list, kernel_names, errcode_ret), context);
+		return __result;
 	}
 	@Todo("cl")
 	public static int clCompileProgram(CLProgram program, PointerBuffer device_list, ByteBuffer options, PointerBuffer input_header, ByteBuffer header_include_name, CLCompileProgramCallback pfn_notify) {
@@ -75,13 +73,27 @@ public final class CL12 {
 	public static int clCompileProgram(CLProgram program, PointerBuffer device_list, CharSequence options, PointerBuffer input_header, CharSequence[] header_include_name, CLCompileProgramCallback pfn_notify) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static CLProgram clLinkProgram(CLContext context, PointerBuffer device_list, ByteBuffer options, PointerBuffer input_programs, CLLinkProgramCallback pfn_notify, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		long user_data = CallbackUtil.createGlobalRef(pfn_notify);
+		if ( pfn_notify != null ) pfn_notify.setContext(context);
+		org.lwjgl.opencl.CLProgram __result = null;
+		try {
+			__result = new org.lwjgl.opencl.CLProgram(org.lwjgl.opencl.CL12.clLinkProgram(context.getPointer(), device_list, options, input_programs, pfn_notify, user_data, errcode_ret), context);
+			return __result;
+		} finally {
+			CallbackUtil.checkCallback(errcode_ret.get(errcode_ret.position()), user_data);
+		}
 	}
-	@Todo("cl")
 	public static CLProgram clLinkProgram(CLContext context, PointerBuffer device_list, CharSequence options, PointerBuffer input_programs, CLLinkProgramCallback pfn_notify, IntBuffer errcode_ret) {
-		throw new UnsupportedOperationException();
+		long user_data = CallbackUtil.createGlobalRef(pfn_notify);
+		if ( pfn_notify != null ) pfn_notify.setContext(context);
+		org.lwjgl.opencl.CLProgram __result = null;
+		try {
+			__result = new org.lwjgl.opencl.CLProgram(org.lwjgl.opencl.CL12.clLinkProgram(context.getPointer(), device_list, options, input_programs, pfn_notify, user_data, errcode_ret), context);
+			return __result;
+		} finally {
+			CallbackUtil.checkCallback(errcode_ret.get(errcode_ret.position()), user_data);
+		}
 	}
 	public static int clUnloadPlatformCompiler(CLPlatform platform) {
 		return org.lwjgl.opencl.CL12.clUnloadPlatformCompiler(platform.getPointer());

@@ -5,13 +5,20 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL;
 import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CLCommandQueue;
+import org.lwjgl.opencl.CLContext;
+import org.lwjgl.opencl.CLDevice;
 import org.lwjgl.opencl.CLEvent;
 import org.lwjgl.opencl.CLEventCallback;
+import org.lwjgl.opencl.CLKernel;
+import org.lwjgl.opencl.CLMem;
 import org.lwjgl.opencl.CLNativeKernel;
 import org.lwjgl.opencl.CLPlatform;
+import org.lwjgl.opencl.CLProgram;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
@@ -105,12 +112,9 @@ class Lwjgl2OpenCLTest {
 
 	@Test
 	void platformsRegistered() throws Exception {
-		// the only test here that loads CL: explicit init leaves it to CL.create(), which an LWJGL 2 program calls
-		assertFalse(CL.isCreated());
-		assumeTrue(openCL(), "no OpenCL");
+		assumeOpenCL();
 		IntBuffer count = BufferUtils.createIntBuffer(1);
-		// an ICD loader without drivers (Windows runners) returns CL_PLATFORM_NOT_FOUND_KHR
-		assumeTrue(CL10.clGetPlatformIDs(null, count) == CL10.CL_SUCCESS && count.get(0) > 0, "no OpenCL platform");
+		assertEquals(CL10.CL_SUCCESS, CL10.clGetPlatformIDs(null, count));
 		PointerBuffer ids = BufferUtils.createPointerBuffer(count.get(0));
 		assertEquals(CL10.CL_SUCCESS, CL10.clGetPlatformIDs(ids, (IntBuffer)null));
 
@@ -128,15 +132,101 @@ class Lwjgl2OpenCLTest {
 		assertTrue(icd.getBoolean(null));
 	}
 
-	/** As an LWJGL 2 program: CL.create() loads the library (the suite sets org.lwjgl.opencl.explicitInit). */
-	private static boolean openCL() {
-		try {
-			CL.create();
-			return true;
-		} catch (Throwable e) {
-			System.err.println("OpenCL unavailable: " + e);
-			return false;
+	private static final String SOURCE = "kernel void twice(global float *a) { int i = get_global_id(0); a[i] = 2 * a[i]; }";
+
+	/** An LWJGL 2 program's OpenCL lifecycle, on the first platform's first device. */
+	@Test
+	void kernelRuns() throws Exception {
+		assumeOpenCL();
+		CLPlatform platform = CLPlatform.getPlatforms().get(0);
+		List<CLDevice> devices = platform.getDevices((int)CL10.CL_DEVICE_TYPE_ALL); // a long in LWJGL 3
+		assumeTrue(devices != null && !devices.isEmpty(), "no OpenCL device");
+		CLDevice device = devices.get(0);
+		IntBuffer error = BufferUtils.createIntBuffer(1);
+
+		CLContext context = CLContext.create(platform, devices.subList(0, 1), error);
+		check(error);
+		CLCommandQueue queue = CL10.clCreateCommandQueue(context, device, 0, error);
+		check(error);
+
+		FloatBuffer data = BufferUtils.createFloatBuffer(64);
+		for (int i = 0; i < 64; i++) {
+			data.put(i, i);
 		}
+		CLMem mem = CL10.clCreateBuffer(context, CL10.CL_MEM_READ_WRITE | CL10.CL_MEM_COPY_HOST_PTR, data, error);
+		check(error);
+		assertSame(mem, context.getCLMem(mem.getPointer()));
+
+		CLProgram program = CL10.clCreateProgramWithSource(context, SOURCE, error);
+		check(error);
+		assertEquals(CL10.CL_SUCCESS, CL10.clBuildProgram(program, device, "", null));
+		CLKernel kernel = CL10.clCreateKernel(program, "twice", error);
+		check(error);
+		assertEquals(CL10.CL_SUCCESS, CL10.clSetKernelArg(kernel, 0, mem));
+
+		PointerBuffer global = BufferUtils.createPointerBuffer(1);
+		global.put(0, 64);
+		PointerBuffer event = BufferUtils.createPointerBuffer(1);
+		assertEquals(CL10.CL_SUCCESS, CL10.clEnqueueNDRangeKernel(queue, kernel, 1, null, global, null, null, event));
+		CLEvent done = queue.getCLEvent(event.get(0));
+		assertNotNull(done, "registered by the queue");
+		assertEquals(CL10.CL_SUCCESS, CL10.clWaitForEvents(done));
+
+		FloatBuffer out = BufferUtils.createFloatBuffer(64);
+		assertEquals(CL10.CL_SUCCESS, CL10.clEnqueueReadBuffer(queue, mem, CL10.CL_TRUE, 0, out, null, null));
+		for (int i = 0; i < 64; i++) {
+			assertEquals(2f * i, out.get(i));
+		}
+		ByteBuffer mapped = CL10.clEnqueueMapBuffer(queue, mem, CL10.CL_TRUE, CL10.CL_MAP_READ, 0, 64 * 4, null, event, error);
+		check(error);
+		assertEquals(64 * 4, mapped.capacity());
+		assertEquals(2f * 63, mapped.getFloat(63 * 4));
+		assertEquals(CL10.CL_SUCCESS, CL10.clEnqueueUnmapMemObject(queue, mem, mapped, null, null));
+		assertEquals(CL10.CL_SUCCESS, CL10.clFinish(queue));
+
+		// the program's binary, through the pointer array LWJGL 2's native made
+		PointerBuffer sizes = BufferUtils.createPointerBuffer(1);
+		assertEquals(CL10.CL_SUCCESS, CL10.clGetProgramInfo(program, CL10.CL_PROGRAM_BINARY_SIZES, sizes.getBuffer(), null));
+		ByteBuffer binary = BufferUtils.createByteBuffer((int)sizes.get(0));
+		assertEquals(CL10.CL_SUCCESS, CL10.clGetProgramInfo(program, sizes, binary, null));
+		CLProgram fromBinary = CL10.clCreateProgramWithBinary(context, device, binary, BufferUtils.createIntBuffer(1), error);
+		check(error);
+		assertEquals(CL10.CL_SUCCESS, CL10.clBuildProgram(fromBinary, device, "", null));
+
+		assertEquals(CL10.CL_SUCCESS, CL10.clReleaseKernel(kernel));
+		assertFalse(kernel.isValid());
+		assertEquals(CL10.CL_SUCCESS, CL10.clReleaseProgram(fromBinary));
+		assertEquals(CL10.CL_SUCCESS, CL10.clReleaseProgram(program));
+		assertEquals(CL10.CL_SUCCESS, CL10.clReleaseMemObject(mem));
+		assertEquals(CL10.CL_SUCCESS, CL10.clReleaseCommandQueue(queue));
+		assertEquals(CL10.CL_SUCCESS, CL10.clReleaseContext(context));
+		assertFalse(context.isValid() || mem.isValid() || queue.isValid() || done.isValid());
+	}
+
+	private static void check(IntBuffer error) {
+		assertEquals(CL10.CL_SUCCESS, error.get(0));
+	}
+
+	private static boolean created;
+
+	/**
+	 * As an LWJGL 2 program: CL.create() loads the library (the suite sets org.lwjgl.opencl.explicitInit), once, as
+	 * LWJGL 3's CL throws on a second. Skips without OpenCL or without a platform.
+	 */
+	private static synchronized void assumeOpenCL() {
+		if (!created) {
+			assertFalse(CL.isCreated());
+			try {
+				CL.create();
+			} catch (Throwable e) {
+				System.err.println("OpenCL unavailable: " + e);
+				assumeTrue(false, "no OpenCL");
+			}
+			created = true;
+		}
+		IntBuffer count = BufferUtils.createIntBuffer(1);
+		// an ICD loader without drivers (Windows runners) returns CL_PLATFORM_NOT_FOUND_KHR
+		assumeTrue(CL10.clGetPlatformIDs(null, count) == CL10.CL_SUCCESS && count.get(0) > 0, "no OpenCL platform");
 	}
 
 	// LWJGL 2 has no API to call a function pointer, so play the OpenCL driver through LWJGL 3 reflectively.

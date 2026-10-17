@@ -21,6 +21,11 @@ public final class StubGen {
 
 	static final String INJECT_PACKAGE = "com.koyomiji.lwjgl2w3.inject";
 	static final String GENERATED_PACKAGE = "com.koyomiji.lwjgl2w3.generated";
+	/**
+	 * Packages whose fragments go into the package itself, as {@code <Name>Generated} with {@code @Into}: their
+	 * delegations carry LWJGL 2's own code (CL's @Code), which uses package-private members.
+	 */
+	static final Set<String> SAME_PACKAGE = Set.of("org.lwjgl.opencl");
 
 	/** LWJGL 2 classes whose LWJGL 3 counterpart has an incompatible superclass; see poc/callback in the research repo. */
 	static final Set<String> CALLBACKS = Set.of(
@@ -36,9 +41,12 @@ public final class StubGen {
 	private final Diagnostics diagnostics;
 	private final Report report = new Report();
 	private final Path generatedDir;
+	/** compat/src/generated-inject/java: the SAME_PACKAGE fragments, compiled with the inject classes */
+	private final Path generatedInjectDir;
 
 	private StubGen(Options o) throws IOException {
 		generatedDir = o.generated();
+		generatedInjectDir = injectDir(o.generated());
 		handWritten = new HandWritten(o.main(), o.copied(), o.replace(), o.injectClasses());
 		lwjgl3 = new Lwjgl3Api(o.lwjgl3());
 		lwjgl2 = new Lwjgl2Api(o.sources(), o.classpath(), o.lwjgl2Jars(), lwjgl3);
@@ -47,13 +55,15 @@ public final class StubGen {
 		NativeTrace trace2 = new NativeTrace(String.join(File.pathSeparator, o.lwjgl2Jars()));
 		diagnostics = new Diagnostics(lwjgl3, trace3);
 		delegator = new Delegator(lwjgl2, trace2,
-			List.of(new UnsupportedRule(lwjgl3, trace3), new DelegationRule(lwjgl2, lwjgl3, trace2, trace3)),
+			List.of(new UnsupportedRule(lwjgl3, trace3), new DelegationRule(lwjgl2, lwjgl3, trace2, trace3,
+				new Templates(o.templates(), Set.of("org/lwjgl/opencl", "org/lwjgl/opengl", "org/lwjgl/openal")))),
 			diagnostics);
 	}
 
 	public static void main(String[] args) throws IOException {
 		Options o = Options.parse(args);
 		deleteRecursively(o.generated());
+		deleteRecursively(injectDir(o.generated()));
 		StubGen g = new StubGen(o);
 		for (TypeElement te : g.lwjgl2.apiTypes) {
 			g.generate(te);
@@ -132,8 +142,15 @@ public final class StubGen {
 			}
 		}
 
-		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, GENERATED_PACKAGE + "." + pkg, area, delegator);
-		w.openFragment(simple);
+		boolean samePackage = SAME_PACKAGE.contains(pkg);
+		String fragmentPackage = samePackage ? pkg : GENERATED_PACKAGE + "." + pkg;
+		String fragment = samePackage ? simple + "Generated" : simple;
+		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, fragmentPackage, area, delegator);
+		if (samePackage) {
+			w.openFragmentInto(fragment, simple);
+		} else {
+			w.openFragment(simple);
+		}
 		for (Element e : members) {
 			if (!Lwjgl2Api.isApi(e)) {
 				continue;
@@ -181,8 +198,12 @@ public final class StubGen {
 		if (w.members == 0) {
 			return;
 		}
-		write(generatedDir.resolve((GENERATED_PACKAGE + "." + pkg).replace('.', '/')).resolve(simple + ".java"), w.file());
+		write((samePackage ? generatedInjectDir : generatedDir).resolve(fragmentPackage.replace('.', '/')).resolve(fragment + ".java"), w.file());
 		report.count(w);
+	}
+
+	private static Path injectDir(Path generated) {
+		return generated.getParent().resolveSibling("generated-inject").resolve(generated.getFileName());
 	}
 
 	private static void write(Path file, String content) throws IOException {

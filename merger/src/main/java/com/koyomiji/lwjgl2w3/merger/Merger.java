@@ -120,7 +120,9 @@ public final class Merger {
 				String target = fragmentTarget(cn);
 				if (target != null) {
 					m.injectTargets.put(cn.name, target);
-					(cn.name.startsWith(GENERATED_PREFIX) ? generatedFragments : manualFragments).add(b);
+					// stubgen's: under its prefix, or @Generated where it writes a fragment into the target's package (CL)
+					boolean generated = cn.name.startsWith(GENERATED_PREFIX) || has(cn.invisibleAnnotations, GENERATED);
+					(generated ? generatedFragments : manualFragments).add(b);
 				} else {
 					(has(cn.invisibleAnnotations, GENERATED) ? generatedClasses : manualClasses).add(b);
 				}

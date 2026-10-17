@@ -74,6 +74,11 @@ final class Lwjgl3Api {
 		return out;
 	}
 
+	/** Whether {@code cls} is an LWJGL 3 struct, whose create(long) wraps an address. */
+	boolean isStruct(String cls) {
+		return supers(cls).contains("org/lwjgl/system/Struct");
+	}
+
 	/** {@code cls} followed by its supertypes: where a call through {@code cls} can resolve. */
 	List<String> selfAndSupers(String cls) {
 		List<String> out = new ArrayList<>();

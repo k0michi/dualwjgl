@@ -15,10 +15,14 @@
 - [x] `CLEventCallback.setRegistry`, `CLProgramCallback.setContext`, `CLNativeKernel` argument block
 - [x] `CL.getHostBuffer`, `CL10.ncl*` overloads, `CLCapabilities` extension flags
 - [x] `InfoUtilFactory`'s `CLCapabilities.clCreate*` fields: filtered as extracted
-- [ ] stubgen: write CL fragments in `org.lwjgl.opencl` (`@Into`), so that `@Code` reaches package-private members
+- [x] stubgen: write CL fragments in `org.lwjgl.opencl` (`@Into`), so that `@Code` reaches package-private members
 - [x] CL bindings without Java side effects (getters, enqueues LWJGL 2 did not register events for): generated
-- [ ] CL bindings that also update the object model (register, retain, release, `new CL*`, callbacks; ~140): the
-  delegation plus LWJGL 2's own statements around the native call, in `org.lwjgl.opencl` fragments
+- [x] CL bindings that also update the object model (register, retain, release, `new CL*`, callbacks): generated
+  from LWJGL 2's templates (`@Code`, `@PointerWrapper`, `@Constant`) around the delegation
+- [x] CL bindings whose arrays LWJGL 2's C made (program sources and binaries, `clCompileProgram`, `clGetProgramInfo`
+  binaries, `clEnqueueMapImage`, `clEnqueueNativeKernel`, `clGetSupportedImageFormats`): hand-written
+- [x] An LWJGL 2 program's OpenCL lifecycle end to end (lwjgl2Test, macOS)
+- [ ] `clSetMemObjectDestructorAPPLE`: LWJGL 3 has no APPLE_SetMemObjectDestructor
 - [x] Functions LWJGL 3 also has that LWJGL 2 registers objects in (`clGetPlatformIDs`, ...)
 - [x] `CLFunctionAddress`
 - [x] `APPLEContextLoggingUtil`, `CLPrintfCallback`: out of scope, as where the extension is missing
@@ -64,6 +68,9 @@
 ## Generation
 - [x] One delegation rule (`DelegationRule`) to LWJGL 3's public methods, in place of R1/R2/R3; hand-written code calls
   public methods too, but for the `CL10.ncl*` overloads that stand in for LWJGL 2's natives
+- [x] Parameters LWJGL 2's C transformed (`@Indirect`, `@PointerArray`) never delegated: the GL ones it had generated
+  (`glTransformFeedbackVaryings`, `glGetUniformIndices`, `glCompileShaderIncludeARB`) passed packed strings as the
+  pointer array; hand-written now
 
 ## Build
 - [ ] `extractLwjgl2Sources` not rerunning when its includes change

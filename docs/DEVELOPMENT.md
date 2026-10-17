@@ -199,10 +199,24 @@ for each LWJGL 3 public method calling the same functions, solves every LWJGL 3 
 set of adapters: the value itself, a constant, a PointerWrapper's pointer, a buffer viewed as another element type, of a
 count LWJGL 2 passed separately or past its position, null for an absent buffer, the type constant of LWJGL 2's
 `unsigned` flag, a stack temporary for an output LWJGL 2 returned or a value it passed, a string encoded on the stack,
-and LWJGL 2's PointerWrapper result (`new GLSync(pointer)`). It takes the candidate whose calls then equal LWJGL 2's,
-with the fewest adapters. LWJGL 2 methods that also update the CL object model (registering events, retaining
-objects) are left to hand-written code: native calls cannot show that. LWJGL 2's and LWJGL 3's generator templates are
-not needed: the traces carry the same information. Hand-written code goes in
+and LWJGL 2's PointerWrapper result (`new GLSync(pointer)`), a struct LWJGL 2 took as its bytes (`CLImageFormat`), a
+CL object's pointer in a stack temporary (LWJGL 2's `APIUtil.getPointer(event)`), and a callback LWJGL 3 takes as its
+interface. It takes the candidate whose calls then equal LWJGL 2's, with the fewest adapters. A `cl_bool` LWJGL 2 took
+as an int LWJGL 3 takes as a boolean, and passes 1 for any non-zero value (`DEVIATION(bool-arguments)`).
+
+The traces cannot show everything, so LWJGL 2's generator templates (`src/templates` of the LWJGL 2 source archive)
+fill in two things:
+
+- LWJGL 2's own Java around a CL native call (registering events, retaining and releasing objects, `new CL*`,
+  callbacks' references), which native calls cannot show: the template's `@Code` strings, `@PointerWrapper` result and
+  `@Constant` arguments are laid out as LWJGL 2's generator did (`JavaMethodsGenerator`), with the native call
+  delegated. These fragments go in `org.lwjgl.opencl` itself (`compat/src/generated-inject`, `@Generated @Into`), as
+  the strings use package-private members.
+- Parameters LWJGL 2's C turned into the function's argument (`@Indirect`, `@PointerArray`: a string's address made a
+  `char**`, packed strings split into an array): equal native arguments are then not the same call, so these are never
+  delegated, and are hand-written.
+
+Hand-written code goes in
 `main`, `inject` or `replace` and wins: a hand-written member overrides the generated one, and a hand-written whole
 class keeps stubgen from generating that class. The merger prints the `@Todo`s that remain.
 

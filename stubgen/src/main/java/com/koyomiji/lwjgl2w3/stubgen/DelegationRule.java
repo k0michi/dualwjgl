@@ -18,6 +18,7 @@ import javax.lang.model.type.TypeKind;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,8 +34,12 @@ import java.util.regex.Pattern;
  * <li>null, for an absent buffer LWJGL 3 takes null-safely;</li>
  * <li>the type constant LWJGL 2 chose with its {@code unsigned} flag;</li>
  * <li>a stack temporary, for an output LWJGL 2 returned (its value is the return value);</li>
- * <li>a string encoded on the stack, where LWJGL 3 only takes the encoded bytes (ASCII, as LWJGL 2 encoded them).</li>
+ * <li>a string encoded on the stack, where LWJGL 3 only takes the encoded bytes (ASCII, as LWJGL 2 encoded them);</li>
+ * <li>a struct over the bytes LWJGL 2 took, a CL object's pointer in a stack temporary, a callback as its interface.</li>
  * </ul>
+ * <p>LWJGL 2's templates add what the traces cannot show: for OpenCL, LWJGL 2's Java around the native call (@Code,
+ * @PointerWrapper, @Constant), laid out as its generator did with the call delegated; everywhere, the parameters its C
+ * transformed (@Indirect, @PointerArray), which are never delegated.</p>
  * <p>A candidate is taken when the LWJGL 3 trace, with the solution put in, equals LWJGL 2's; LWJGL 3 methods with
  * LWJGL 2's parameter types and the same trace take the arguments as they are. The candidate with the fewest adapters
  * wins, LWJGL 2's own class and its supertypes first.</p>
@@ -68,15 +73,18 @@ final class DelegationRule implements Rule {
 	private final Lwjgl3Api lwjgl3;
 	private final NativeTrace trace2;
 	private final NativeTrace trace3;
+	/** LWJGL 2's generator templates, for the Java code its CL bindings carry (@Code, @PointerWrapper, @Constant) */
+	private final Templates templates;
 	/** package -> native function -> LWJGL 3 public methods calling it, in Lwjgl3Api.owners order */
 	private final Map<String, Map<String, List<Candidate>>> index = new HashMap<>();
 	private String lastReason;
 
-	DelegationRule(Lwjgl2Api lwjgl2, Lwjgl3Api lwjgl3, NativeTrace trace2, NativeTrace trace3) {
+	DelegationRule(Lwjgl2Api lwjgl2, Lwjgl3Api lwjgl3, NativeTrace trace2, NativeTrace trace3, Templates templates) {
 		this.lwjgl2 = lwjgl2;
 		this.lwjgl3 = lwjgl3;
 		this.trace2 = trace2;
 		this.trace3 = trace3;
+		this.templates = templates;
 	}
 
 	@Override
@@ -93,23 +101,57 @@ final class DelegationRule implements Rule {
 		ExecutableElement m = t.method();
 		String owner2 = lwjgl2.internalName((TypeElement)m.getEnclosingElement());
 		NativeTrace.Summary s2 = trace2.summarize(owner2, m.getSimpleName().toString(), t.desc(), 0);
+		boolean debug = m.getSimpleName().toString().equals(System.getenv("LWJGL2W3_DEBUG"));
 		if (s2.unresolved || s2.natives.isEmpty()) {
+			if (debug) {
+				System.err.println("[R] " + owner2 + "." + m.getSimpleName() + t.desc() + ": trace " + (s2.unresolved ? "unresolved" : "empty"));
+			}
+			return null;
+		}
+		Templates.Method declared = template(t.cls(), m, false);
+		if (declared != null && declared.params().stream().anyMatch(p -> p.has("Indirect") || p.has("PointerArray"))) {
+			// LWJGL 2's C made the function's argument from the one its native took (&string, a pointer array from
+			// packed strings), which the trace cannot see: equal native arguments would not be the same call
+			if (debug) {
+				System.err.println("[R] " + owner2 + "." + m.getSimpleName() + t.desc() + ": @Indirect or @PointerArray");
+			}
 			return null;
 		}
 		String effect = javaSideEffect(trace2.find(owner2, m.getSimpleName().toString(), t.desc()));
+		Templates.Method template = null;
 		if (effect != null) {
-			if (m.getSimpleName().toString().equals(System.getenv("LWJGL2W3_DEBUG"))) {
-				System.err.println("[R] " + owner2 + "." + m.getSimpleName() + t.desc() + ": LWJGL 2 also calls " + effect);
+			// LWJGL 2's own Java around the native call, from its template: kept, with the call delegated
+			template = template(t.cls(), m, true);
+			if (template == null) {
+				if (m.getSimpleName().toString().equals(System.getenv("LWJGL2W3_DEBUG"))) {
+					System.err.println("[R] " + owner2 + "." + m.getSimpleName() + t.desc() + ": LWJGL 2 also calls " + effect);
+				}
+				return null;
 			}
-			return null;
 		}
 		List<String> owners = lwjgl3.owners(t.cls());
 		List<String> own = lwjgl3.selfAndSupers(t.cls());
 		Map<String, List<Candidate>> byFunction = index(t.cls());
 		List<String> natives2 = new ArrayList<>(s2.natives);
+		if (template != null) {
+			// only the binding's own call: the template's Java makes others (CallbackUtil's natives, releaseObjects)
+			String function = template.function();
+			natives2.removeIf(n -> !fn(n).equals(function));
+			if (natives2.size() != 1) {
+				if (debug) {
+					System.err.println("[R] " + owner2 + "." + m.getSimpleName() + t.desc() + ": " + function + " in " + s2.natives);
+				}
+				return null;
+			}
+			natives2.set(0, reassigned(m, template, natives2.get(0)));
+		}
+		// the template's @Constant arguments (APIUtil.getPointer(event)), also where its Java is only that
+		Templates.Method constants = template != null ? template : template(t.cls(), m, true);
+		if (constants != null && constants.params().size() != args(natives2.get(0)).size()) {
+			constants = null;
+		}
 		String ret2 = singleValue(natives2, s2.ret(), byFunction);
 		List<String> calls2 = raw(natives2);
-		boolean debug = m.getSimpleName().toString().equals(System.getenv("LWJGL2W3_DEBUG"));
 		if (debug) {
 			System.err.println("[R] " + owner2 + "." + m.getSimpleName() + t.desc() + "\n  2: " + calls2 + " => " + ret2);
 		}
@@ -120,9 +162,9 @@ final class DelegationRule implements Rule {
 				continue;
 			}
 			lastReason = "different shape";
-			Solution sol = sameShape(m, t, natives2, ret2, c);
+			Solution sol = template != null ? null : sameShape(m, t, natives2, ret2, c);
 			if (sol == null) {
-				sol = solve(m, calls2, ret2, c);
+				sol = solve(m, calls2, ret2, c, template, constants);
 			}
 			if (debug) {
 				System.err.println("  3: " + c.owner + "." + c.method.name + c.method.desc + " " + c.calls + " => " + c.ret
@@ -202,6 +244,9 @@ final class DelegationRule implements Rule {
 						continue;
 					}
 					NativeTrace.Summary s = trace3.summarize(owner, mn.name, mn.desc, 0);
+					if (mn.name.equals(System.getenv("LWJGL2W3_DEBUG"))) {
+						System.err.println("[index] " + owner + "." + mn.name + mn.desc + " " + NativeTrace.fmt(s));
+					}
 					if (s.unresolved || s.natives.isEmpty()) {
 						continue;
 					}
@@ -225,6 +270,30 @@ final class DelegationRule implements Rule {
 		}
 		Collections.sort(out);
 		return out;
+	}
+
+	/**
+	 * A buffer parameter the template's javaBeforeNative replaces when null (num_devices = APIUtil.getBufferInt()): the
+	 * template's Java passes the variable, whichever buffer it holds, so its trace's branches are the parameter's.
+	 */
+	private static String reassigned(ExecutableElement m, Templates.Method template, String call) {
+		Templates.Ann code = template.ann("Code");
+		String before = code == null ? "" : code.get("javaBeforeNative", "");
+		List<String> as = args(call);
+		boolean changed = false;
+		for (int i = 0; i < m.getParameters().size(); i++) {
+			String name = m.getParameters().get(i).getSimpleName().toString();
+			if (!Pattern.compile("(?<![.\\w])" + name + "\\s*=(?!=)").matcher(before).find()) {
+				continue;
+			}
+			for (int j = 0; j < as.size(); j++) {
+				if (as.get(j).contains("$" + i + "$") && as.get(j).contains("TMP")) {
+					as.set(j, "addr($" + i + "$)");
+					changed = true;
+				}
+			}
+		}
+		return changed ? fn(call) + "(" + String.join(",", as) + ")" : call;
 	}
 
 	private static String fn(String call) {
@@ -261,7 +330,7 @@ final class DelegationRule implements Rule {
 
 	// ---- the solution: how each LWJGL 3 parameter is computed
 
-	private enum Kind {VALUE, BUFFER, NULL, TEMP, INPUT, STRING}
+	private enum Kind {VALUE, BUFFER, NULL, TEMP, INPUT, STRING, POINTER}
 
 	private final class Solution {
 		final ExecutableElement m2;
@@ -285,6 +354,9 @@ final class DelegationRule implements Rule {
 		int adapters;
 		/** the return statement, if not the call itself (temporaries, PointerWrapper results) */
 		String returns;
+		/** template mode: the template, and its @Constant expressions by native argument */
+		Templates.Method template;
+		final Map<Integer, String> constants = new HashMap<>();
 
 		Solution(ExecutableElement m2, Type[] params3) {
 			this.m2 = m2;
@@ -346,11 +418,85 @@ final class DelegationRule implements Rule {
 				case STRING -> {
 					return "__s" + j;
 				}
+				case POINTER -> {
+					return "__p" + j;
+				}
 				case NULL -> {
 					return "(" + params3[j].getClassName() + ")null"; // the overload, not another taking an object there
 				}
 				default -> {
 					return exprs[j];
+				}
+			}
+		}
+
+		/** LWJGL 2's generator's method body (JavaMethodsGenerator), with the delegated call in place of the native one. */
+		String templateBody(String call) {
+			Templates.Ann code = template.ann("Code");
+			Templates.Ann wrapper = template.ann("PointerWrapper");
+			boolean tryBlock = code != null && code.flag("tryBlock", false);
+			TypeKind kind = m2.getReturnType().getKind();
+			boolean result = kind != TypeKind.VOID;
+			String type = m2.getReturnType().toString();
+			String expr = call;
+			if (wrapper != null && result) {
+				String factory = wrapper.get("factory", "");
+				String params = wrapper.get("params", "");
+				expr = (factory.isEmpty() ? "new " + type : factory) + "(" + call + (params.isEmpty() ? "" : ", " + params) + ")";
+			}
+			StringBuilder b = new StringBuilder();
+			snippet(b, code, "value");
+			StringBuilder before = new StringBuilder();
+			snippet(before, code, "javaBeforeNative");
+			// an else to the generator's null check of the parameter it assigns, which LWJGL 3's checks replace
+			Matcher orElse = Pattern.compile("^else\n(\\w+)\\s*=").matcher(before);
+			if (orElse.find()) {
+				before.replace(0, 5, "if ( " + orElse.group(1) + " == null )\n\t");
+			}
+			b.append(before);
+			String inner = tryBlock ? "\t" : "";
+			if (result) {
+				String zero = kind.isPrimitive() ? (kind == TypeKind.BOOLEAN ? "false" : "0") : "null";
+				if (tryBlock) {
+					b.append(type).append(" __result = ").append(zero).append(";\ntry {\n\t__result = ").append(expr).append(";\n");
+				} else {
+					b.append(type).append(" __result = ").append(expr).append(";\n");
+				}
+			} else {
+				b.append(tryBlock ? "try {\n\t" : "").append(expr).append(";\n");
+			}
+			StringBuilder after = new StringBuilder();
+			snippet(after, code, "javaAfterNative");
+			for (String line : after.toString().split("\n")) {
+				if (!line.isEmpty()) {
+					b.append(inner).append(line).append("\n");
+				}
+			}
+			if (result) {
+				b.append(inner).append("return __result;\n");
+			}
+			if (tryBlock) {
+				b.append("} finally {\n");
+				StringBuilder fin = new StringBuilder();
+				snippet(fin, code, "javaFinally");
+				for (String line : fin.toString().split("\n")) {
+					if (!line.isEmpty()) {
+						b.append("\t").append(line).append("\n");
+					}
+				}
+				b.append("}\n");
+			}
+			return b.toString().stripTrailing();
+		}
+
+		/** One of @Code's strings, a line per line without its indentation, its class's own constants qualified. */
+		void snippet(StringBuilder b, Templates.Ann code, String key) {
+			String text = code == null ? "" : code.get(key, "");
+			String cls = template.owner().className();
+			for (String line : text.replace("\\n", "\n").replace("\\t", "\t").split("\n")) {
+				line = line.strip();
+				if (!line.isEmpty()) {
+					b.append(line.replaceAll("(?<![.\\w])(CL_[A-Z0-9_]+)\\b", cls + ".$1")).append("\n");
 				}
 			}
 		}
@@ -374,6 +520,9 @@ final class DelegationRule implements Rule {
 					int n = Math.max(1, minimum[j]);
 					decls.append("\tjava.nio.IntBuffer __v").append(j).append(" = ")
 						.append(n == 1 ? "__stack.ints(" + exprs[j] + ")" : "__stack.callocInt(" + n + ").put(0, " + exprs[j] + ")").append(";\n");
+				} else if (kinds[j] == Kind.POINTER) {
+					stack = true;
+					decls.append("\torg.lwjgl.PointerBuffer __p").append(j).append(" = __stack.pointers(").append(exprs[j]).append(");\n");
 				} else if (kinds[j] == Kind.STRING) {
 					stack = true;
 					decls.append("\tjava.nio.ByteBuffer __s").append(j).append(" = __stack.ASCII(").append(name2(from[j]))
@@ -381,7 +530,9 @@ final class DelegationRule implements Rule {
 				}
 			}
 			String body;
-			if (returns == null) {
+			if (template != null) {
+				body = templateBody(call);
+			} else if (returns == null) {
 				body = t.call(owner, name, String.join(", ", as));
 			} else if (returns.contains("$CALL$")) {
 				body = "return " + returns.replace("$CALL$", call) + ";";
@@ -463,11 +614,24 @@ final class DelegationRule implements Rule {
 		return sol;
 	}
 
-	private Solution solve(ExecutableElement m2, List<String> calls2, String ret2, Candidate c) {
+	private Solution solve(ExecutableElement m2, List<String> calls2, String ret2, Candidate c, Templates.Method template,
+		Templates.Method constants) {
 		Type[] params3 = Type.getArgumentTypes(c.method.desc);
 		Type ret3t = Type.getReturnType(c.method.desc);
 		boolean returns2 = m2.getReturnType().getKind() != TypeKind.VOID;
 		Solution sol = new Solution(m2, params3);
+		sol.template = template;
+		if (constants != null && fn(calls2.get(0)).equals(constants.function())) {
+			List<Templates.Param> ps = constants.params();
+			if (ps.size() == args(calls2.get(0)).size()) {
+				for (int k = 0; k < ps.size(); k++) {
+					Templates.Ann constant = ps.get(k).ann("Constant");
+					if (constant != null) {
+						sol.constants.put(k, constant.value().replaceAll("(?<![.\\w])MemoryUtil\\.", "org.lwjgl.MemoryUtil."));
+					}
+				}
+			}
+		}
 		// Lwjgl3Api reads classes without code: the code is NativeTrace's
 		MethodNode code = trace3.find(c.owner, c.method.name, c.method.desc);
 		Set<Integer> nullable = code == null ? Set.of() : nullableBuffers(c.owner, code, 0);
@@ -485,12 +649,29 @@ final class DelegationRule implements Rule {
 				return fail("argument counts differ");
 			}
 			for (int i = 0; i < as.size(); i++) {
-				Boolean r = match(sol, as.get(i), bs.get(i), nullable);
+				Boolean r = match(sol, as.get(i), bs.get(i), nullable, i);
 				if (r == null) {
 					return fail("conflict at " + as.get(i) + " / " + bs.get(i));
 				}
 				if (!r) {
 					deferred.add(new String[] {as.get(i), bs.get(i)});
+				}
+			}
+		}
+		// a boolean LWJGL 3 parameter passed as 0 or 1, which loses which parameter it is: the only one left unset
+		for (Iterator<String[]> it = deferred.iterator(); it.hasNext(); ) {
+			String[] d = it.next();
+			if (d[1].equals("phi(0|1)")) {
+				int j = -1;
+				for (int q = 0; q < params3.length; q++) {
+					if (sol.kinds[q] == null && params3[q].getSort() == Type.BOOLEAN) {
+						j = j == -1 ? q : -2;
+					}
+				}
+				String v = j >= 0 ? renderValue(sol, d[0], Type.INT_TYPE) : null;
+				if (v != null) {
+					sol.set(j, Kind.VALUE, "(" + v + " != 0)", -1, null, 1);
+					it.remove();
 				}
 			}
 		}
@@ -509,7 +690,16 @@ final class DelegationRule implements Rule {
 				return fail("value differs after counts: " + d[0] + " / " + d[1]);
 			}
 		}
-		if (returns2 && !returns(sol, ret2, c, calls2, ret3t)) {
+		if (template != null) {
+			// the template says what is returned: the native call's value, wrapped or not
+			// (LWJGL 3's own branches, e.g. on a boolean it passes as 0 or 1, may leave several forms of the same call)
+			boolean sameCall = c.calls.size() == 1 && (c.ret.equals("R:" + c.calls.get(0))
+				|| c.ret.startsWith("phi(R:" + fn(c.calls.get(0)) + "("));
+			if (returns2 && !(sameCall && (template.has("PointerWrapper")
+				? ret3t.getSort() == Type.LONG : ret3t.getDescriptor().equals(lwjgl2.desc(m2.getReturnType()))))) {
+				return fail("return differs from the template's");
+			}
+		} else if (returns2 && !returns(sol, ret2, c, calls2, ret3t)) {
 			return fail("return differs: " + ret2 + " / " + c.ret);
 		}
 		// temporaries are only taken for LWJGL 2's outputs: what an input temporary held is not traced, so a method
@@ -524,25 +714,58 @@ final class DelegationRule implements Rule {
 	}
 
 	/** Sets the LWJGL 3 parameter argument {@code b} is; true if set, false to compare the pair later, null on conflict. */
-	private Boolean match(Solution sol, String a, String b, Set<Integer> nullable) {
+	private Boolean match(Solution sol, String a, String b, Set<Integer> nullable, int k) {
 		Matcher pb = PARAM.matcher(b);
 		if (pb.matches()) {
 			int j = Integer.parseInt(pb.group(1));
 			String e = renderValue(sol, a, sol.params3[j]);
+			if (e == null && sol.constants.containsKey(k)) {
+				// the template's @Constant: a local its Java made (user_data), passed as it is
+				return sol.set(j, Kind.VALUE, sol.constants.get(k), -1, null, 0) ? true : null;
+			}
 			if (e == null) {
 				return false;
 			}
 			return sol.set(j, Kind.VALUE, e, -1, a, e.equals(paramName(sol, a)) ? 0 : 1) ? true : null;
+		}
+		Matcher sb3 = STRUCT.matcher(b);
+		if (sb3.matches()) {
+			// a struct LWJGL 2 took as its bytes (cl_image_format as a ByteBuffer): LWJGL 3's struct at the same address
+			int j = Integer.parseInt(sb3.group(1));
+			Matcher aa = ADDR.matcher(a);
+			if (!lwjgl3.isStruct(sol.params3[j].getInternalName())) {
+				// or a callback LWJGL 3 takes as its interface and passes as its address
+				Integer i = callback(sol, a, sol.params3[j]);
+				return i == null ? false : sol.set(j, Kind.VALUE, sol.name2(i), i, a, 0) ? true : null;
+			}
+			if (!aa.matches()) {
+				return false;
+			}
+			int i = Integer.parseInt(aa.group(1));
+			if (!lwjgl2.types.erasure(sol.m2.getParameters().get(i).asType()).toString().equals("java.nio.ByteBuffer")) {
+				return false;
+			}
+			String e = sol.params3[j].getClassName() + ".create(" + MU + "memAddress(" + sol.name2(i) + "))";
+			return sol.set(j, Kind.VALUE, e, i, a, 1) ? true : null;
 		}
 		Matcher ab = ADDR.matcher(b);
 		if (ab.matches()) {
 			int j = Integer.parseInt(ab.group(1));
 			String type3 = sol.params3[j].getClassName();
 			if (!ELEMENT_SIZE.containsKey(type3)) {
-				return false;
+				// a callback LWJGL 3 takes as its interface, which compat's callback classes implement
+				Integer i = callback(sol, a, sol.params3[j]);
+				return i == null ? false : sol.set(j, Kind.VALUE, sol.name2(i), i, a, 0) ? true : null;
 			}
 			if (a.equals("0") && nullable.contains(j)) {
 				return sol.set(j, Kind.NULL, "null", -1, null, 1) ? true : null;
+			}
+			Matcher ac = OBJECT_POINTER.matcher(sol.constants.getOrDefault(k, ""));
+			if (ac.matches() && type3.equals("org.lwjgl.PointerBuffer")) {
+				// the template's APIUtil.getPointer(event): one CL object's pointer in a temporary, here on the stack
+				String p = ac.group(2);
+				String v = ac.group(1) == null ? p + ".getPointer()" : "(" + p + " == null ? 0L : " + p + ".getPointer())";
+				return sol.set(j, Kind.POINTER, v, -1, null, 1) ? true : null;
 			}
 			Matcher av = VAL.matcher(a);
 			if (av.matches()) {
@@ -595,6 +818,68 @@ final class DelegationRule implements Rule {
 		return false;
 	}
 
+	private static final Pattern STRUCT = Pattern.compile("^\\$(\\d+)\\$\\.address\\(\\)$");
+
+	private static final Pattern OBJECT_POINTER = Pattern.compile("^APIUtil\\.getPointer(Safe)?\\((\\w+)\\)$");
+
+	private static final Pattern CALLBACK = Pattern.compile("^(?:phi\\()?\\$(\\d+)\\$\\.getPointer\\(\\)(?:\\|0\\))?$");
+
+	/** The LWJGL 2 callback parameter whose pointer {@code a} is, if LWJGL 3 takes it as {@code to}: CLXxxCallback -> CLXxxCallbackI. */
+	private Integer callback(Solution sol, String a, Type to) {
+		Matcher cm = CALLBACK.matcher(a);
+		if (!cm.matches() || to.getSort() != Type.OBJECT) {
+			return null;
+		}
+		int i = Integer.parseInt(cm.group(1));
+		String simple3 = to.getClassName().substring(to.getClassName().lastIndexOf('.') + 1);
+		javax.lang.model.type.TypeMirror tm = sol.m2.getParameters().get(i).asType();
+		while (tm instanceof DeclaredType dt) {
+			TypeElement te = (TypeElement)dt.asElement();
+			if ((te.getSimpleName() + "I").equals(simple3)) {
+				return i;
+			}
+			tm = te.getSuperclass();
+		}
+		return null;
+	}
+
+	/**
+	 * The template of an LWJGL 2 method, or null; with {@code code}, only one whose Java the template writes (@Code,
+	 * @PointerWrapper, @Constant) in a package whose Java this lays out (OpenCL).
+	 */
+	private Templates.Method template(String cls, ExecutableElement m, boolean code) {
+		if (code && !cls.startsWith("org/lwjgl/opencl/")) {
+			return null;
+		}
+		Templates.Iface iface = templates == null ? null : templates.of(cls);
+		if (iface == null) {
+			return null;
+		}
+		List<String> names = m.getParameters().stream().map(p -> p.getSimpleName().toString()).toList();
+		for (Templates.Method tm : templates.methods(iface)) {
+			if (!tm.name().equals(m.getSimpleName().toString())) {
+				continue;
+			}
+			List<String> java = tm.params().stream()
+				.filter(p -> !p.has("AutoSize") && !(p.has("Constant") && !p.ann("Constant").flag("keepParam", false)))
+				.map(Templates.Param::name).toList();
+			boolean writes = !code || tm.has("Code") || tm.has("PointerWrapper") || tm.params().stream().anyMatch(p -> p.has("Constant"));
+			if (java.equals(names) && writes) {
+				return tm;
+			}
+			// @GenerateAutos: the variant taking the size in place of the buffer it sizes (clCreateBuffer(..., size, ...))
+			Set<String> sized = tm.params().stream().filter(p -> p.has("AutoSize")).map(p -> p.ann("AutoSize").value())
+				.collect(Collectors.toSet());
+			List<String> autos = tm.params().stream()
+				.filter(p -> !sized.contains(p.name()) && !(p.has("Constant") && !p.ann("Constant").flag("keepParam", false)))
+				.map(p -> p.has("AutoSize") ? p.ann("AutoSize").value() + "_size" : p.name()).toList();
+			if (tm.has("GenerateAutos") && autos.equals(names) && writes) {
+				return tm;
+			}
+		}
+		return null;
+	}
+
 	private static int onlyCharSequence(Type[] params) {
 		int found = -1;
 		for (int j = 0; j < params.length; j++) {
@@ -628,6 +913,11 @@ final class DelegationRule implements Rule {
 		Matcher ptr = POINTER.matcher(a);
 		if (ptr.matches() && to.getSort() == Type.LONG) {
 			return m2.getParameters().get(Integer.parseInt(ptr.group(1))).getSimpleName() + ".getPointer()";
+		}
+		Matcher np = Pattern.compile("^phi\\(\\$(\\d+)\\$\\.getPointer\\(\\)\\|0\\)$").matcher(a);
+		if (np.matches() && to.getSort() == Type.LONG) {
+			String p = m2.getParameters().get(Integer.parseInt(np.group(1))).getSimpleName().toString();
+			return "(" + p + " == null ? 0L : " + p + ".getPointer())"; // a PointerWrapper that may be absent
 		}
 		Matcher phi = PHI2.matcher(a);
 		if (phi.matches() && to.getSort() == Type.INT) {
@@ -775,6 +1065,10 @@ final class DelegationRule implements Rule {
 	// ---- values the parameters did not set directly
 
 	private boolean sameValue(Solution sol, String a, String b) {
+		Boolean pointer = pointerCount(sol, a, b);
+		if (pointer != null) {
+			return pointer;
+		}
 		IntFunction<VariableElement> params2 = i -> sol.m2.getParameters().get(i);
 		Linear la = linear(a, params2, null);
 		Linear lb = linear(b, params2, sol);
@@ -784,12 +1078,27 @@ final class DelegationRule implements Rule {
 		return !b.contains("$") && a.equals(b);
 	}
 
+	private static final Pattern POINTER_COUNT = Pattern.compile("^\\(?rem\\(\\$(\\d+)\\$\\)(<<S:MemoryStack\\.POINTER_SHIFT\\))?$");
+
+	/** A count of a POINTER temporary: one pointer, or its bytes (PointerBuffer.getPointerSize()); null if b is none. */
+	private static Boolean pointerCount(Solution sol, String a, String b) {
+		Matcher bp = POINTER_COUNT.matcher(b);
+		if (!bp.matches() || sol.kinds[Integer.parseInt(bp.group(1))] != Kind.POINTER || b.startsWith("(") != (bp.group(2) != null)) {
+			return null;
+		}
+		return bp.group(2) == null ? a.equals("1") : a.equals("phi(4|phi(4|8))") || a.equals("phi(4|8)");
+	}
+
 	/**
 	 * A count LWJGL 3 takes from a buffer's remaining() where LWJGL 2 passed it separately (glBindBuffersBase(target,
 	 * first, count, buffers)): the buffer becomes a view of that many elements. For a string encoded here, a length
 	 * means no null terminator.
 	 */
 	private boolean explicitCount(Solution sol, String a, String b) {
+		Boolean pointer = pointerCount(sol, a, b);
+		if (pointer != null) {
+			return pointer;
+		}
 		Matcher bm = Pattern.compile("^rem\\(\\$(\\d+)\\$\\)$").matcher(b);
 		Matcher bs = Pattern.compile("^\\(rem\\(\\$(\\d+)\\$\\)(<<|>>|\\*|/)(\\d+)\\)$").matcher(b);
 		int j;
@@ -814,6 +1123,9 @@ final class DelegationRule implements Rule {
 				return true;
 			}
 			return false;
+		}
+		if (sol.kinds[j] == Kind.POINTER) {
+			return inverse == null && a.equals("1");
 		}
 		if (sol.kinds[j] == Kind.TEMP && inverse == null && a.matches("\\d+")) {
 			sol.tempCount[j] = Integer.parseInt(a); // a temporary of the size LWJGL 2 passed
@@ -840,6 +1152,11 @@ final class DelegationRule implements Rule {
 		}
 		String type2 = lwjgl2.desc(sol.m2.getReturnType());
 		if (ret3.equals(ret2) && ret3t.getDescriptor().equals(type2)) {
+			return true;
+		}
+		// LWJGL 2's branches (a PointerWrapper that may be null) leave several forms of the same call's value
+		if (calls2.size() == 1 && ret2.startsWith("phi(R:" + fn(calls2.get(0)) + "(") && c.ret.equals("R:" + c.calls.get(0))
+			&& ret3t.getDescriptor().equals(type2)) {
 			return true;
 		}
 		// LWJGL 2 read the value from its temporary: so does this, from the one passed in its place

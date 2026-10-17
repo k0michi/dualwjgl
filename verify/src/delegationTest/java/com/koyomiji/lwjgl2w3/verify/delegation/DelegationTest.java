@@ -138,7 +138,7 @@ class DelegationTest {
 					outcome = "skip: no native call on either side";
 					break;
 				}
-				if (!same(c2, c3)) {
+				if (!same(c2, c3, args2.intValues())) {
 					mismatches.add(t + (flag ? "" : " [booleans false]") + "\n    LWJGL 2: " + c2 + "\n    patched: " + c3);
 					outcome = "mismatch";
 					break;
@@ -340,6 +340,17 @@ class DelegationTest {
 			};
 		}
 
+		/** The int arguments, as the calls render them. */
+		Set<String> intValues() {
+			Set<String> out = new HashSet<>();
+			for (Object v : values) {
+				if (v instanceof Integer x) {
+					out.add(x.toString());
+				}
+			}
+			return out;
+		}
+
 		/** "p1+16" for an address 16 bytes into parameter 1's buffer, null if outside every buffer. */
 		String pointer(long v) {
 			for (long[] b : buffers) {
@@ -398,14 +409,37 @@ class DelegationTest {
 	 * LWJGL 2's natives for single-value getters (nalGetEffecti) return the value and take the address in C; LWJGL 3
 	 * passes stack memory and reads it. Otherwise the calls must be equal.
 	 */
-	private static boolean same(List<String> c2, List<String> c3) {
+	private static boolean same(List<String> c2, List<String> c3, Set<String> ints) {
 		if (c2.size() != c3.size()) {
 			return false;
 		}
 		for (int i = 0; i < c2.size(); i++) {
 			String a = c2.get(i);
 			String b = c3.get(i);
-			if (!a.equals(b) && !b.equals(a.substring(0, a.length() - 1) + (a.endsWith("()") ? "tmp)" : ", tmp)"))) {
+			if (!a.equals(b) && !b.equals(a.substring(0, a.length() - 1) + (a.endsWith("()") ? "tmp)" : ", tmp)"))
+				&& !boolArguments(a, b, ints)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * DEVIATION(bool-arguments): a cl_bool LWJGL 2 took as an int (blocking_read) LWJGL 3 takes as a boolean, and passes
+	 * as 1: equal where only such arguments differ, an int argument on LWJGL 2's side and 1 on the patched one.
+	 */
+	private static boolean boolArguments(String a, String b, Set<String> ints) {
+		int pa = a.indexOf('('), pb = b.indexOf('(');
+		if (pa < 0 || pb < 0 || !a.substring(0, pa).equals(b.substring(0, pb))) {
+			return false;
+		}
+		String[] xs = a.substring(pa + 1, a.length() - 1).split(", ");
+		String[] ys = b.substring(pb + 1, b.length() - 1).split(", ");
+		if (xs.length != ys.length) {
+			return false;
+		}
+		for (int i = 0; i < xs.length; i++) {
+			if (!xs[i].equals(ys[i]) && !(ints.contains(xs[i]) && ys[i].equals("1"))) {
 				return false;
 			}
 		}
@@ -469,7 +503,7 @@ class DelegationTest {
 				if (!cn.name.startsWith(GENERATED_PACKAGE) && !has(cn.invisibleAnnotations, GENERATED)) {
 					continue;
 				}
-				String target = cn.name.startsWith(GENERATED_PACKAGE) ? cn.name.substring(GENERATED_PACKAGE.length()) : cn.name;
+				String target = cn.name.startsWith(GENERATED_PACKAGE) ? cn.name.substring(GENERATED_PACKAGE.length()) : into(cn);
 				if (PACKAGES.stream().noneMatch(target::startsWith)) {
 					continue;
 				}
@@ -483,6 +517,18 @@ class DelegationTest {
 			}
 		}
 		return out;
+	}
+
+	/** A fragment stubgen wrote into the target's package names its target with @Into; a whole class is itself. */
+	private static String into(ClassNode cn) {
+		if (cn.invisibleAnnotations != null) {
+			for (AnnotationNode a : cn.invisibleAnnotations) {
+				if (a.desc.equals("Lcom/koyomiji/lwjgl2w3/inject/Into;") && a.values != null) {
+					return ((Type)a.values.get(1)).getInternalName();
+				}
+			}
+		}
+		return cn.name;
 	}
 
 	private static boolean has(List<AnnotationNode> as, String desc) {

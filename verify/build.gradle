@@ -95,7 +95,8 @@ def delegationTest = tasks.register('delegationTest', Test) {
     testClassesDirs = sourceSets.delegationTest.output.classesDirs
     classpath = sourceSets.delegationTest.runtimeClasspath
     useJUnitPlatform()
-    def compatClasses = project(':compat').sourceSets.main.output.classesDirs
+    // stubgen's CL fragments compile with the inject classes; the hand-written ones there are not @Generated
+    def compatClasses = project(':compat').sourceSets.main.output.classesDirs + project(':compat').sourceSets.inject.output.classesDirs
     def report = layout.buildDirectory.file('reports/delegation/mismatches.txt')
     inputs.files(configurations.lwjgl2Api, patched, configurations.natives, compatClasses)
     outputs.file(report)

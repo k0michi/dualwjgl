@@ -77,7 +77,7 @@ final class NativeTrace {
 		boolean objectNative;
 
 		String ret() {
-			return returns.isEmpty() ? "" : returns.size() == 1 ? returns.iterator().next() : "phi" + returns;
+			return returns.isEmpty() ? "" : returns.size() == 1 ? returns.iterator().next() : "phi(" + String.join("|", returns) + ")";
 		}
 	}
 
@@ -144,6 +144,19 @@ final class NativeTrace {
 	}
 
 
+	/** Identity of an instruction, usable inside value-compared keys. */
+	record IdentityKey(AbstractInsnNode insn) {
+		@Override
+		public boolean equals(Object o) {
+			return o instanceof IdentityKey k && k.insn == insn;
+		}
+
+		@Override
+		public int hashCode() {
+			return System.identityHashCode(insn);
+		}
+	}
+
 	static final class Sym implements Value {
 		final int size;
 		final String expr;
@@ -185,7 +198,8 @@ final class NativeTrace {
 		final MethodNode m;
 		final int depth;
 		final Summary summary;
-		final Map<AbstractInsnNode, String> effects = new IdentityHashMap<>();
+		/** an instruction (or a callee's effect at an instruction) -> its call: later fixpoint iterations overwrite */
+		final Map<Object, String> effects = new LinkedHashMap<>();
 		final Map<Integer, Integer> slotToParam = new HashMap<>();
 
 		Interp(NativeTrace nt, MethodNode m, int depth, Summary summary) {
@@ -431,8 +445,8 @@ final class NativeTrace {
 				Summary callee = nt.summarize(mi.owner, mi.name, mi.desc, depth + 1);
 				if (!callee.unresolved) {
 					summary.objectNative |= callee.objectNative;
-					for (String n : callee.natives) {
-						effects.put(new LabelNode(), subst(n, args)); // unique key per callee effect
+					for (int k = 0; k < callee.natives.size(); k++) {
+						effects.put(List.of(new IdentityKey(insn), k), subst(callee.natives.get(k), args));
 					}
 					String r = callee.ret();
 					return rt == Type.VOID_TYPE ? null : Sym.of(rt, r.isEmpty() ? UNKNOWN : subst(r, args));

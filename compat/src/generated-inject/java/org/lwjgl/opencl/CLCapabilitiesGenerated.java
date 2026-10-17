@@ -1,12 +1,12 @@
-package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opencl;
+package org.lwjgl.opencl;
 
+import com.koyomiji.lwjgl2w3.inject.Generated;
+import com.koyomiji.lwjgl2w3.inject.Into;
 import com.koyomiji.lwjgl2w3.inject.Todo;
-import org.lwjgl.opencl.CLDevice;
-import org.lwjgl.opencl.CLDeviceCapabilities;
-import org.lwjgl.opencl.CLPlatform;
-import org.lwjgl.opencl.CLPlatformCapabilities;
 
-public final class CLCapabilities {
+@Generated
+@Into(CLCapabilities.class)
+final class CLCapabilitiesGenerated {
 	@Todo("cl")
 	public static CLPlatformCapabilities getPlatformCapabilities(CLPlatform platform) {
 		throw new UnsupportedOperationException();

@@ -84,6 +84,9 @@ sourceSets {
     }
 }
 
+// stubgen's fragments that live in the target's package (CL): they need compat's callback classes (replace)
+sourceSets.inject.java.srcDir 'src/generated-inject/java'
+
 dependencies {
     lwjgl2UtilSources(variantOf(libs.lwjgl2.util) { classifier('sources') })
     lwjgl2CoreSources(variantOf(libs.lwjgl2.core) { classifier('sources') })
@@ -99,6 +102,8 @@ dependencies {
     compileOnly libs.jinput
     compileOnly libs.jutils
 
+    // first, so that compat's callback classes shadow LWJGL 3's (setContext, setRegistry)
+    injectCompileOnly sourceSets.replace.output
     injectCompileOnly libs.bundles.lwjgl3.patched
     injectCompileOnly libs.lwjgl3.sdl
     injectCompileOnly project(':inject-api')

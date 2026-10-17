@@ -55,6 +55,19 @@ final class StubWriter {
 		code.open("public final class " + simple);
 	}
 
+	/** A fragment in the target's package: {@code @Generated @Into(Target.class) final class TargetGenerated}. */
+	void openFragmentInto(String name, String target) {
+		names.declare(name);
+		annotate("Generated");
+		code.line("@" + annotationName("Into") + "(" + target + ".class)");
+		code.open("final class " + name);
+	}
+
+	private String annotationName(String name) {
+		names.addImport(StubGen.INJECT_PACKAGE + "." + name);
+		return name;
+	}
+
 	void closeFragment() {
 		code.close();
 	}

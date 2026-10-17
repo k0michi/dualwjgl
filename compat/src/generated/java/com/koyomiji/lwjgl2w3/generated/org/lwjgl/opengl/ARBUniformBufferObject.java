@@ -1,11 +1,13 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
+import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public final class ARBUniformBufferObject {
+	@Todo("gl")
 	public static void glGetUniformIndices(int program, ByteBuffer uniformNames, IntBuffer uniformIndices) {
-		org.lwjgl.opengl.ARBUniformBufferObject.glGetUniformIndices(program, org.lwjgl.system.MemoryUtil.memPointerBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(uniformNames), org.lwjgl.system.Checks.remainingSafe(uniformIndices)), uniformIndices);
+		throw new UnsupportedOperationException();
 	}
 	public static void glGetActiveUniforms(int program, IntBuffer uniformIndices, int pname, IntBuffer params) {
 		org.lwjgl.opengl.ARBUniformBufferObject.glGetActiveUniformsiv(program, uniformIndices, pname, params);
