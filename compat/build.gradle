@@ -14,7 +14,8 @@ configurations {
     lwjgl2CoreSources { transitive = false }
 }
 
-// mapped needs run-time bytecode transformation; WaveData needs a JDK-internal class (com.sun.media.sound)
+// mapped is not supported (generated throwing, see StubWriter.UNSUPPORTED_PACKAGES); WaveData needs a JDK-internal class
+// (com.sun.media.sound)
 def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
     from({ zipTree(configurations.lwjgl2UtilSources.singleFile) }) {
         include 'org/lwjgl/util/**/*.java'

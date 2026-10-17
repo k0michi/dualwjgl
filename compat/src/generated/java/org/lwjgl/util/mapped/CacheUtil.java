@@ -1,7 +1,6 @@
 package org.lwjgl.util.mapped;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.DoubleBuffer;
@@ -16,48 +15,39 @@ public final class CacheUtil {
 	private CacheUtil() {
 	}
 
-	@Todo("port")
 	public static int getCacheLineSize() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static ByteBuffer createByteBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static ShortBuffer createShortBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static CharBuffer createCharBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static IntBuffer createIntBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static LongBuffer createLongBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static FloatBuffer createFloatBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static DoubleBuffer createDoubleBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 
-	@Todo("port")
 	public static PointerBuffer createPointerBuffer(int size) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.util.mapped is not supported");
 	}
 }

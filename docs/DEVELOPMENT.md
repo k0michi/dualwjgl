@@ -64,6 +64,10 @@ marks every place that decision affects.
   - `out-of-scope`: LWJGL 2 API for extensions LWJGL 3 does not cover (see the README) behaves as in LWJGL 2 where the
     extension was missing: `APPLEContextLoggingUtil`'s callbacks are null and `CL_APPLE_ContextLoggingFunctions` is
     false; `CLPrintfCallback` can be created but `clSetPrintfCallback` throws "Function is not supported".
+    `org.lwjgl.util.mapped` (lwjgl_util) is not supported at all: stubgen generates every member throwing
+    `UnsupportedOperationException` ("org.lwjgl.util.mapped is not supported"), as listed in
+    `StubWriter.UNSUPPORTED_PACKAGES`. It rewrote classes at run time with an ASM prerelease (4.0_RC1) the program had
+    to bring, and reached memory through `sun.misc.Unsafe`.
   - `awt`: AWT embedding (`AWTGLCanvas`, `Display.setParent` with a parent) throws `LWJGLException`.
   - `pbuffer`: `Pbuffer.getCapabilities()` is 0 and its constructors throw `LWJGLException`, as LWJGL 2 did where the
     platform had no pbuffers; SDL has no off-screen drawable. `RenderTexture` is LWJGL 2's, unchanged.

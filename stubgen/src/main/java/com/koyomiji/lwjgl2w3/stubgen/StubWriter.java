@@ -12,6 +12,13 @@ final class StubWriter {
 
 	private static final String THROW = "throw new UnsupportedOperationException();";
 
+	/**
+	 * Packages compat does not support (DEVIATION(out-of-scope)): their members are generated throwing, without @Todo.
+	 * org.lwjgl.util.mapped rewrites classes at run time with an ASM prerelease and reaches memory through
+	 * sun.misc.Unsafe.
+	 */
+	static final Set<String> UNSUPPORTED_PACKAGES = Set.of("org.lwjgl.util.mapped");
+
 	private final Lwjgl2Api lwjgl2;
 	private final Set<String> forcePublic;
 	final String pkg;
@@ -55,7 +62,20 @@ final class StubWriter {
 		code.line("@" + name);
 	}
 
+	private boolean unsupportedPackage() {
+		return UNSUPPORTED_PACKAGES.contains(pkg);
+	}
+
+	/** The body of a member left unimplemented: @Todo, or for an unsupported package a throw saying so. */
+	private String unimplemented() {
+		return unsupportedPackage() ? "throw new UnsupportedOperationException(\"" + pkg + " is not supported\");" : THROW;
+	}
+
 	private void todo() {
+		if (unsupportedPackage()) {
+			unsupported++;
+			return;
+		}
 		todos++;
 		names.addImport(StubGen.INJECT_PACKAGE + ".Todo");
 		code.line("@Todo(\"" + area + "\")");
@@ -211,7 +231,7 @@ final class StubWriter {
 		code.open(modifiers(c, false) + names.typeParams(c.getTypeParameters()) + simple + parameters(c) + throwsClause(c));
 		if (stub) {
 			superCall((TypeElement)c.getEnclosingElement());
-			code.line(THROW);
+			code.line(unimplemented());
 		}
 		code.close();
 	}
@@ -249,7 +269,7 @@ final class StubWriter {
 					code.line(line);
 				}
 			} else {
-				code.line(THROW);
+				code.line(stub ? unimplemented() : THROW);
 			}
 			code.close();
 		}

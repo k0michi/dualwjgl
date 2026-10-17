@@ -52,10 +52,8 @@
 - [x] Animated cursors: SDL's native animation on every platform
 
 ## lwjgl_util
-- [ ] `org.lwjgl.util.mapped` (110): not generated; import or port LWJGL 2's sources (runtime bytecode transformation
-  with ASM, `sun.misc.Unsafe`)
+- [x] `org.lwjgl.util.mapped`: not supported; every member throws (generated)
 - [ ] `WaveData` (7): not generated; port (LWJGL 2's depends on `com.sun.media.sound`)
-- [ ] `CacheUtil` and the rest of the port stubs
 
 ## Verification
 - [ ] Comparison tests for hand-written code (`TODO(verify)`)
