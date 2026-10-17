@@ -3,12 +3,23 @@ Copyright (c) 2026, k0michi. Licensed under the BSD 3-Clause License (see LICENS
 
 This project contains material from the Lightweight Java Game Library (LWJGL):
 
-- LWJGL 3 (https://github.com/LWJGL/lwjgl3): the patched jars this project builds
-  contain LWJGL 3's classes, and the classes in compat/src/replace contain code
-  derived from LWJGL 3's sources.
-- LWJGL 2 (https://github.com/LWJGL/lwjgl): compat reproduces the LWJGL 2.9.3 API
-  (declarations, parameter names and constant values), and its stubs were
-  generated from LWJGL 2's sources.
+- LWJGL 3 (https://github.com/LWJGL/lwjgl3), version 3.4.3:
+  - the jars this project builds are LWJGL 3's jars with classes added and
+    merged in: they contain LWJGL 3's classes, some of them modified;
+  - the classes in compat/src/replace are derived from LWJGL 3's sources.
+- LWJGL 2 (https://github.com/LWJGL/lwjgl), version 2.9.3:
+  - LWJGL 2's sources are included and compiled, unchanged or with small
+    changes made as they are extracted at build time: lwjgl_util (but
+    org.lwjgl.util.mapped), the OpenAL and OpenCL object models, the input
+    classes (Mouse, Keyboard, Controller), parts of the OpenGL package
+    (DisplayMode, PixelFormat, ContextAttribs, Drawable, SharedDrawable, the
+    debug output callbacks, ...) and some core classes (LWJGLUtil,
+    BufferChecks, MemoryUtil, ...);
+  - the generated code (compat/src/generated, compat/src/generated-inject)
+    reproduces the LWJGL 2.9.3 API (declarations, parameter names and
+    constant values) and the Java code of LWJGL 2's generator templates;
+  - hand-written code in compat is derived in part from LWJGL 2's sources
+    (Display, ContextGL, CallbackUtil, Cursor, ...).
 
 Their licenses follow.
 
