@@ -23,6 +23,10 @@ carries `META-INF/LICENSE` and `META-INF/NOTICE` (the merger's `--resource`), as
 depends on `org.lwjgl:lwjgl-sdl` with `org.lwjgl:lwjgl` excluded, as its classes are the core's. JitPack runs that task
 (`jitpack.yml`) with `JITPACK`, `GROUP` and `VERSION` set, which become the group and version.
 
+Releases: pushing a semver tag without a `v` prefix (`0.1.0`, `0.1.0-alpha.1`) runs `.github/workflows/release.yml`,
+which runs `check`, builds the jars and attaches them to a GitHub release of the tag (a pre-release when the tag has a
+pre-release part). For a tag pushed before, run the workflow by hand with the tag.
+
 ### LWJGL 2's builds and what is covered
 
 DuaLWJGL targets the jars LWJGL 2.9.3 published to Maven Central, `org.lwjgl.lwjgl:lwjgl` and
