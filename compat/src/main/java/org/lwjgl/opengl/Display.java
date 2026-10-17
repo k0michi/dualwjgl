@@ -14,6 +14,11 @@ import org.lwjgl.sdl.SDL_Surface;
 import org.lwjgl.system.MemoryStack;
 
 import java.awt.Canvas;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.EventQueue;
+import java.awt.Window;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.LinkedHashSet;
@@ -38,7 +43,7 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse and Keyboard (compiled
  * unchanged) reach through getImplementation(), as in LWJGL 2.</p>
  *
- * <p>Not there yet: OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt)), Pbuffers (DEVIATION(pbuffer)),
+ * <p>Not there yet: OpenGL ES. Not embedded: setParent (DEVIATION(awt)). Not supported: Pbuffers (DEVIATION(pbuffer)),
  * setDisplayConfiguration (gamma, DEVIATION(display-configuration)) and auxiliary buffers (DEVIATION(aux-buffers)).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread. Run the program through
@@ -65,6 +70,7 @@ public final class Display {
 	private static float green;
 	private static float blue;
 	private static ByteBuffer[] cachedIcons;
+	private static Canvas parent;
 
 	private static long window;
 	private static int width;
@@ -199,6 +205,10 @@ public final class Display {
 	/** The window's mode and size for the current mode and fullscreen setting. */
 	private static void applyMode() throws LWJGLException {
 		DisplayMode mode = currentMode;
+		if (!isFullscreen() && parent != null && parent.getWidth() > 0 && parent.getHeight() > 0) {
+			mode = new DisplayMode(parent.getWidth(), parent.getHeight()); // as LWJGL 2: windowed, the parent's size
+		}
+		DisplayMode applied = mode;
 		long window = Display.window;
 		boolean fullscreen = isFullscreen();
 		int windowX = windowX(), windowY = windowY();
@@ -206,9 +216,10 @@ public final class Display {
 			if (fullscreen) {
 				SDL_DisplayMode closest = SDL_DisplayMode.malloc();
 				try {
-					if (!SDL_GetClosestFullscreenDisplayMode(SDL_GetPrimaryDisplay(), mode.getWidth(), mode.getHeight(), mode.getFrequency(),
-						false, closest) || !SDL_SetWindowFullscreenMode(window, closest) || !SDL_SetWindowFullscreen(window, true)) {
-						throw new LWJGLException("Could not switch to " + mode + ": " + SDL_GetError());
+					if (!SDL_GetClosestFullscreenDisplayMode(SDL_GetPrimaryDisplay(), applied.getWidth(), applied.getHeight(),
+						applied.getFrequency(), false, closest) || !SDL_SetWindowFullscreenMode(window, closest)
+						|| !SDL_SetWindowFullscreen(window, true)) {
+						throw new LWJGLException("Could not switch to " + applied + ": " + SDL_GetError());
 					}
 				} finally {
 					closest.free();
@@ -216,7 +227,7 @@ public final class Display {
 			} else {
 				SDL_SetWindowFullscreen(window, false);
 				SDL_SetWindowFullscreenMode(window, null);
-				SDL_SetWindowSize(window, mode.getWidth(), mode.getHeight());
+				SDL_SetWindowSize(window, applied.getWidth(), applied.getHeight());
 				SDL_SetWindowPosition(window, windowX, windowY);
 			}
 		});
@@ -267,20 +278,86 @@ public final class Display {
 		synchronized (lock) {
 			title = newTitle == null ? "" : newTitle;
 			if (isCreated()) {
-				String title = Display.title;
+				String title = windowTitle();
 				MainThread.run(() -> SDL_SetWindowTitle(window, title));
 			}
 		}
 	}
 
 	public static Canvas getParent() {
-		return null;
+		synchronized (lock) {
+			return parent;
+		}
 	}
 
-	/** DEVIATION(awt): embedding in an AWT Canvas is not supported. A null parent, the default, is accepted. */
+	/**
+	 * DEVIATION(awt): the Display is not embedded in the parent. Its window stands in for the parent's: it is created as
+	 * large as the parent, with the title of the parent's window (see windowTitle), the parent follows its size (programs that size themselves from the parent then see the
+	 * window's), and the parent's AWT window is hidden. LWJGL 2 rendered into the parent's native peer, which an SDL
+	 * window cannot be in general (on macOS, AWT exposes a layer, not a view).
+	 */
 	public static void setParent(Canvas parent) throws LWJGLException {
-		if (parent != null) {
-			throw new LWJGLException("Display.setParent is not supported");
+		synchronized (lock) {
+			if (Display.parent == parent) {
+				return;
+			}
+			Display.parent = parent;
+			if (isCreated() && parent != null) {
+				adoptParent();
+			}
+		}
+	}
+
+	/**
+	 * The window's title: the Display's, or with a parent, its window's, which LWJGL 2 showed (the Display's own title
+	 * was not shown, as the Display was inside the parent). getTitle still returns the Display's.
+	 */
+	private static String windowTitle() {
+		Window top = parent != null ? topLevel(parent) : null;
+		if (top instanceof Frame) {
+			return ((Frame)top).getTitle();
+		}
+		if (top instanceof Dialog) {
+			return ((Dialog)top).getTitle();
+		}
+		return title;
+	}
+
+	/** The window takes the parent's size and title, and the parent's AWT window is hidden. */
+	private static void adoptParent() {
+		String title = windowTitle();
+		long window = Display.window;
+		MainThread.run(() -> SDL_SetWindowTitle(window, title));
+		try {
+			applyMode();
+		} catch (LWJGLException e) {
+			LWJGLUtil.log("Could not size the window as its parent: " + e.getMessage());
+		}
+		hideParentWindow();
+	}
+
+	private static void hideParentWindow() {
+		final Canvas canvas = parent;
+		EventQueue.invokeLater(() -> {
+			Window top = topLevel(canvas);
+			if (top != null) {
+				top.setVisible(false);
+			}
+		});
+	}
+
+	private static Window topLevel(Component c) {
+		while (c != null && !(c instanceof Window)) {
+			c = c.getParent();
+		}
+		return (Window)c;
+	}
+
+	/** After the window was resized: the parent follows, on AWT's event thread. */
+	private static void resizeParent(int w, int h) {
+		final Canvas canvas = parent;
+		if (canvas != null) {
+			EventQueue.invokeLater(() -> canvas.setSize(w, h));
 		}
 	}
 
@@ -496,17 +573,21 @@ public final class Display {
 			glAttributes(pixel_format, attribs);
 
 			long flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
-			if (resizable) {
+			if (resizable || parent != null) { // the parent's window could be resized: so can the one standing in for it
 				flags |= SDL_WINDOW_RESIZABLE;
 			}
 			if (LWJGLUtil.getPrivilegedBoolean("org.lwjgl.opengl.Display.enableHighDPI")) {
 				flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 			}
 			DisplayMode mode = currentMode;
+			if (parent != null && parent.getWidth() > 0 && parent.getHeight() > 0) {
+				mode = new DisplayMode(parent.getWidth(), parent.getHeight()); // as LWJGL 2: the parent's size
+			}
+			DisplayMode windowMode = mode;
 			long windowFlags = flags;
-			String title = Display.title;
+			String title = windowTitle();
 			window = MainThread.call(() -> {
-				long created = SDL_CreateWindow(title, mode.getWidth(), mode.getHeight(), windowFlags);
+				long created = SDL_CreateWindow(title, windowMode.getWidth(), windowMode.getHeight(), windowFlags);
 				if (created == 0L) {
 					throw new LWJGLException("Could not create the window: " + SDL_GetError());
 				}
@@ -525,6 +606,9 @@ public final class Display {
 				applyMode();
 				long created = window;
 				MainThread.run(() -> SDL_ShowWindow(created));
+				if (parent != null) {
+					hideParentWindow(); // the window stands in for it
+				}
 				setSwapInterval(swapInterval);
 				// as LWJGL 2: the window icon, the given one or LWJGL's
 				setIcon(cachedIcons != null ? cachedIcons : new ByteBuffer[] {LWJGLUtil.LWJGLIcon32x32, LWJGLUtil.LWJGLIcon16x16});
@@ -771,6 +855,7 @@ public final class Display {
 			width = event.window().data1();
 			height = event.window().data2();
 			resizeEvent = true;
+			resizeParent(width, height);
 		}
 	}
 

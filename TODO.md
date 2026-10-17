@@ -45,7 +45,9 @@
 ## Display
 - [x] Shared contexts: `SharedDrawable`
 - [x] `Pbuffer`: not supported, throws
-- [x] `setParent` / AWT embedding, `AWTGLCanvas`: not supported, throws
+- [x] `setParent`: accepted, not embedded; the window stands in for the parent's (its size and title), which follows
+  its size and is hidden
+- [x] `AWTGLCanvas`: not supported, throws
 - [x] `setDisplayConfiguration`: not supported, throws
 - [x] Auxiliary buffers: not supported, `Display.create` throws
 - [x] `Drawable.setCLSharingProperties` (WGL, GLX, CGL; EGL as an extension)

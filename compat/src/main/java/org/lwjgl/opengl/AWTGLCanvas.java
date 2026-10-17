@@ -13,9 +13,9 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.PointerBuffer;
 
 /**
- * DEVIATION(awt): AWT embedding is not supported. LWJGL 2 rendered into the canvas's native peer, which an SDL window
- * cannot take over, so every constructor throws, as LWJGL 2 did where it could not create the context; the other
- * members are unreachable without an instance.
+ * DEVIATION(awt): rendering into an AWT component is not supported. LWJGL 2 rendered into the canvas's native peer,
+ * which an SDL window cannot take over, so every constructor throws, as LWJGL 2 did where it could not create the
+ * context; the other members are unreachable without an instance.
  */
 public class AWTGLCanvas extends Canvas implements DrawableLWJGL, ComponentListener, HierarchyListener {
 

@@ -109,7 +109,11 @@ marks every place that decision affects.
     to bring, and reached memory through `sun.misc.Unsafe`.
     `org.lwjgl.opengl.XRandR`, LWJGL 2's Linux display internals over the `xrandr` command (public, but no API), is not
     supported the same way: every member throws "org.lwjgl.opengl.XRandR is not supported".
-  - `awt`: AWT embedding (`AWTGLCanvas`, `Display.setParent` with a parent) throws `LWJGLException`.
+  - `awt`: `AWTGLCanvas` throws `LWJGLException`. `Display.setParent` accepts a parent, but the Display is not
+    embedded in it: its own window stands in for the parent's. It is created as large as the parent, with the title
+    of the parent's window (which LWJGL 2 showed; the Display's own was hidden inside it, and `getTitle` still returns
+    it), the parent follows its size (on AWT's event thread, so that programs sizing themselves from the parent follow
+    too), and the parent's AWT window is hidden.
   - `pbuffer`: `Pbuffer.getCapabilities()` is 0 and its constructors throw `LWJGLException`, as LWJGL 2 did where the
     platform had no pbuffers; SDL has no off-screen drawable. `RenderTexture` is LWJGL 2's, unchanged.
   - `cursor-native-animation`: cursors report `CURSOR_ANIMATION` everywhere and an animated `Cursor` is one SDL animated
@@ -158,7 +162,7 @@ its platform context implementations; the peer (`SDLPeerInfo`) is an SDL window.
 unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
 classes implemented), which Display feeds SDL's events; `Mouse`, `Keyboard` and their helpers are LWJGL 2's sources, and
 `Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. OpenGL ES
-is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embedding is not supported (`DEVIATION(awt)`); nor are auxiliary
+is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embedding is not (`setParent`'s window stands in for the parent's, `DEVIATION(awt)`); nor are auxiliary
 buffers (`DEVIATION(aux-buffers)`).
 
 On macOS, SDL's video (windows, events, cursors, the clipboard, message boxes) must run on the process's first

@@ -75,13 +75,18 @@ class Lwjgl2CoreTest {
 		assertEquals(System.getProperty("os.arch").contains("64"), Sys.is64Bit());
 	}
 
-	/** DEVIATION(awt): AWT embedding is not supported; it fails as LWJGL 2 did when it could not create a context. */
+	/**
+	 * DEVIATION(awt): AWTGLCanvas is not supported, failing as LWJGL 2 did when it could not create a context; a parent
+	 * is accepted, and the Display's window stands in for it (not embedded).
+	 */
 	@Test
-	void awtIsNotSupported() {
+	void awt() throws Exception {
 		assertThrows(LWJGLException.class, AWTGLCanvas::new);
 		assertThrows(LWJGLException.class, () -> new AWTGLCanvas(new PixelFormat()));
-		assertThrows(LWJGLException.class, () -> Display.setParent(new Canvas()));
-		assertDoesNotThrow(() -> Display.setParent(null));
+		Canvas canvas = new Canvas();
+		Display.setParent(canvas);
+		assertSame(canvas, Display.getParent());
+		Display.setParent(null);
 		assertNull(Display.getParent());
 	}
 
