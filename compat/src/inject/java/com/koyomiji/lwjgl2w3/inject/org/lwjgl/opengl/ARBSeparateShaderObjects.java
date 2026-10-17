@@ -22,7 +22,7 @@ public final class ARBSeparateShaderObjects {
 			for (int i = 0; i < strings.length; i++) {
 				pointers.put(i, MemoryUtil.memAddress0(strings[i]));
 			}
-			return org.lwjgl.opengl.ARBSeparateShaderObjects.nglCreateShaderProgramv(type, strings.length, pointers.address());
+			return org.lwjgl.opengl.ARBSeparateShaderObjects.glCreateShaderProgramv(type, pointers);
 		}
 	}
 

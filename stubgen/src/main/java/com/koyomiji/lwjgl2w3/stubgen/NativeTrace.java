@@ -350,6 +350,10 @@ final class NativeTrace {
 			}
 			// LWJGL 2 APIUtil temporaries: getInt(caps, v) -> address of a temp holding v, getBufferInt(caps) -> temp
 			if (mi.owner.endsWith("/APIUtil") && mi.name.startsWith("get")) {
+				if (rt == Type.LONG_TYPE && mi.name.equals("getInt") && args.size() == 2) {
+					// a temporary holding the value (glDeleteTextures(int)): keep which value, for the delegation rule
+					return new Sym(2, "addr(VAL(" + args.get(1) + "))");
+				}
 				if (rt == Type.LONG_TYPE) {
 					return new Sym(2, "addr(TMP)");
 				}
@@ -494,9 +498,13 @@ final class NativeTrace {
 
 	/** Effect strings without bookkeeping-only details (buffer-checks, etc.). */
 	static List<String> norm(Summary s) {
+		return norm(s.natives);
+	}
+
+	static List<String> norm(List<String> natives) {
 		List<String> out = new ArrayList<>();
-		for (String n : s.natives) {
-			out.add(normCall(n.replace("TMP.position()", "0")));
+		for (String n : natives) {
+			out.add(normCall(n.replace("TMP.position()", "0").replaceAll("addr\\(VAL\\([^()]*\\)\\)", "addr(TMP)")));
 		}
 		Collections.sort(out);
 		return out;
@@ -513,11 +521,14 @@ final class NativeTrace {
 	}
 
 	static String normRet(Summary s) {
-		String r = s.ret();
+		return normRet(s.ret(), s.natives);
+	}
+
+	static String normRet(String r, List<String> natives) {
 		if (r.equals("TMP.get(0)") || r.startsWith("TMP.get(0)") || r.equals("(TMP.get(0)!=0)")) {
-			for (String n : s.natives) {
+			for (String n : natives) {
 				if (TMP_OUT.matcher(n).matches()) {
-					return "R:" + normCall(n);
+					return "R:" + normCall(n.replaceAll("addr\\(VAL\\([^()]*\\)\\)", "addr(TMP)"));
 				}
 			}
 		}

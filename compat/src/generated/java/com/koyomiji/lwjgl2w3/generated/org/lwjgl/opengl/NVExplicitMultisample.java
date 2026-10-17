@@ -6,13 +6,13 @@ import java.nio.IntBuffer;
 
 public final class NVExplicitMultisample {
 	public static void glGetBooleanIndexedEXT(int pname, int index, ByteBuffer data) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetBooleanIndexedvEXT(pname, index, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetBooleanIndexedvEXT(pname, index, data);
 	}
 	public static boolean glGetBooleanIndexedEXT(int pname, int index) {
 		return org.lwjgl.opengl.EXTDirectStateAccess.glGetBooleanIndexedEXT(pname, index);
 	}
 	public static void glGetIntegerIndexedEXT(int pname, int index, IntBuffer data) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetIntegerIndexedvEXT(pname, index, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetIntegerIndexedvEXT(pname, index, data);
 	}
 	public static int glGetIntegerIndexedEXT(int pname, int index) {
 		return org.lwjgl.opengl.EXTDirectStateAccess.glGetIntegerIndexedEXT(pname, index);

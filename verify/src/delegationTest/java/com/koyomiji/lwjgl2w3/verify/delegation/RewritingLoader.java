@@ -66,7 +66,13 @@ final class RewritingLoader extends URLClassLoader {
 		for (MethodNode m : cn.methods) {
 			String key = cn.name + "." + m.name;
 			String field = accessors.get(key);
-			if (field != null && (m.access & Opcodes.ACC_STATIC) != 0) {
+			if (field != null && field.startsWith("#") && (m.access & Opcodes.ACC_STATIC) != 0 && m.desc.equals("(Ljava/lang/String;)J")) {
+				// a Recorder method taking the method's String and returning its long (LWJGL 2's CL.getFunctionAddress)
+				body(m, insns(
+					new VarInsnNode(Opcodes.ALOAD, 0),
+					new MethodInsnNode(Opcodes.INVOKESTATIC, RECORDER, field.substring(1), m.desc, false),
+					new InsnNode(Opcodes.LRETURN)));
+			} else if (field != null && !field.startsWith("#") && (m.access & Opcodes.ACC_STATIC) != 0) {
 				body(m, insns(
 					new FieldInsnNode(Opcodes.GETSTATIC, RECORDER, field, "Ljava/lang/Object;"),
 					new TypeInsnNode(Opcodes.CHECKCAST, Type.getReturnType(m.desc).getInternalName()),

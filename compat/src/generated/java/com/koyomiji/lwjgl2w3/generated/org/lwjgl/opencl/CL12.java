@@ -83,33 +83,26 @@ public final class CL12 {
 	public static CLProgram clLinkProgram(CLContext context, PointerBuffer device_list, CharSequence options, PointerBuffer input_programs, CLLinkProgramCallback pfn_notify, IntBuffer errcode_ret) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clUnloadPlatformCompiler(CLPlatform platform) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clUnloadPlatformCompiler(platform.getPointer());
 	}
-	@Todo("cl")
 	public static int clGetKernelArgInfo(CLKernel kernel, int arg_indx, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clGetKernelArgInfo(kernel.getPointer(), arg_indx, param_name, param_value, param_value_size_ret);
 	}
-	@Todo("cl")
 	public static int clEnqueueFillBuffer(CLCommandQueue command_queue, CLMem buffer, ByteBuffer pattern, long offset, long size, PointerBuffer event_wait_list, PointerBuffer event) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clEnqueueFillBuffer(command_queue.getPointer(), buffer.getPointer(), pattern, offset, size, event_wait_list, event);
 	}
-	@Todo("cl")
 	public static int clEnqueueFillImage(CLCommandQueue command_queue, CLMem image, ByteBuffer fill_color, PointerBuffer origin, PointerBuffer region, PointerBuffer event_wait_list, PointerBuffer event) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clEnqueueFillImage(command_queue.getPointer(), image.getPointer(), fill_color, origin, region, event_wait_list, event);
 	}
-	@Todo("cl")
 	public static int clEnqueueMigrateMemObjects(CLCommandQueue command_queue, PointerBuffer mem_objects, long flags, PointerBuffer event_wait_list, PointerBuffer event) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clEnqueueMigrateMemObjects(command_queue.getPointer(), mem_objects, flags, event_wait_list, event);
 	}
-	@Todo("cl")
 	public static int clEnqueueMarkerWithWaitList(CLCommandQueue command_queue, PointerBuffer event_wait_list, PointerBuffer event) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clEnqueueMarkerWithWaitList(command_queue.getPointer(), event_wait_list, event);
 	}
-	@Todo("cl")
 	public static int clEnqueueBarrierWithWaitList(CLCommandQueue command_queue, PointerBuffer event_wait_list, PointerBuffer event) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL12.clEnqueueBarrierWithWaitList(command_queue.getPointer(), event_wait_list, event);
 	}
 	@Todo("cl")
 	public static int clSetPrintfCallback(CLContext context, CLPrintfCallback pfn_notify) {

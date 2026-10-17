@@ -8,21 +8,17 @@ import java.nio.IntBuffer;
 
 public final class GL41 {
 	public static int glCreateShaderProgram(int type, ByteBuffer string) {
-		return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, 1, org.lwjgl.system.MemoryUtil.memAddressSafe(string));
+		return org.lwjgl.opengl.GL41.glCreateShaderProgramv(type, org.lwjgl.system.MemoryUtil.memPointerBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(string), 1));
 	}
 	public static int glCreateShaderProgram(int type, int count, ByteBuffer strings) {
-		return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, count, org.lwjgl.system.MemoryUtil.memAddressSafe(strings));
+		return org.lwjgl.opengl.GL41.glCreateShaderProgramv(type, org.lwjgl.system.MemoryUtil.memPointerBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(strings), count));
 	}
 	@Todo("gl")
 	public static int glCreateShaderProgram(int type, ByteBuffer[] strings) {
 		throw new UnsupportedOperationException();
 	}
 	public static int glCreateShaderProgram(int type, CharSequence string) {
-		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			int __stringEncodedLength = __stack.nUTF8(string, true);
-			long __stringEncodedAddress = __stack.getPointerAddress();
-			return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, 1, __stringEncodedAddress);
-		}
+		return org.lwjgl.opengl.GL41.glCreateShaderProgramv(type, string);
 	}
 	public static int glCreateShaderProgram(int type, CharSequence[] strings) {
 		return org.lwjgl.opengl.GL41.glCreateShaderProgramv(type, strings);
@@ -145,7 +141,7 @@ public final class GL41 {
 		org.lwjgl.opengl.GL41.glVertexAttribL4dv(index, v);
 	}
 	public static void glVertexAttribLPointer(int index, int size, int stride, long pointer_buffer_offset) {
-		org.lwjgl.opengl.GL41.nglVertexAttribLPointer(index, size, 5130, stride, pointer_buffer_offset);
+		org.lwjgl.opengl.GL41.glVertexAttribLPointer(index, size, 5130, stride, pointer_buffer_offset);
 	}
 	public static void glGetVertexAttribL(int index, int pname, DoubleBuffer params) {
 		org.lwjgl.opengl.GL41.glGetVertexAttribLdv(index, pname, params);

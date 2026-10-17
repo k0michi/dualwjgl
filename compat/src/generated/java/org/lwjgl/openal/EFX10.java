@@ -1,7 +1,6 @@
 package org.lwjgl.openal;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -492,18 +491,16 @@ public final class EFX10 {
 		org.lwjgl.openal.EXTEfx.alGenAuxiliaryEffectSlots(auxiliaryeffectslots);
 	}
 
-	@Todo("al")
 	public static int alGenAuxiliaryEffectSlots() {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGenAuxiliaryEffectSlots();
 	}
 
 	public static void alDeleteAuxiliaryEffectSlots(IntBuffer auxiliaryeffectslots) {
 		org.lwjgl.openal.EXTEfx.alDeleteAuxiliaryEffectSlots(auxiliaryeffectslots);
 	}
 
-	@Todo("al")
 	public static void alDeleteAuxiliaryEffectSlots(int auxiliaryeffectslot) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alDeleteAuxiliaryEffectSlots(auxiliaryeffectslot);
 	}
 
 	public static boolean alIsAuxiliaryEffectSlot(int auxiliaryeffectslot) {
@@ -515,7 +512,7 @@ public final class EFX10 {
 	}
 
 	public static void alAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, IntBuffer values) {
-		org.lwjgl.openal.EXTEfx.nalAuxiliaryEffectSlotiv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		org.lwjgl.openal.EXTEfx.alAuxiliaryEffectSlotiv(auxiliaryeffectslot, param, values);
 	}
 
 	public static void alAuxiliaryEffectSlotf(int auxiliaryeffectslot, int param, float value) {
@@ -523,7 +520,7 @@ public final class EFX10 {
 	}
 
 	public static void alAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, FloatBuffer values) {
-		org.lwjgl.openal.EXTEfx.nalAuxiliaryEffectSlotfv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		org.lwjgl.openal.EXTEfx.alAuxiliaryEffectSlotfv(auxiliaryeffectslot, param, values);
 	}
 
 	public static int alGetAuxiliaryEffectSloti(int auxiliaryeffectslot, int param) {
@@ -531,7 +528,7 @@ public final class EFX10 {
 	}
 
 	public static void alGetAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, IntBuffer intdata) {
-		org.lwjgl.openal.EXTEfx.nalGetAuxiliaryEffectSlotiv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
+		org.lwjgl.openal.EXTEfx.alGetAuxiliaryEffectSlotiv(auxiliaryeffectslot, param, intdata);
 	}
 
 	public static float alGetAuxiliaryEffectSlotf(int auxiliaryeffectslot, int param) {
@@ -539,25 +536,23 @@ public final class EFX10 {
 	}
 
 	public static void alGetAuxiliaryEffectSlot(int auxiliaryeffectslot, int param, FloatBuffer floatdata) {
-		org.lwjgl.openal.EXTEfx.nalGetAuxiliaryEffectSlotfv(auxiliaryeffectslot, param, org.lwjgl.system.MemoryUtil.memAddressSafe(floatdata));
+		org.lwjgl.openal.EXTEfx.alGetAuxiliaryEffectSlotfv(auxiliaryeffectslot, param, floatdata);
 	}
 
 	public static void alGenEffects(IntBuffer effects) {
 		org.lwjgl.openal.EXTEfx.alGenEffects(effects);
 	}
 
-	@Todo("al")
 	public static int alGenEffects() {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGenEffects();
 	}
 
 	public static void alDeleteEffects(IntBuffer effects) {
 		org.lwjgl.openal.EXTEfx.alDeleteEffects(effects);
 	}
 
-	@Todo("al")
 	public static void alDeleteEffects(int effect) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alDeleteEffects(effect);
 	}
 
 	public static boolean alIsEffect(int effect) {
@@ -569,7 +564,7 @@ public final class EFX10 {
 	}
 
 	public static void alEffect(int effect, int param, IntBuffer values) {
-		org.lwjgl.openal.EXTEfx.nalEffectiv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		org.lwjgl.openal.EXTEfx.alEffectiv(effect, param, values);
 	}
 
 	public static void alEffectf(int effect, int param, float value) {
@@ -577,7 +572,7 @@ public final class EFX10 {
 	}
 
 	public static void alEffect(int effect, int param, FloatBuffer values) {
-		org.lwjgl.openal.EXTEfx.nalEffectfv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		org.lwjgl.openal.EXTEfx.alEffectfv(effect, param, values);
 	}
 
 	public static int alGetEffecti(int effect, int param) {
@@ -585,7 +580,7 @@ public final class EFX10 {
 	}
 
 	public static void alGetEffect(int effect, int param, IntBuffer intdata) {
-		org.lwjgl.openal.EXTEfx.nalGetEffectiv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
+		org.lwjgl.openal.EXTEfx.alGetEffectiv(effect, param, intdata);
 	}
 
 	public static float alGetEffectf(int effect, int param) {
@@ -593,25 +588,23 @@ public final class EFX10 {
 	}
 
 	public static void alGetEffect(int effect, int param, FloatBuffer floatdata) {
-		org.lwjgl.openal.EXTEfx.nalGetEffectfv(effect, param, org.lwjgl.system.MemoryUtil.memAddressSafe(floatdata));
+		org.lwjgl.openal.EXTEfx.alGetEffectfv(effect, param, floatdata);
 	}
 
 	public static void alGenFilters(IntBuffer filters) {
 		org.lwjgl.openal.EXTEfx.alGenFilters(filters);
 	}
 
-	@Todo("al")
 	public static int alGenFilters() {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.EXTEfx.alGenFilters();
 	}
 
 	public static void alDeleteFilters(IntBuffer filters) {
 		org.lwjgl.openal.EXTEfx.alDeleteFilters(filters);
 	}
 
-	@Todo("al")
 	public static void alDeleteFilters(int filter) {
-		throw new UnsupportedOperationException();
+		org.lwjgl.openal.EXTEfx.alDeleteFilters(filter);
 	}
 
 	public static boolean alIsFilter(int filter) {
@@ -623,7 +616,7 @@ public final class EFX10 {
 	}
 
 	public static void alFilter(int filter, int param, IntBuffer values) {
-		org.lwjgl.openal.EXTEfx.nalFilteriv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		org.lwjgl.openal.EXTEfx.alFilteriv(filter, param, values);
 	}
 
 	public static void alFilterf(int filter, int param, float value) {
@@ -631,7 +624,7 @@ public final class EFX10 {
 	}
 
 	public static void alFilter(int filter, int param, FloatBuffer values) {
-		org.lwjgl.openal.EXTEfx.nalFilterfv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		org.lwjgl.openal.EXTEfx.alFilterfv(filter, param, values);
 	}
 
 	public static int alGetFilteri(int filter, int param) {
@@ -639,7 +632,7 @@ public final class EFX10 {
 	}
 
 	public static void alGetFilter(int filter, int param, IntBuffer intdata) {
-		org.lwjgl.openal.EXTEfx.nalGetFilteriv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
+		org.lwjgl.openal.EXTEfx.alGetFilteriv(filter, param, intdata);
 	}
 
 	public static float alGetFilterf(int filter, int param) {
@@ -647,6 +640,6 @@ public final class EFX10 {
 	}
 
 	public static void alGetFilter(int filter, int param, FloatBuffer floatdata) {
-		org.lwjgl.openal.EXTEfx.nalGetFilterfv(filter, param, org.lwjgl.system.MemoryUtil.memAddressSafe(floatdata));
+		org.lwjgl.openal.EXTEfx.alGetFilterfv(filter, param, floatdata);
 	}
 }

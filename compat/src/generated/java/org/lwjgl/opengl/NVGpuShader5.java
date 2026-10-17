@@ -39,138 +39,138 @@ public final class NVGpuShader5 {
 	}
 
 	public static void glUniform1i64NV(int location, long x) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform1i64NV(location, x);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform1i64NV(location, x);
 	}
 
 	public static void glUniform2i64NV(int location, long x, long y) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform2i64NV(location, x, y);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform2i64NV(location, x, y);
 	}
 
 	public static void glUniform3i64NV(int location, long x, long y, long z) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform3i64NV(location, x, y, z);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform3i64NV(location, x, y, z);
 	}
 
 	public static void glUniform4i64NV(int location, long x, long y, long z, long w) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform4i64NV(location, x, y, z, w);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform4i64NV(location, x, y, z, w);
 	}
 
 	public static void glUniform1NV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform1i64vNV(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform1i64vNV(location, value);
 	}
 
 	public static void glUniform2NV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform2i64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform2i64vNV(location, value);
 	}
 
 	public static void glUniform3NV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform3i64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform3i64vNV(location, value);
 	}
 
 	public static void glUniform4NV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform4i64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform4i64vNV(location, value);
 	}
 
 	public static void glUniform1ui64NV(int location, long x) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform1ui64NV(location, x);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform1ui64NV(location, x);
 	}
 
 	public static void glUniform2ui64NV(int location, long x, long y) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform2ui64NV(location, x, y);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform2ui64NV(location, x, y);
 	}
 
 	public static void glUniform3ui64NV(int location, long x, long y, long z) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform3ui64NV(location, x, y, z);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform3ui64NV(location, x, y, z);
 	}
 
 	public static void glUniform4ui64NV(int location, long x, long y, long z, long w) {
-		org.lwjgl.opengl.NVGPUShader5.glUniform4ui64NV(location, x, y, z, w);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform4ui64NV(location, x, y, z, w);
 	}
 
 	public static void glUniform1uNV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform1ui64vNV(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform1ui64vNV(location, value);
 	}
 
 	public static void glUniform2uNV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform2ui64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform2ui64vNV(location, value);
 	}
 
 	public static void glUniform3uNV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform3ui64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform3ui64vNV(location, value);
 	}
 
 	public static void glUniform4uNV(int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglUniform4ui64vNV(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glUniform4ui64vNV(location, value);
 	}
 
 	public static void glGetUniformNV(int program, int location, LongBuffer params) {
-		org.lwjgl.opengl.NVGPUShader5.nglGetUniformi64vNV(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glGetUniformi64vNV(program, location, params);
 	}
 
 	public static void glGetUniformuNV(int program, int location, LongBuffer params) {
-		org.lwjgl.opengl.NVGPUShader5.nglGetUniformui64vNV(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glGetUniformui64vNV(program, location, params);
 	}
 
 	public static void glProgramUniform1i64NV(int program, int location, long x) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform1i64NV(program, location, x);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform1i64NV(program, location, x);
 	}
 
 	public static void glProgramUniform2i64NV(int program, int location, long x, long y) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform2i64NV(program, location, x, y);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform2i64NV(program, location, x, y);
 	}
 
 	public static void glProgramUniform3i64NV(int program, int location, long x, long y, long z) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform3i64NV(program, location, x, y, z);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform3i64NV(program, location, x, y, z);
 	}
 
 	public static void glProgramUniform4i64NV(int program, int location, long x, long y, long z, long w) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform4i64NV(program, location, x, y, z, w);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform4i64NV(program, location, x, y, z, w);
 	}
 
 	public static void glProgramUniform1NV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform1i64vNV(program, location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform1i64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform2NV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform2i64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform2i64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform3NV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform3i64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform3i64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform4NV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform4i64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform4i64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform1ui64NV(int program, int location, long x) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform1ui64NV(program, location, x);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform1ui64NV(program, location, x);
 	}
 
 	public static void glProgramUniform2ui64NV(int program, int location, long x, long y) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform2ui64NV(program, location, x, y);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform2ui64NV(program, location, x, y);
 	}
 
 	public static void glProgramUniform3ui64NV(int program, int location, long x, long y, long z) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform3ui64NV(program, location, x, y, z);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform3ui64NV(program, location, x, y, z);
 	}
 
 	public static void glProgramUniform4ui64NV(int program, int location, long x, long y, long z, long w) {
-		org.lwjgl.opengl.NVGPUShader5.glProgramUniform4ui64NV(program, location, x, y, z, w);
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform4ui64NV(program, location, x, y, z, w);
 	}
 
 	public static void glProgramUniform1uNV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform1ui64vNV(program, location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform1ui64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform2uNV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform2ui64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform2ui64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform3uNV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform3ui64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform3ui64vNV(program, location, value);
 	}
 
 	public static void glProgramUniform4uNV(int program, int location, LongBuffer value) {
-		org.lwjgl.opengl.NVGPUShader5.nglProgramUniform4ui64vNV(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.AMDGPUShaderInt64.glProgramUniform4ui64vNV(program, location, value);
 	}
 }

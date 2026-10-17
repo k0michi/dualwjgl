@@ -32,7 +32,7 @@ class DelegationTest {
 	private static final String GENERATED = "Lcom/koyomiji/lwjgl2w3/inject/Generated;";
 	private static final String TODO = "Lcom/koyomiji/lwjgl2w3/inject/Todo;";
 	private static final String GENERATED_PACKAGE = "com/koyomiji/lwjgl2w3/generated/";
-	private static final List<String> PACKAGES = List.of("org/lwjgl/opengl/", "org/lwjgl/openal/");
+	private static final List<String> PACKAGES = List.of("org/lwjgl/opengl/", "org/lwjgl/openal/", "org/lwjgl/opencl/");
 
 	/** fake function addresses: far from any buffer address, and from the small numbers passed as arguments */
 	private static final long FN_BASE = 0x7E00_0000_0000L;
@@ -104,7 +104,7 @@ class DelegationTest {
 		Side two = lwjgl2();
 		Side three = lwjgl3();
 		// pointers either side allocated itself: big, and not one of the fake function addresses
-		Recorder.peekable = v -> Math.abs(v) > (1L << 32) && (v < FN_BASE || v > FN_BASE + (1 << 20));
+		Recorder.peekable = v -> Math.abs(v) > (1L << 32) && (v < FN_BASE || v > FN_BASE + (1 << 21));
 
 		Map<String, Integer> skipped = new TreeMap<>();
 		List<String> mismatches = new ArrayList<>();
@@ -164,11 +164,14 @@ class DelegationTest {
 
 	private static Side lwjgl2() throws Exception {
 		RewritingLoader l = new RewritingLoader(urls("lwjgl2w3.lwjgl2.jars"), cls -> cls.startsWith("org/lwjgl/"),
-			Map.of("org/lwjgl/opengl/GLContext.getCapabilities", "lwjgl2GL"),
+			Map.of("org/lwjgl/opengl/GLContext.getCapabilities", "lwjgl2GL", "org/lwjgl/opencl/CL.getFunctionAddress", "#clFunction"),
 			// state checks (e.g. "Cannot use offsets when Array Buffer Object is disabled"), not argument mapping; and
 			// Sys's check that liblwjgl matches the jar
 			List.of("org/lwjgl/opengl/GLChecks.ensure", "org/lwjgl/Sys.<clinit>"));
 		Side s = new Side("LWJGL 2", l);
+		// Sys.<clinit> is emptied, which also skips setting Sys.is64Bit: PointerBuffer would count 32-bit pointers
+		Field is64Bit = Class.forName("org.lwjgl.Sys", true, l).getDeclaredField("is64Bit");
+		UNSAFE.putBoolean(UNSAFE.staticFieldBase(is64Bit), UNSAFE.staticFieldOffset(is64Bit), UNSAFE.addressSize() == 8);
 		Object caps = s.capabilities("org.lwjgl.opengl.ContextCapabilities");
 		Recorder.lwjgl2GL = caps;
 		s.set(caps, "util", "org.lwjgl.opengl.APIUtil");
@@ -184,13 +187,16 @@ class DelegationTest {
 			cls -> cls.equals("org/lwjgl/system/JNI") || PACKAGES.stream().anyMatch(cls::startsWith),
 			Map.of("org/lwjgl/opengl/GL.getICD", "lwjgl3GL", "org/lwjgl/opengl/GL.getCapabilities", "lwjgl3GL",
 				"org/lwjgl/openal/AL.getICD", "lwjgl3AL", "org/lwjgl/openal/AL.getCapabilities", "lwjgl3AL",
-				"org/lwjgl/openal/ALC.getICD", "lwjgl3ALC", "org/lwjgl/openal/ALC.getCapabilities", "lwjgl3ALC"),
-			// they load liblwjgl_opengl / OpenAL and create the ICD; every native is rewritten and the accessors replaced
-			List.of("org/lwjgl/opengl/GL.<clinit>", "org/lwjgl/openal/AL.<clinit>", "org/lwjgl/openal/ALC.<clinit>"));
+				"org/lwjgl/openal/ALC.getICD", "lwjgl3ALC", "org/lwjgl/openal/ALC.getCapabilities", "lwjgl3ALC",
+				"org/lwjgl/opencl/CL.getICD", "lwjgl3CL"),
+			// they load liblwjgl_opengl / OpenAL / OpenCL and create the ICD; every native is rewritten and the accessors replaced
+			List.of("org/lwjgl/opengl/GL.<clinit>", "org/lwjgl/openal/AL.<clinit>", "org/lwjgl/openal/ALC.<clinit>",
+				"org/lwjgl/opencl/CL.<clinit>"));
 		Side s = new Side("patched", l);
 		Recorder.lwjgl3GL = s.capabilities("org.lwjgl.opengl.GLCapabilities");
 		Recorder.lwjgl3AL = s.capabilities("org.lwjgl.openal.ALCapabilities");
 		Recorder.lwjgl3ALC = s.capabilities("org.lwjgl.openal.ALCCapabilities");
+		Recorder.lwjgl3CL = s.capabilities("org.lwjgl.opencl.CLCapabilities");
 		return s;
 	}
 
@@ -258,6 +264,29 @@ class DelegationTest {
 					Constructor<?> c = Class.forName("org.lwjgl.opengl.GLSync", true, loader).getDeclaredConstructor(long.class);
 					c.setAccessible(true);
 					return c.newInstance(7000L + k);
+				} catch (ReflectiveOperationException e) {
+					throw new IllegalStateException(e);
+				}
+			}
+			if (t.getClassName().startsWith("org.lwjgl.opencl.CL")) {
+				// a CL object (CLContext, CLMem, ...): allocated without its constructor, which registers it with a
+				// parent; only its handle, and a reference count that makes it valid, matter to the bindings
+				try {
+					Class<?> c = Class.forName(t.getClassName(), true, loader);
+					Class<?> wrapper = Class.forName("org.lwjgl.PointerWrapperAbstract", true, loader);
+					if (!wrapper.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())) {
+						return null;
+					}
+					Object o = UNSAFE.allocateInstance(c);
+					UNSAFE.putLong(o, UNSAFE.objectFieldOffset(wrapper.getDeclaredField("pointer")), 7000L + k);
+					for (Class<?> s = c; s != null; s = s.getSuperclass()) {
+						for (Field f : s.getDeclaredFields()) {
+							if (f.getName().equals("refCount") && f.getType() == int.class) {
+								UNSAFE.putInt(o, UNSAFE.objectFieldOffset(f), 1);
+							}
+						}
+					}
+					return o;
 				} catch (ReflectiveOperationException e) {
 					throw new IllegalStateException(e);
 				}
@@ -331,8 +360,9 @@ class DelegationTest {
 			String simple = c.method().substring(c.method().lastIndexOf('.') + 1);
 			List<Object> as = new ArrayList<>(Arrays.asList(c.args()));
 			String fn = null;
-			if (!as.isEmpty() && as.get(as.size() - 1) instanceof Long a && side.functions.containsKey(a)) {
-				fn = side.functions.get(a);
+			if (!as.isEmpty() && as.get(as.size() - 1) instanceof Long a
+				&& (side.functions.containsKey(a) || Recorder.lwjgl2CLFunctions.containsKey(a))) {
+				fn = side.functions.containsKey(a) ? side.functions.get(a) : Recorder.lwjgl2CLFunctions.get(a);
 				as.remove(as.size() - 1);
 			}
 			if (fn == null) {
@@ -342,6 +372,22 @@ class DelegationTest {
 			List<String> rendered = new ArrayList<>();
 			for (int i = 0; i < as.size(); i++) {
 				rendered.add(arg(as.get(i), c.peeked()[i], args));
+			}
+			// LWJGL 2's OpenAL natives for one value (nalGenSources2(1), nalDeleteEffects2(1, effect)) make the
+			// temporary in C: written as the call with that temporary, as LWJGL 3 makes it
+			if (simple.startsWith("nal") && simple.endsWith("2") && (as.size() == 1 || as.size() == 2)) {
+				fn = fn.substring(0, fn.length() - 1);
+				if (as.size() == 1) {
+					rendered.add("tmp");
+				} else {
+					String value = "tmp";
+					for (int i = 0; i < args.values.length; i++) {
+						if (args.values[i] instanceof Integer x && x.equals(as.get(1))) {
+							value = "tmp=arg" + i;
+						}
+					}
+					rendered.set(1, value);
+				}
 			}
 			out.add(fn + "(" + String.join(", ", rendered) + ")");
 		}
@@ -399,7 +445,9 @@ class DelegationTest {
 		}
 		for (int i = 0; i < args.values.length; i++) {
 			if (args.values[i] == a) {
-				return "arg" + i;
+				// an LWJGL 2 native that took a String (AL10.alIsExtensionPresent) encoded it in C; LWJGL 3 encodes it on
+				// the stack: the string's own text is not compared, as for any temporary
+				return a instanceof CharSequence ? "tmp" : "arg" + i;
 			}
 		}
 		return a.getClass().getSimpleName();

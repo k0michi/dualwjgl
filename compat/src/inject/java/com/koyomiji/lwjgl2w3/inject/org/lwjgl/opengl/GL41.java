@@ -22,7 +22,7 @@ public final class GL41 {
 			for (int i = 0; i < strings.length; i++) {
 				pointers.put(i, MemoryUtil.memAddress0(strings[i]));
 			}
-			return org.lwjgl.opengl.GL41.nglCreateShaderProgramv(type, strings.length, pointers.address());
+			return org.lwjgl.opengl.GL41.glCreateShaderProgramv(type, pointers);
 		}
 	}
 

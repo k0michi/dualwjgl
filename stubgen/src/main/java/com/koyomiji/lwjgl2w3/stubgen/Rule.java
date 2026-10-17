@@ -7,7 +7,7 @@ import java.util.List;
 /** A way to implement an LWJGL 2 static method with LWJGL 3 code, proven by native-call traces. */
 interface Rule {
 
-	/** Short name for the report, e.g. {@code R1}. */
+	/** Short name for the report, e.g. {@code R}. */
 	String name();
 
 	/** The statement implementing {@code target}, or null if this rule does not apply. */

@@ -39,10 +39,10 @@ public final class EXTDirectStateAccess {
 		org.lwjgl.opengl.EXTDirectStateAccess.glGetTextureLevelParameterivEXT(texture, target, level, pname, params);
 	}
 	public static void glMultiTexCoordPointerEXT(int texunit, int size, int stride, DoubleBuffer pointer) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglMultiTexCoordPointerEXT(texunit, size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.EXTDirectStateAccess.glMultiTexCoordPointerEXT(texunit, size, 5130, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pointer), (org.lwjgl.system.Checks.remainingSafe(pointer) << 3)));
 	}
 	public static void glMultiTexCoordPointerEXT(int texunit, int size, int stride, FloatBuffer pointer) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglMultiTexCoordPointerEXT(texunit, size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.EXTDirectStateAccess.glMultiTexCoordPointerEXT(texunit, size, 5126, stride, pointer);
 	}
 	public static void glMultiTexEnvEXT(int texunit, int target, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.EXTDirectStateAccess.glMultiTexEnvfvEXT(texunit, target, pname, params);
@@ -126,9 +126,8 @@ public final class EXTDirectStateAccess {
 	}
 	public static void glNamedProgramStringEXT(int program, int target, int format, CharSequence string) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			int __stringEncodedLength = __stack.nASCII(string, false);
-			long __stringEncodedAddress = __stack.getPointerAddress();
-			org.lwjgl.opengl.EXTDirectStateAccess.nglNamedProgramStringEXT(program, target, format, __stringEncodedLength, __stringEncodedAddress);
+			java.nio.ByteBuffer __s3 = __stack.ASCII(string, false);
+			org.lwjgl.opengl.EXTDirectStateAccess.glNamedProgramStringEXT(program, target, format, __s3);
 		}
 	}
 	public static void glNamedProgramLocalParameter4EXT(int program, int target, int index, DoubleBuffer params) {
@@ -154,16 +153,16 @@ public final class EXTDirectStateAccess {
 		throw new UnsupportedOperationException();
 	}
 	public static void glGetCompressedTextureImageEXT(int texture, int target, int level, IntBuffer img) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedTextureImageEXT(texture, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetCompressedTextureImageEXT(texture, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
 	public static void glGetCompressedTextureImageEXT(int texture, int target, int level, ShortBuffer img) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedTextureImageEXT(texture, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetCompressedTextureImageEXT(texture, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
 	public static void glGetCompressedMultiTexImageEXT(int texunit, int target, int level, IntBuffer img) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedMultiTexImageEXT(texunit, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetCompressedMultiTexImageEXT(texunit, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
 	public static void glGetCompressedMultiTexImageEXT(int texunit, int target, int level, ShortBuffer img) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetCompressedMultiTexImageEXT(texunit, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetCompressedMultiTexImageEXT(texunit, target, level, org.lwjgl.system.MemoryUtil.memAddressSafe(img));
 	}
 	public static void glMatrixLoadTransposeEXT(int matrixMode, FloatBuffer m) {
 		org.lwjgl.opengl.EXTDirectStateAccess.glMatrixLoadTransposefEXT(matrixMode, m);
@@ -243,7 +242,8 @@ public final class EXTDirectStateAccess {
 	}
 	public static void glTextureParameterIEXT(int texture, int target, int pname, int param) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.EXTDirectStateAccess.nglTextureParameterIivEXT(texture, target, pname, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(param)));
+			java.nio.IntBuffer __v3 = __stack.callocInt(4).put(0, param);
+			org.lwjgl.opengl.EXTDirectStateAccess.glTextureParameterIivEXT(texture, target, pname, __v3);
 		}
 	}
 	public static void glTextureParameterIuEXT(int texture, int target, int pname, IntBuffer params) {
@@ -251,7 +251,8 @@ public final class EXTDirectStateAccess {
 	}
 	public static void glTextureParameterIuEXT(int texture, int target, int pname, int param) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.EXTDirectStateAccess.nglTextureParameterIuivEXT(texture, target, pname, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(param)));
+			java.nio.IntBuffer __v3 = __stack.callocInt(4).put(0, param);
+			org.lwjgl.opengl.EXTDirectStateAccess.glTextureParameterIuivEXT(texture, target, pname, __v3);
 		}
 	}
 	public static void glGetTextureParameterIEXT(int texture, int target, int pname, IntBuffer params) {
@@ -265,7 +266,8 @@ public final class EXTDirectStateAccess {
 	}
 	public static void glMultiTexParameterIEXT(int texunit, int target, int pname, int param) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.EXTDirectStateAccess.nglMultiTexParameterIivEXT(texunit, target, pname, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(param)));
+			java.nio.IntBuffer __v3 = __stack.callocInt(4).put(0, param);
+			org.lwjgl.opengl.EXTDirectStateAccess.glMultiTexParameterIivEXT(texunit, target, pname, __v3);
 		}
 	}
 	public static void glMultiTexParameterIuEXT(int texunit, int target, int pname, IntBuffer params) {
@@ -273,7 +275,8 @@ public final class EXTDirectStateAccess {
 	}
 	public static void glMultiTexParameterIuEXT(int texunit, int target, int pname, int param) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.EXTDirectStateAccess.nglMultiTexParameterIuivEXT(texunit, target, pname, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(param)));
+			java.nio.IntBuffer __v3 = __stack.callocInt(4).put(0, param);
+			org.lwjgl.opengl.EXTDirectStateAccess.glMultiTexParameterIuivEXT(texunit, target, pname, __v3);
 		}
 	}
 	public static void glGetMultiTexParameterIEXT(int texunit, int target, int pname, IntBuffer params) {

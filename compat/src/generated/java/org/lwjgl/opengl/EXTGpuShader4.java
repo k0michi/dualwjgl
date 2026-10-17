@@ -72,51 +72,51 @@ public final class EXTGpuShader4 {
 	}
 
 	public static void glVertexAttribI1EXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI1ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI1ivEXT(index, v);
 	}
 
 	public static void glVertexAttribI2EXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI2ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI2ivEXT(index, v);
 	}
 
 	public static void glVertexAttribI3EXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI3ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI3ivEXT(index, v);
 	}
 
 	public static void glVertexAttribI4EXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4ivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4ivEXT(index, v);
 	}
 
 	public static void glVertexAttribI1uEXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI1uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI1uivEXT(index, v);
 	}
 
 	public static void glVertexAttribI2uEXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI2uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI2uivEXT(index, v);
 	}
 
 	public static void glVertexAttribI3uEXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI3uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI3uivEXT(index, v);
 	}
 
 	public static void glVertexAttribI4uEXT(int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4uivEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4uivEXT(index, v);
 	}
 
 	public static void glVertexAttribI4EXT(int index, ByteBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4bvEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4bvEXT(index, v);
 	}
 
 	public static void glVertexAttribI4EXT(int index, ShortBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4svEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4svEXT(index, v);
 	}
 
 	public static void glVertexAttribI4uEXT(int index, ByteBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4ubvEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4ubvEXT(index, v);
 	}
 
 	public static void glVertexAttribI4uEXT(int index, ShortBuffer v) {
-		org.lwjgl.opengl.EXTGPUShader4.nglVertexAttribI4usvEXT(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTGPUShader4.glVertexAttribI4usvEXT(index, v);
 	}
 
 	public static void glVertexAttribIPointerEXT(int index, int size, int type, int stride, ByteBuffer buffer) {
@@ -136,11 +136,11 @@ public final class EXTGpuShader4 {
 	}
 
 	public static void glGetVertexAttribIEXT(int index, int pname, IntBuffer params) {
-		org.lwjgl.opengl.EXTGPUShader4.nglGetVertexAttribIivEXT(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.EXTGPUShader4.glGetVertexAttribIivEXT(index, pname, params);
 	}
 
 	public static void glGetVertexAttribIuEXT(int index, int pname, IntBuffer params) {
-		org.lwjgl.opengl.EXTGPUShader4.nglGetVertexAttribIuivEXT(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.EXTGPUShader4.glGetVertexAttribIuivEXT(index, pname, params);
 	}
 
 	public static void glUniform1uiEXT(int location, int v0) {
@@ -160,23 +160,23 @@ public final class EXTGpuShader4 {
 	}
 
 	public static void glUniform1uEXT(int location, IntBuffer value) {
-		org.lwjgl.opengl.EXTGPUShader4.nglUniform1uivEXT(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.EXTGPUShader4.glUniform1uivEXT(location, value);
 	}
 
 	public static void glUniform2uEXT(int location, IntBuffer value) {
-		org.lwjgl.opengl.EXTGPUShader4.nglUniform2uivEXT(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.EXTGPUShader4.glUniform2uivEXT(location, value);
 	}
 
 	public static void glUniform3uEXT(int location, IntBuffer value) {
-		org.lwjgl.opengl.EXTGPUShader4.nglUniform3uivEXT(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.EXTGPUShader4.glUniform3uivEXT(location, value);
 	}
 
 	public static void glUniform4uEXT(int location, IntBuffer value) {
-		org.lwjgl.opengl.EXTGPUShader4.nglUniform4uivEXT(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.EXTGPUShader4.glUniform4uivEXT(location, value);
 	}
 
 	public static void glGetUniformuEXT(int program, int location, IntBuffer params) {
-		org.lwjgl.opengl.EXTGPUShader4.nglGetUniformuivEXT(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.EXTGPUShader4.glGetUniformuivEXT(program, location, params);
 	}
 
 	public static void glBindFragDataLocationEXT(int program, int colorNumber, ByteBuffer name) {

@@ -36,7 +36,6 @@ public final class StubGen {
 	private final Diagnostics diagnostics;
 	private final Report report = new Report();
 	private final Path generatedDir;
-	private final TemplateRule templateRule;
 
 	private StubGen(Options o) throws IOException {
 		generatedDir = o.generated();
@@ -47,10 +46,8 @@ public final class StubGen {
 		NativeTrace trace3 = new NativeTrace(String.join(File.pathSeparator, o.lwjgl3()));
 		NativeTrace trace2 = new NativeTrace(String.join(File.pathSeparator, o.lwjgl2Jars()));
 		diagnostics = new Diagnostics(lwjgl3, trace3);
-		templateRule = new TemplateRule(new Templates(o.templates(), Set.of("org/lwjgl/opengl")), lwjgl2, lwjgl3, trace3);
 		delegator = new Delegator(lwjgl2, trace2,
-			List.of(new UnsupportedRule(lwjgl3, trace3), new SameSignatureRule(lwjgl3, trace3), new RawNativeCallRule(lwjgl2, lwjgl3, trace3),
-				templateRule),
+			List.of(new UnsupportedRule(lwjgl3, trace3), new DelegationRule(lwjgl2, lwjgl3, trace2, trace3)),
 			diagnostics);
 	}
 
@@ -64,7 +61,6 @@ public final class StubGen {
 		g.report.print(g.delegator.hits, g.lwjgl2.forcePublic);
 		if (o.diagnostics() != null) {
 			g.diagnostics.write(o.diagnostics());
-			g.templateRule.writeDeclines(o.diagnostics().resolveSibling("template-declines.tsv"));
 		}
 	}
 

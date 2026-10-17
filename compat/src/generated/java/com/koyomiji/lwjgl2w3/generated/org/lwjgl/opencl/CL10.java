@@ -34,9 +34,8 @@ public final class CL10 {
 	public static int clGetDeviceIDs(CLPlatform platform, long device_type, PointerBuffer devices, IntBuffer num_devices) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetDeviceInfo(CLDevice device, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetDeviceInfo(device.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static CLContext clCreateContext(PointerBuffer properties, PointerBuffer devices, CLContextCallback pfn_notify, IntBuffer errcode_ret) {
@@ -74,9 +73,8 @@ public final class CL10 {
 	public static int clReleaseCommandQueue(CLCommandQueue command_queue) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetCommandQueueInfo(CLCommandQueue command_queue, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetCommandQueueInfo(command_queue.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static CLMem clCreateBuffer(CLContext context, long flags, long host_ptr_size, IntBuffer errcode_ret) {
@@ -246,9 +244,8 @@ public final class CL10 {
 	public static ByteBuffer clEnqueueMapImage(CLCommandQueue command_queue, CLMem image, int blocking_map, long map_flags, PointerBuffer origin, PointerBuffer region, PointerBuffer image_row_pitch, PointerBuffer image_slice_pitch, PointerBuffer event_wait_list, PointerBuffer event, IntBuffer errcode_ret) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetImageInfo(CLMem image, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetImageInfo(image.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static int clRetainMemObject(CLMem memobj) {
@@ -262,9 +259,8 @@ public final class CL10 {
 	public static int clEnqueueUnmapMemObject(CLCommandQueue command_queue, CLMem memobj, ByteBuffer mapped_ptr, PointerBuffer event_wait_list, PointerBuffer event) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetMemObjectInfo(CLMem memobj, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetMemObjectInfo(memobj.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static CLSampler clCreateSampler(CLContext context, int normalized_coords, int addressing_mode, int filter_mode, IntBuffer errcode_ret) {
@@ -278,9 +274,8 @@ public final class CL10 {
 	public static int clReleaseSampler(CLSampler sampler) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetSamplerInfo(CLSampler sampler, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetSamplerInfo(sampler.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static CLProgram clCreateProgramWithSource(CLContext context, ByteBuffer string, IntBuffer errcode_ret) {
@@ -334,9 +329,8 @@ public final class CL10 {
 	public static int clBuildProgram(CLProgram program, CLDevice device, CharSequence options, CLBuildProgramCallback pfn_notify) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetProgramInfo(CLProgram program, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetProgramInfo(program.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static int clGetProgramInfo(CLProgram program, PointerBuffer sizes, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
@@ -346,9 +340,8 @@ public final class CL10 {
 	public static int clGetProgramInfo(CLProgram program, ByteBuffer[] param_value, PointerBuffer param_value_size_ret) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetProgramBuildInfo(CLProgram program, CLDevice device, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetProgramBuildInfo(program.getPointer(), device.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static CLKernel clCreateKernel(CLProgram program, ByteBuffer kernel_name, IntBuffer errcode_ret) {
@@ -370,41 +363,33 @@ public final class CL10 {
 	public static int clReleaseKernel(CLKernel kernel) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, long arg_value_arg_size) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value_arg_size);
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, ByteBuffer arg_value) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value);
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, DoubleBuffer arg_value) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value);
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, FloatBuffer arg_value) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value);
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, IntBuffer arg_value) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value);
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, LongBuffer arg_value) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value);
 	}
-	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, ShortBuffer arg_value) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clSetKernelArg(kernel.getPointer(), arg_index, arg_value);
 	}
 	@Todo("cl")
 	public static int clSetKernelArg(CLKernel kernel, int arg_index, CLObject arg_value) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetKernelInfo(CLKernel kernel, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetKernelInfo(kernel.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static int clGetKernelWorkGroupInfo(CLKernel kernel, CLDevice device, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
@@ -426,9 +411,8 @@ public final class CL10 {
 	public static int clWaitForEvents(CLEvent event) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetEventInfo(CLEvent event, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetEventInfo(event.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static int clRetainEvent(CLEvent event) {
@@ -442,28 +426,23 @@ public final class CL10 {
 	public static int clEnqueueMarker(CLCommandQueue command_queue, PointerBuffer event) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clEnqueueBarrier(CLCommandQueue command_queue) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clEnqueueBarrier(command_queue.getPointer());
 	}
-	@Todo("cl")
 	public static int clEnqueueWaitForEvents(CLCommandQueue command_queue, PointerBuffer event_list) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clEnqueueWaitForEvents(command_queue.getPointer(), event_list);
 	}
 	@Todo("cl")
 	public static int clEnqueueWaitForEvents(CLCommandQueue command_queue, CLEvent event) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetEventProfilingInfo(CLEvent event, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clGetEventProfilingInfo(event.getPointer(), param_name, param_value, param_value_size_ret);
 	}
-	@Todo("cl")
 	public static int clFlush(CLCommandQueue command_queue) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clFlush(command_queue.getPointer());
 	}
-	@Todo("cl")
 	public static int clFinish(CLCommandQueue command_queue) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10.clFinish(command_queue.getPointer());
 	}
 }

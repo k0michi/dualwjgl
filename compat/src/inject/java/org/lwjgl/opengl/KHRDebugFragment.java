@@ -9,7 +9,8 @@ final class KHRDebugFragment {
 	public static void glDebugMessageCallback(KHRDebugCallback callback) {
 		long userParam = callback == null ? 0 : CallbackUtil.createGlobalRef(callback.getHandler());
 		CallbackUtil.registerContextCallbackKHR(userParam);
-		KHRDebug.nglDebugMessageCallback(callback == null ? 0 : callback.getPointer(), userParam);
+		// the pointer is CallbackUtil's fixed function, an LWJGL 3 callback: create(pointer) finds it
+		KHRDebug.glDebugMessageCallback(callback == null ? null : GLDebugMessageCallback.create(callback.getPointer()), userParam);
 	}
 
 }

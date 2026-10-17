@@ -42,6 +42,22 @@ public final class Recorder {
 	public static Object lwjgl3GL;
 	public static Object lwjgl3AL;
 	public static Object lwjgl3ALC;
+	public static Object lwjgl3CL;
+
+	/** LWJGL 2's CL function addresses (CLCapabilities' static fields, from CL.getFunctionAddress) -> names. */
+	public static final java.util.Map<Long, String> lwjgl2CLFunctions = new java.util.HashMap<>();
+
+	/** What LWJGL 2's CL.getFunctionAddress(String) returns: a distinct fake address per function. */
+	public static long clFunction(String name) {
+		for (java.util.Map.Entry<Long, String> e : lwjgl2CLFunctions.entrySet()) {
+			if (e.getValue().equals(name)) {
+				return e.getKey();
+			}
+		}
+		long fn = 0x7E00_0010_0000L + lwjgl2CLFunctions.size() + 1;
+		lwjgl2CLFunctions.put(fn, name);
+		return fn;
+	}
 
 	private Recorder() {
 	}

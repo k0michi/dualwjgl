@@ -7,15 +7,15 @@ import java.nio.ShortBuffer;
 
 public final class NVPixelDataRange {
 	public static void glPixelDataRangeNV(int target, DoubleBuffer data) {
-		org.lwjgl.opengl.NVPixelDataRange.nglPixelDataRangeNV(target, (org.lwjgl.system.Checks.remainingSafe(data) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.NVPixelDataRange.glPixelDataRangeNV(target, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(data), (org.lwjgl.system.Checks.remainingSafe(data) << 3)));
 	}
 	public static void glPixelDataRangeNV(int target, FloatBuffer data) {
-		org.lwjgl.opengl.NVPixelDataRange.nglPixelDataRangeNV(target, (org.lwjgl.system.Checks.remainingSafe(data) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.NVPixelDataRange.glPixelDataRangeNV(target, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(data), (org.lwjgl.system.Checks.remainingSafe(data) << 2)));
 	}
 	public static void glPixelDataRangeNV(int target, IntBuffer data) {
-		org.lwjgl.opengl.NVPixelDataRange.nglPixelDataRangeNV(target, (org.lwjgl.system.Checks.remainingSafe(data) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.NVPixelDataRange.glPixelDataRangeNV(target, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(data), (org.lwjgl.system.Checks.remainingSafe(data) << 2)));
 	}
 	public static void glPixelDataRangeNV(int target, ShortBuffer data) {
-		org.lwjgl.opengl.NVPixelDataRange.nglPixelDataRangeNV(target, (org.lwjgl.system.Checks.remainingSafe(data) << 1), org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.NVPixelDataRange.glPixelDataRangeNV(target, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(data), (org.lwjgl.system.Checks.remainingSafe(data) << 1)));
 	}
 }

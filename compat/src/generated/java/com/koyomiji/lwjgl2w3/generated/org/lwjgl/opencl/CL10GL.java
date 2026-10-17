@@ -25,13 +25,11 @@ public final class CL10GL {
 	public static CLMem clCreateFromGLRenderbuffer(CLContext context, long flags, int renderbuffer, IntBuffer errcode_ret) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clGetGLObjectInfo(CLMem memobj, IntBuffer gl_object_type, IntBuffer gl_object_name) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10GL.clGetGLObjectInfo(memobj.getPointer(), gl_object_type, gl_object_name);
 	}
-	@Todo("cl")
 	public static int clGetGLTextureInfo(CLMem memobj, int param_name, ByteBuffer param_value, PointerBuffer param_value_size_ret) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL10GL.clGetGLTextureInfo(memobj.getPointer(), param_name, param_value, param_value_size_ret);
 	}
 	@Todo("cl")
 	public static int clEnqueueAcquireGLObjects(CLCommandQueue command_queue, PointerBuffer mem_objects, PointerBuffer event_wait_list, PointerBuffer event) {

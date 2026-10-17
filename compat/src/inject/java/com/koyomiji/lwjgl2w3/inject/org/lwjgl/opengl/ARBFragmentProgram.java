@@ -21,4 +21,8 @@ public final class ARBFragmentProgram {
 		}
 	}
 
+	/** LWJGL 3 also asks for GL_PROGRAM_LENGTH_ARB, to check paramString's size (DEVIATION(checks)). */
+	public static void glGetProgramStringARB(int target, int parameterName, ByteBuffer paramString) {
+		ARBVertexProgram.glGetProgramStringARB(target, parameterName, paramString);
+	}
 }

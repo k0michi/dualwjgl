@@ -38,19 +38,19 @@ public final class ARBVertexAttrib64bit {
 	}
 
 	public static void glVertexAttribL1(int index, DoubleBuffer v) {
-		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL1dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL1dv(index, v);
 	}
 
 	public static void glVertexAttribL2(int index, DoubleBuffer v) {
-		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL2dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL2dv(index, v);
 	}
 
 	public static void glVertexAttribL3(int index, DoubleBuffer v) {
-		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL3dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL3dv(index, v);
 	}
 
 	public static void glVertexAttribL4(int index, DoubleBuffer v) {
-		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribL4dv(index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribL4dv(index, v);
 	}
 
 	public static void glVertexAttribLPointer(int index, int size, int stride, DoubleBuffer pointer) {
@@ -58,11 +58,11 @@ public final class ARBVertexAttrib64bit {
 	}
 
 	public static void glVertexAttribLPointer(int index, int size, int stride, long pointer_buffer_offset) {
-		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglVertexAttribLPointer(index, size, 5130, stride, pointer_buffer_offset);
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glVertexAttribLPointer(index, size, 5130, stride, pointer_buffer_offset);
 	}
 
 	public static void glGetVertexAttribL(int index, int pname, DoubleBuffer params) {
-		org.lwjgl.opengl.ARBVertexAttrib64Bit.nglGetVertexAttribLdv(index, pname, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexAttrib64Bit.glGetVertexAttribLdv(index, pname, params);
 	}
 
 	public static void glVertexArrayVertexAttribLOffsetEXT(int vaobj, int buffer, int index, int size, int type, int stride, long offset) {

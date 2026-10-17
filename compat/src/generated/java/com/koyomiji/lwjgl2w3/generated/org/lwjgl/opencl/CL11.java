@@ -80,9 +80,8 @@ public final class CL11 {
 	public static CLEvent clCreateUserEvent(CLContext context, IntBuffer errcode_ret) {
 		throw new UnsupportedOperationException();
 	}
-	@Todo("cl")
 	public static int clSetUserEventStatus(CLEvent event, int execution_status) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.opencl.CL11.clSetUserEventStatus(event.getPointer(), execution_status);
 	}
 	@Todo("cl")
 	public static int clSetEventCallback(CLEvent event, int command_exec_callback_type, CLEventCallback pfn_notify) {

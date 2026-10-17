@@ -14,16 +14,16 @@ public final class GL11 {
 	public static final int GL_ONE_MINUS_CONSTANT_ALPHA = 0x8004;
 	public static final int GL_ALL_CLIENT_ATTRIB_BITS = 0xFFFFFFFF;
 	public static void glColorPointer(int size, int stride, DoubleBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglColorPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glColorPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pointer), (org.lwjgl.system.Checks.remainingSafe(pointer) << 3)));
 	}
 	public static void glColorPointer(int size, int stride, FloatBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglColorPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glColorPointer(size, 5126, stride, pointer);
 	}
 	public static void glColorPointer(int size, boolean unsigned, int stride, ByteBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglColorPointer(size, (unsigned ? 5121 : 5120), stride, org.lwjgl.system.MemoryUtil.memAddress(pointer));
+		org.lwjgl.opengl.GL11.glColorPointer(size, (unsigned ? 5121 : 5120), stride, pointer);
 	}
 	public static void glDrawElements(int mode, int count, int type, ByteBuffer indices) {
-		org.lwjgl.opengl.GL11.nglDrawElements(mode, count, type, org.lwjgl.system.MemoryUtil.memAddressSafe(indices));
+		org.lwjgl.opengl.GL11.glDrawElements(mode, count, type, org.lwjgl.system.MemoryUtil.memAddressSafe(indices));
 	}
 	public static void glGetPixelMap(int map, FloatBuffer values) {
 		org.lwjgl.opengl.GL11.glGetPixelMapfv(map, values);
@@ -138,16 +138,16 @@ public final class GL11 {
 		org.lwjgl.opengl.GL11.glPixelMapusv(map, values);
 	}
 	public static void glNormalPointer(int stride, ByteBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglNormalPointer(5120, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glNormalPointer(5120, stride, pointer);
 	}
 	public static void glNormalPointer(int stride, DoubleBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglNormalPointer(5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glNormalPointer(5130, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pointer), (org.lwjgl.system.Checks.remainingSafe(pointer) << 3)));
 	}
 	public static void glNormalPointer(int stride, FloatBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglNormalPointer(5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glNormalPointer(5126, stride, pointer);
 	}
 	public static void glNormalPointer(int stride, IntBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglNormalPointer(5124, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glNormalPointer(5124, stride, pointer);
 	}
 	public static void glMultMatrix(FloatBuffer m) {
 		org.lwjgl.opengl.GL11.glMultMatrixf(m);
@@ -156,19 +156,19 @@ public final class GL11 {
 		org.lwjgl.opengl.GL11.glMultMatrixd(m);
 	}
 	public static void glReadPixels(int x, int y, int width, int height, int format, int type, DoubleBuffer pixels) {
-		org.lwjgl.opengl.GL11.nglReadPixels(x, y, width, height, format, type, org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
+		org.lwjgl.opengl.GL11.glReadPixels(x, y, width, height, format, type, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pixels), (org.lwjgl.system.Checks.remainingSafe(pixels) << 3)));
 	}
 	public static void glVertexPointer(int size, int stride, DoubleBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glVertexPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pointer), (org.lwjgl.system.Checks.remainingSafe(pointer) << 3)));
 	}
 	public static void glVertexPointer(int size, int stride, FloatBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glVertexPointer(size, 5126, stride, pointer);
 	}
 	public static void glVertexPointer(int size, int stride, IntBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5124, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glVertexPointer(size, 5124, stride, pointer);
 	}
 	public static void glVertexPointer(int size, int stride, ShortBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglVertexPointer(size, 5122, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glVertexPointer(size, 5122, stride, pointer);
 	}
 	public static void glTexParameter(int target, int pname, FloatBuffer param) {
 		org.lwjgl.opengl.GL11.glTexParameterfv(target, pname, param);
@@ -192,15 +192,15 @@ public final class GL11 {
 		org.lwjgl.opengl.GL11.glTexEnviv(target, pname, params);
 	}
 	public static void glTexCoordPointer(int size, int stride, DoubleBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glTexCoordPointer(size, 5130, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pointer), (org.lwjgl.system.Checks.remainingSafe(pointer) << 3)));
 	}
 	public static void glTexCoordPointer(int size, int stride, FloatBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glTexCoordPointer(size, 5126, stride, pointer);
 	}
 	public static void glTexCoordPointer(int size, int stride, IntBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5124, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glTexCoordPointer(size, 5124, stride, pointer);
 	}
 	public static void glTexCoordPointer(int size, int stride, ShortBuffer pointer) {
-		org.lwjgl.opengl.GL11.nglTexCoordPointer(size, 5122, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pointer));
+		org.lwjgl.opengl.GL11.glTexCoordPointer(size, 5122, stride, pointer);
 	}
 }

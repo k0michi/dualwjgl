@@ -1,5 +1,6 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
+import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -76,8 +77,9 @@ public final class GL40 {
 	public static int glGetProgramStage(int program, int shadertype, int pname) {
 		return org.lwjgl.opengl.GL40.glGetProgramStagei(program, shadertype, pname);
 	}
+	@Todo("gl")
 	public static void glPatchParameter(int pname, FloatBuffer values) {
-		org.lwjgl.opengl.GL40.nglPatchParameterfv(pname, org.lwjgl.system.MemoryUtil.memAddressSafe(values));
+		throw new UnsupportedOperationException();
 	}
 	public static void glGetQueryIndexed(int target, int index, int pname, IntBuffer params) {
 		org.lwjgl.opengl.GL40.glGetQueryIndexediv(target, index, pname, params);

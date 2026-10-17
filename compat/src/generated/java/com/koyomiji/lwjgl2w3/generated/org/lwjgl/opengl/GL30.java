@@ -129,6 +129,6 @@ public final class GL30 {
 		return org.lwjgl.opengl.GL30.glGetIntegeri(value, index);
 	}
 	public static void glTransformFeedbackVaryings(int program, int count, ByteBuffer varyings, int bufferMode) {
-		org.lwjgl.opengl.GL30.nglTransformFeedbackVaryings(program, count, org.lwjgl.system.MemoryUtil.memAddressSafe(varyings), bufferMode);
+		org.lwjgl.opengl.GL30.glTransformFeedbackVaryings(program, org.lwjgl.system.MemoryUtil.memPointerBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(varyings), count), bufferMode);
 	}
 }

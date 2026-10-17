@@ -1,7 +1,6 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.openal;
 
 import com.koyomiji.lwjgl2w3.inject.Hidden;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -21,14 +20,12 @@ public final class AL10 {
 		org.lwjgl.openal.AL10.alGetDoublev(pname, data);
 	}
 	@Hidden
-	@Todo("al")
 	public static boolean alIsExtensionPresent(String fname) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.AL10.alIsExtensionPresent(fname);
 	}
 	@Hidden
-	@Todo("al")
 	public static int alGetEnumValue(String ename) {
-		throw new UnsupportedOperationException();
+		return org.lwjgl.openal.AL10.alGetEnumValue(ename);
 	}
 	public static void alListener(int pname, FloatBuffer value) {
 		org.lwjgl.openal.AL10.alListenerfv(pname, value);

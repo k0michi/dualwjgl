@@ -1,5 +1,6 @@
 package com.koyomiji.lwjgl2w3.inject.org.lwjgl.opengl;
 
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -14,4 +15,10 @@ public final class GL20 {
 		return buffer == null ? null : buffer.order(ByteOrder.nativeOrder());
 	}
 
+	/** LWJGL 2's native took the string's address and length; LWJGL 3's takes arrays of both. */
+	public static void glShaderSource(int shader, ByteBuffer string) {
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			org.lwjgl.opengl.GL20.glShaderSource(shader, stack.pointers(MemoryUtil.memAddress(string)), stack.ints(string.remaining()));
+		}
+	}
 }

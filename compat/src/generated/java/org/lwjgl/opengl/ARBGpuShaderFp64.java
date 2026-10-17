@@ -38,59 +38,59 @@ public final class ARBGpuShaderFp64 {
 	}
 
 	public static void glUniform1(int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniform1dv(location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniform1dv(location, value);
 	}
 
 	public static void glUniform2(int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniform2dv(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniform2dv(location, value);
 	}
 
 	public static void glUniform3(int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniform3dv(location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniform3dv(location, value);
 	}
 
 	public static void glUniform4(int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniform4dv(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniform4dv(location, value);
 	}
 
 	public static void glUniformMatrix2(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix2dv(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix2dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix3(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix3dv(location, (org.lwjgl.system.Checks.remainingSafe(value) / 9), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix3dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix4(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix4dv(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 4), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix4dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix2x3(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix2x3dv(location, (org.lwjgl.system.Checks.remainingSafe(value) / 6), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix2x3dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix2x4(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix2x4dv(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 3), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix2x4dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix3x2(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix3x2dv(location, (org.lwjgl.system.Checks.remainingSafe(value) / 6), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix3x2dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix3x4(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix3x4dv(location, (org.lwjgl.system.Checks.remainingSafe(value) / 12), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix3x4dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix4x2(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix4x2dv(location, (org.lwjgl.system.Checks.remainingSafe(value) >> 3), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix4x2dv(location, transpose, value);
 	}
 
 	public static void glUniformMatrix4x3(int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglUniformMatrix4x3dv(location, (org.lwjgl.system.Checks.remainingSafe(value) / 12), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glUniformMatrix4x3dv(location, transpose, value);
 	}
 
 	public static void glGetUniform(int program, int location, DoubleBuffer params) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglGetUniformdv(program, location, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glGetUniformdv(program, location, params);
 	}
 
 	public static void glProgramUniform1dEXT(int program, int location, double x) {
@@ -110,54 +110,54 @@ public final class ARBGpuShaderFp64 {
 	}
 
 	public static void glProgramUniform1EXT(int program, int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniform1dvEXT(program, location, org.lwjgl.system.Checks.remainingSafe(value), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniform1dvEXT(program, location, value);
 	}
 
 	public static void glProgramUniform2EXT(int program, int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniform2dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 1), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniform2dvEXT(program, location, value);
 	}
 
 	public static void glProgramUniform3EXT(int program, int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniform3dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 3), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniform3dvEXT(program, location, value);
 	}
 
 	public static void glProgramUniform4EXT(int program, int location, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniform4dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniform4dvEXT(program, location, value);
 	}
 
 	public static void glProgramUniformMatrix2EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix2dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 2), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix2dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix3EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix3dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 9), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix3dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix4EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix4dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 4), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix4dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix2x3EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix2x3dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 6), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix2x3dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix2x4EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix2x4dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 3), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix2x4dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix3x2EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix3x2dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 6), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix3x2dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix3x4EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix3x4dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 12), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix3x4dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix4x2EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix4x2dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) >> 3), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix4x2dvEXT(program, location, transpose, value);
 	}
 
 	public static void glProgramUniformMatrix4x3EXT(int program, int location, boolean transpose, DoubleBuffer value) {
-		org.lwjgl.opengl.ARBGPUShaderFP64.nglProgramUniformMatrix4x3dvEXT(program, location, (org.lwjgl.system.Checks.remainingSafe(value) / 12), transpose, org.lwjgl.system.MemoryUtil.memAddressSafe(value));
+		org.lwjgl.opengl.ARBGPUShaderFP64.glProgramUniformMatrix4x3dvEXT(program, location, transpose, value);
 	}
 }

@@ -6,7 +6,7 @@ import java.nio.IntBuffer;
 
 public final class KHRRobustness {
 	public static void glReadnPixels(int x, int y, int width, int height, int format, int type, DoubleBuffer pixels) {
-		org.lwjgl.opengl.KHRRobustness.nglReadnPixels(x, y, width, height, format, type, (org.lwjgl.system.Checks.remainingSafe(pixels) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
+		org.lwjgl.opengl.KHRRobustness.glReadnPixels(x, y, width, height, format, type, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pixels), (org.lwjgl.system.Checks.remainingSafe(pixels) << 3)));
 	}
 	public static void glGetnUniform(int program, int location, FloatBuffer params) {
 		org.lwjgl.opengl.KHRRobustness.glGetnUniformfv(program, location, params);

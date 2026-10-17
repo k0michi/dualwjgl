@@ -9,19 +9,19 @@ import java.nio.ShortBuffer;
 
 public final class ARBVertexProgram {
 	public static void glVertexAttribPointerARB(int index, int size, boolean normalized, int stride, DoubleBuffer buffer) {
-		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, 5130, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
+		org.lwjgl.opengl.ARBVertexProgram.glVertexAttribPointerARB(index, size, 5130, normalized, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(buffer), (org.lwjgl.system.Checks.remainingSafe(buffer) << 3)));
 	}
 	public static void glVertexAttribPointerARB(int index, int size, boolean normalized, int stride, FloatBuffer buffer) {
-		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, 5126, normalized, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(buffer));
+		org.lwjgl.opengl.ARBVertexProgram.glVertexAttribPointerARB(index, size, 5126, normalized, stride, buffer);
 	}
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ByteBuffer buffer) {
-		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, (unsigned ? 5121 : 5120), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
+		org.lwjgl.opengl.ARBVertexProgram.glVertexAttribPointerARB(index, size, (unsigned ? 5121 : 5120), normalized, stride, buffer);
 	}
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, IntBuffer buffer) {
-		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, (unsigned ? 5125 : 5124), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
+		org.lwjgl.opengl.ARBVertexProgram.glVertexAttribPointerARB(index, size, (unsigned ? 5125 : 5124), normalized, stride, buffer);
 	}
 	public static void glVertexAttribPointerARB(int index, int size, boolean unsigned, boolean normalized, int stride, ShortBuffer buffer) {
-		org.lwjgl.opengl.ARBVertexProgram.nglVertexAttribPointerARB(index, size, (unsigned ? 5123 : 5122), normalized, stride, org.lwjgl.system.MemoryUtil.memAddress(buffer));
+		org.lwjgl.opengl.ARBVertexProgram.glVertexAttribPointerARB(index, size, (unsigned ? 5123 : 5122), normalized, stride, buffer);
 	}
 	public static void glGetVertexAttribARB(int index, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.ARBVertexProgram.glGetVertexAttribfvARB(index, pname, params);
@@ -38,14 +38,14 @@ public final class ARBVertexProgram {
 	}
 	public static void glProgramStringARB(int target, int format, CharSequence string) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			int __stringEncodedLength = __stack.nASCII(string, false);
-			long __stringEncodedAddress = __stack.getPointerAddress();
-			org.lwjgl.opengl.ARBVertexProgram.nglProgramStringARB(target, format, __stringEncodedLength, __stringEncodedAddress);
+			java.nio.ByteBuffer __s2 = __stack.ASCII(string, false);
+			org.lwjgl.opengl.ARBVertexProgram.glProgramStringARB(target, format, __s2);
 		}
 	}
 	public static void glDeleteProgramsARB(int program) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.ARBVertexProgram.nglDeleteProgramsARB(1, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(program)));
+			java.nio.IntBuffer __v0 = __stack.ints(program);
+			org.lwjgl.opengl.ARBVertexProgram.glDeleteProgramsARB(__v0);
 		}
 	}
 	public static void glProgramEnvParameter4ARB(int target, int index, FloatBuffer params) {

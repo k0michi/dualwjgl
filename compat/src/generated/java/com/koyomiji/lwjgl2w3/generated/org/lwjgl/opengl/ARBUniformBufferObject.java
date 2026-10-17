@@ -1,20 +1,23 @@
 package com.koyomiji.lwjgl2w3.generated.org.lwjgl.opengl;
 
-import com.koyomiji.lwjgl2w3.inject.Todo;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public final class ARBUniformBufferObject {
 	public static void glGetUniformIndices(int program, ByteBuffer uniformNames, IntBuffer uniformIndices) {
-		org.lwjgl.opengl.ARBUniformBufferObject.nglGetUniformIndices(program, org.lwjgl.system.Checks.remainingSafe(uniformIndices), org.lwjgl.system.MemoryUtil.memAddressSafe(uniformNames), org.lwjgl.system.MemoryUtil.memAddressSafe(uniformIndices));
+		org.lwjgl.opengl.ARBUniformBufferObject.glGetUniformIndices(program, org.lwjgl.system.MemoryUtil.memPointerBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(uniformNames), org.lwjgl.system.Checks.remainingSafe(uniformIndices)), uniformIndices);
 	}
 	public static void glGetActiveUniforms(int program, IntBuffer uniformIndices, int pname, IntBuffer params) {
 		org.lwjgl.opengl.ARBUniformBufferObject.glGetActiveUniformsiv(program, uniformIndices, pname, params);
 	}
 	@Deprecated
-	@Todo("gl")
 	public static int glGetActiveUniforms(int program, int uniformIndex, int pname) {
-		throw new UnsupportedOperationException();
+		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			java.nio.IntBuffer __t1 = __stack.mallocInt(1);
+			java.nio.IntBuffer __t3 = __stack.mallocInt(1);
+			org.lwjgl.opengl.ARBUniformBufferObject.glGetActiveUniformsiv(program, __t1, pname, __t3);
+			return __t3.get(0);
+		}
 	}
 	public static void glGetActiveUniformBlock(int program, int uniformBlockIndex, int pname, IntBuffer params) {
 		org.lwjgl.opengl.ARBUniformBufferObject.glGetActiveUniformBlockiv(program, uniformBlockIndex, pname, params);

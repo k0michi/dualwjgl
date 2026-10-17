@@ -5,7 +5,7 @@ import java.nio.IntBuffer;
 
 public final class AL11 {
 	public static void alGetListeneri(int pname, FloatBuffer intdata) {
-		org.lwjgl.openal.AL11.nalGetListeneriv(pname, org.lwjgl.system.MemoryUtil.memAddressSafe(intdata));
+		org.lwjgl.openal.AL11.alGetListeneriv(pname, org.lwjgl.system.MemoryUtil.memIntBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(intdata), org.lwjgl.system.Checks.remainingSafe(intdata)));
 	}
 	public static void alSource(int source, int pname, IntBuffer value) {
 		org.lwjgl.openal.AL11.alSourceiv(source, pname, value);

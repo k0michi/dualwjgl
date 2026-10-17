@@ -9,7 +9,8 @@ final class AMDDebugOutputFragment {
 	public static void glDebugMessageCallbackAMD(AMDDebugOutputCallback callback) {
 		long userParam = callback == null ? 0 : CallbackUtil.createGlobalRef(callback.getHandler());
 		CallbackUtil.registerContextCallbackAMD(userParam);
-		AMDDebugOutput.nglDebugMessageCallbackAMD(callback == null ? 0 : callback.getPointer(), userParam);
+		// the pointer is CallbackUtil's fixed function, an LWJGL 3 callback: create(pointer) finds it
+		AMDDebugOutput.glDebugMessageCallbackAMD(callback == null ? null : GLDebugMessageAMDCallback.create(callback.getPointer()), userParam);
 	}
 
 }

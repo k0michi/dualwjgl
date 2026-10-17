@@ -32,18 +32,18 @@ public final class ARBVertexBlend {
 		org.lwjgl.opengl.ARBVertexBlend.glWeightuivARB(pWeights);
 	}
 	public static void glWeightPointerARB(int size, int stride, DoubleBuffer pPointer) {
-		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, 5130, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
+		org.lwjgl.opengl.ARBVertexBlend.glWeightPointerARB(size, 5130, stride, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer), (org.lwjgl.system.Checks.remainingSafe(pPointer) << 3)));
 	}
 	public static void glWeightPointerARB(int size, int stride, FloatBuffer pPointer) {
-		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, 5126, stride, org.lwjgl.system.MemoryUtil.memAddressSafe(pPointer));
+		org.lwjgl.opengl.ARBVertexBlend.glWeightPointerARB(size, 5126, stride, pPointer);
 	}
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, ByteBuffer pPointer) {
-		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, (unsigned ? 5121 : 5120), stride, org.lwjgl.system.MemoryUtil.memAddress(pPointer));
+		org.lwjgl.opengl.ARBVertexBlend.glWeightPointerARB(size, (unsigned ? 5121 : 5120), stride, pPointer);
 	}
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, IntBuffer pPointer) {
-		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, (unsigned ? 5125 : 5124), stride, org.lwjgl.system.MemoryUtil.memAddress(pPointer));
+		org.lwjgl.opengl.ARBVertexBlend.glWeightPointerARB(size, (unsigned ? 5125 : 5124), stride, pPointer);
 	}
 	public static void glWeightPointerARB(int size, boolean unsigned, int stride, ShortBuffer pPointer) {
-		org.lwjgl.opengl.ARBVertexBlend.nglWeightPointerARB(size, (unsigned ? 5123 : 5122), stride, org.lwjgl.system.MemoryUtil.memAddress(pPointer));
+		org.lwjgl.opengl.ARBVertexBlend.glWeightPointerARB(size, (unsigned ? 5123 : 5122), stride, pPointer);
 	}
 }

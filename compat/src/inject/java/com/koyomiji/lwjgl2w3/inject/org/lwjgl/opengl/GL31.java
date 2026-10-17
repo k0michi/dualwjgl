@@ -1,5 +1,7 @@
 package com.koyomiji.lwjgl2w3.inject.org.lwjgl.opengl;
 
+
+
 // TODO(verify): hand-written; DelegationTest only compares generated members.
 public final class GL31 {
 

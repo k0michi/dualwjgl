@@ -2,7 +2,6 @@ package org.lwjgl.openal;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.BufferChecks;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -67,9 +66,12 @@ final class ALObjects {
 				if (contextFrequency == -1) {
 					context = alcCreateContext(device, null);
 				} else {
-					context = alcCreateContext(device,
-						ALCcontext.createAttributeList(contextFrequency, contextRefresh,
-							contextSynchronized ? ALC10.ALC_TRUE : ALC10.ALC_FALSE));
+					// LWJGL 2's list is left unflipped, so LWJGL 2 passed the address past its end; LWJGL 3's
+					// alcCreateContext takes it from its position, and gets the attributes LWJGL 2 meant
+					IntBuffer attributes = ALCcontext.createAttributeList(contextFrequency, contextRefresh,
+						contextSynchronized ? ALC10.ALC_TRUE : ALC10.ALC_FALSE);
+					attributes.flip();
+					context = alcCreateContext(device, attributes);
 				}
 				alcMakeContextCurrent(context);
 			}
@@ -128,7 +130,7 @@ final class ALObjects {
 
 	static void alcGetInteger(ALCdevice device, int pname, IntBuffer integerdata) {
 		BufferChecks.checkDirect(integerdata);
-		ALC10.nalcGetIntegerv(device(device), pname, integerdata.remaining(), MemoryUtil.memAddress(integerdata));
+		ALC10.alcGetIntegerv(device(device), pname, integerdata);
 		Util.checkALCError(device);
 	}
 
@@ -171,7 +173,7 @@ final class ALObjects {
 	}
 
 	static ALCcontext alcCreateContext(ALCdevice device, IntBuffer attrList) {
-		long context_address = ALC10.nalcCreateContext(device(device), MemoryUtil.memAddressSafe(attrList));
+		long context_address = ALC10.alcCreateContext(device(device), attrList);
 		Util.checkALCError(device);
 		if (context_address != 0) {
 			ALCcontext context = new ALCcontext(context_address);
@@ -272,7 +274,7 @@ final class ALObjects {
 	}
 
 	static void alcCaptureSamples(ALCdevice device, ByteBuffer buffer, int samples) {
-		ALC11.nalcCaptureSamples(device(device), MemoryUtil.memAddress(buffer), samples);
+		ALC11.alcCaptureSamples(device(device), buffer, samples);
 	}
 
 }

@@ -75,9 +75,8 @@ public final class ARBFragmentProgram {
 	}
 	public static void glProgramStringARB(int target, int format, CharSequence string) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			int __stringEncodedLength = __stack.nASCII(string, false);
-			long __stringEncodedAddress = __stack.getPointerAddress();
-			org.lwjgl.opengl.ARBVertexProgram.nglProgramStringARB(target, format, __stringEncodedLength, __stringEncodedAddress);
+			java.nio.ByteBuffer __s2 = __stack.ASCII(string, false);
+			org.lwjgl.opengl.ARBVertexProgram.glProgramStringARB(target, format, __s2);
 		}
 	}
 	public static void glBindProgramARB(int target, int program) {
@@ -88,7 +87,8 @@ public final class ARBFragmentProgram {
 	}
 	public static void glDeleteProgramsARB(int program) {
 		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			org.lwjgl.opengl.ARBVertexProgram.nglDeleteProgramsARB(1, org.lwjgl.system.MemoryUtil.memAddress(__stack.ints(program)));
+			java.nio.IntBuffer __v0 = __stack.ints(program);
+			org.lwjgl.opengl.ARBVertexProgram.glDeleteProgramsARB(__v0);
 		}
 	}
 	public static void glGenProgramsARB(IntBuffer programs) {
@@ -104,10 +104,10 @@ public final class ARBFragmentProgram {
 		org.lwjgl.opengl.ARBVertexProgram.glProgramEnvParameter4dARB(target, index, x, y, z, w);
 	}
 	public static void glProgramEnvParameter4ARB(int target, int index, FloatBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglProgramEnvParameter4fvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glProgramEnvParameter4fvARB(target, index, params);
 	}
 	public static void glProgramEnvParameter4ARB(int target, int index, DoubleBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglProgramEnvParameter4dvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glProgramEnvParameter4dvARB(target, index, params);
 	}
 	public static void glProgramLocalParameter4fARB(int target, int index, float x, float y, float z, float w) {
 		org.lwjgl.opengl.ARBVertexProgram.glProgramLocalParameter4fARB(target, index, x, y, z, w);
@@ -116,39 +116,36 @@ public final class ARBFragmentProgram {
 		org.lwjgl.opengl.ARBVertexProgram.glProgramLocalParameter4dARB(target, index, x, y, z, w);
 	}
 	public static void glProgramLocalParameter4ARB(int target, int index, FloatBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglProgramLocalParameter4fvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glProgramLocalParameter4fvARB(target, index, params);
 	}
 	public static void glProgramLocalParameter4ARB(int target, int index, DoubleBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglProgramLocalParameter4dvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glProgramLocalParameter4dvARB(target, index, params);
 	}
 	public static void glGetProgramEnvParameterARB(int target, int index, FloatBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramEnvParameterfvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glGetProgramEnvParameterfvARB(target, index, params);
 	}
 	public static void glGetProgramEnvParameterARB(int target, int index, DoubleBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramEnvParameterdvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glGetProgramEnvParameterdvARB(target, index, params);
 	}
 	public static void glGetProgramLocalParameterARB(int target, int index, FloatBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramLocalParameterfvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glGetProgramLocalParameterfvARB(target, index, params);
 	}
 	public static void glGetProgramLocalParameterARB(int target, int index, DoubleBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramLocalParameterdvARB(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glGetProgramLocalParameterdvARB(target, index, params);
 	}
 	public static void glGetProgramARB(int target, int parameterName, IntBuffer params) {
-		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramivARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddressSafe(params));
+		org.lwjgl.opengl.ARBVertexProgram.glGetProgramivARB(target, parameterName, params);
 	}
 	@Deprecated
 	public static int glGetProgramARB(int target, int parameterName) {
-		try (org.lwjgl.system.MemoryStack __stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			java.nio.IntBuffer __params = __stack.mallocInt(2);
-			org.lwjgl.opengl.ARBVertexProgram.nglGetProgramivARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddress(__params));
-			return __params.get(0);
-		}
+		return org.lwjgl.opengl.ARBVertexProgram.glGetProgramiARB(target, parameterName);
 	}
 	public static int glGetProgramiARB(int target, int parameterName) {
 		return org.lwjgl.opengl.ARBVertexProgram.glGetProgramiARB(target, parameterName);
 	}
+	@Todo("gl")
 	public static void glGetProgramStringARB(int target, int parameterName, ByteBuffer paramString) {
-		org.lwjgl.opengl.ARBVertexProgram.nglGetProgramStringARB(target, parameterName, org.lwjgl.system.MemoryUtil.memAddressSafe(paramString));
+		throw new UnsupportedOperationException();
 	}
 	@Todo("gl")
 	public static String glGetProgramStringARB(int target, int parameterName) {

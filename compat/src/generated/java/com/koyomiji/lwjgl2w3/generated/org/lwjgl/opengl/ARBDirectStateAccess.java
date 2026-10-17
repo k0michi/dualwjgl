@@ -21,7 +21,7 @@ public final class ARBDirectStateAccess {
 		org.lwjgl.opengl.ARBDirectStateAccess.glGetTransformFeedbacki64_v(xfb, pname, index, param);
 	}
 	public static void glNamedBufferStorage(int buffer, LongBuffer data, int flags) {
-		org.lwjgl.opengl.ARBDirectStateAccess.nglNamedBufferStorage(buffer, ((long)org.lwjgl.system.Checks.remainingSafe(data) << 3), org.lwjgl.system.MemoryUtil.memAddressSafe(data), flags);
+		org.lwjgl.opengl.ARBDirectStateAccess.glNamedBufferStorage(buffer, org.lwjgl.system.MemoryUtil.memByteBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(data), (org.lwjgl.system.Checks.remainingSafe(data) << 3)), flags);
 	}
 	public static void glGetNamedBufferParameter(int buffer, int pname, IntBuffer params) {
 		org.lwjgl.opengl.ARBDirectStateAccess.glGetNamedBufferParameteriv(buffer, pname, params);
@@ -66,7 +66,7 @@ public final class ARBDirectStateAccess {
 		return org.lwjgl.opengl.ARBDirectStateAccess.glGetNamedRenderbufferParameteri(renderbuffer, pname);
 	}
 	public static void glCompressedTextureSubImage3D(int texture, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, ByteBuffer data) {
-		org.lwjgl.opengl.ARBDirectStateAccess.nglCompressedTextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
+		org.lwjgl.opengl.ARBDirectStateAccess.glCompressedTextureSubImage3D(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, org.lwjgl.system.MemoryUtil.memAddressSafe(data));
 	}
 	public static void glTextureParameter(int texture, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.ARBDirectStateAccess.glTextureParameterfv(texture, pname, params);
@@ -81,10 +81,10 @@ public final class ARBDirectStateAccess {
 		org.lwjgl.opengl.ARBDirectStateAccess.glTextureParameteriv(texture, pname, params);
 	}
 	public static void glGetCompressedTextureImage(int texture, int level, IntBuffer pixels) {
-		org.lwjgl.opengl.ARBDirectStateAccess.nglGetCompressedTextureImage(texture, level, (org.lwjgl.system.Checks.remainingSafe(pixels) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
+		org.lwjgl.opengl.ARBDirectStateAccess.glGetCompressedTextureImage(texture, level, (org.lwjgl.system.Checks.remainingSafe(pixels) << 2), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
 	public static void glGetCompressedTextureImage(int texture, int level, ShortBuffer pixels) {
-		org.lwjgl.opengl.ARBDirectStateAccess.nglGetCompressedTextureImage(texture, level, (org.lwjgl.system.Checks.remainingSafe(pixels) << 1), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
+		org.lwjgl.opengl.ARBDirectStateAccess.glGetCompressedTextureImage(texture, level, (org.lwjgl.system.Checks.remainingSafe(pixels) << 1), org.lwjgl.system.MemoryUtil.memAddressSafe(pixels));
 	}
 	public static void glGetTextureLevelParameter(int texture, int level, int pname, FloatBuffer params) {
 		org.lwjgl.opengl.ARBDirectStateAccess.glGetTextureLevelParameterfv(texture, level, pname, params);
@@ -105,7 +105,7 @@ public final class ARBDirectStateAccess {
 		org.lwjgl.opengl.ARBDirectStateAccess.glGetTextureParameteriv(texture, pname, params);
 	}
 	public static void glVertexArrayVertexBuffers(int vaobj, int first, int count, IntBuffer buffers, PointerBuffer offsets, IntBuffer strides) {
-		org.lwjgl.opengl.ARBDirectStateAccess.nglVertexArrayVertexBuffers(vaobj, first, count, org.lwjgl.system.MemoryUtil.memAddressSafe(buffers), org.lwjgl.system.MemoryUtil.memAddressSafe(offsets), org.lwjgl.system.MemoryUtil.memAddressSafe(strides));
+		org.lwjgl.opengl.ARBDirectStateAccess.glVertexArrayVertexBuffers(vaobj, first, org.lwjgl.system.MemoryUtil.memIntBufferSafe(org.lwjgl.system.MemoryUtil.memAddressSafe(buffers), count), offsets, strides);
 	}
 	public static void glGetVertexArray(int vaobj, int pname, IntBuffer param) {
 		org.lwjgl.opengl.ARBDirectStateAccess.glGetVertexArrayiv(vaobj, pname, param);

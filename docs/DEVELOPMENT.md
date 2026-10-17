@@ -56,7 +56,13 @@ marks every place that decision affects.
   - `unbound`: LWJGL 3 does not bind the function, so it is unsupported, as LWJGL 2 reports a function the driver
     lacks, even when the driver has it. Generated unsupported members (`UnsupportedRule`) are all of this kind.
   - `text-encoding`: strings are encoded as LWJGL 3 encodes that function's (ASCII or UTF-8), where LWJGL 2 truncated
-    every char to a byte; only non-ASCII text differs.
+    every char to a byte; only non-ASCII text differs. ASCII goes through LWJGL 3's ASCII helpers
+    (`MemoryStack.ASCII`, `MemoryUtil.memASCII`), also where a delegation or hand-written code encodes or decodes a
+    string itself because LWJGL 3 only takes or gives bytes: text outside ASCII is not representable there, and need
+    not come out as LWJGL 2's did.
+  - `checks`: delegations call LWJGL 3's public methods, which check their arguments as LWJGL 3 does (sizes,
+    null-termination, required minimum element counts) and throw LWJGL 3's exceptions, where LWJGL 2 checked with
+    `BufferChecks`, sometimes differently or not at all.
   - `pointer-buffer-native-order`: PointerBuffer reads and writes native order (the decision above), the static
     `PointerBuffer.put(ByteBuffer, long)` and `put(ByteBuffer, int, long)` included, which are LWJGL 3's (same
     descriptors). Those write at the target's address, which also crashes the JVM for a heap buffer, where LWJGL 2 wrote
@@ -179,12 +185,20 @@ and calls `CL.getFunctionAddress` instead. Around it:
 ### Generated code
 
 `./gradlew :stubgen:generateStubs` rewrites `compat/src/generated/java` from scratch; never edit it. For each LWJGL 2
-member LWJGL 3 does not provide it writes a delegation when a rule proves one (R1: an LWJGL 3 method with the same
-signature that makes the same native calls; R2: LWJGL 3's raw `n` method for a single native call; R3, for OpenGL
-classes: LWJGL 2's generator template for the method, from the tagged LWJGL 2 source archive, expanded into a call to
-the raw `n` method), and otherwise a stub marked `@Todo("<area>")`. Every rule checks its result against the native
-calls LWJGL 2's own bytecode makes (`NativeTrace`); `stubgen/build/template-declines.tsv` says why R3 left methods in
-its scope alone. Hand-written code goes in
+member LWJGL 3 does not provide it writes a delegation when the delegation rule (`DelegationRule`) proves one, and
+otherwise a stub marked `@Todo("<area>")` (or an unsupported member, `UnsupportedRule`).
+
+Delegations always call LWJGL 3's public methods, never its raw `n` methods: generated or hand-written alike. The one
+exception is code that stands in for LWJGL 2's own natives, which took raw addresses (the `CL10.ncl*` overloads
+`InfoUtilFactory` calls). The rule reduces both sides to the native calls they make (`NativeTrace`, from bytecode) and,
+for each LWJGL 3 public method calling the same functions, solves every LWJGL 3 parameter from LWJGL 2's with a fixed
+set of adapters: the value itself, a constant, a PointerWrapper's pointer, a buffer viewed as another element type, of a
+count LWJGL 2 passed separately or past its position, null for an absent buffer, the type constant of LWJGL 2's
+`unsigned` flag, a stack temporary for an output LWJGL 2 returned or a value it passed, a string encoded on the stack,
+and LWJGL 2's PointerWrapper result (`new GLSync(pointer)`). It takes the candidate whose calls then equal LWJGL 2's,
+with the fewest adapters. LWJGL 2 methods that also update the CL object model (registering events, retaining
+objects) are left to hand-written code: native calls cannot show that. LWJGL 2's and LWJGL 3's generator templates are
+not needed: the traces carry the same information. Hand-written code goes in
 `main`, `inject` or `replace` and wins: a hand-written member overrides the generated one, and a hand-written whole
 class keeps stubgen from generating that class. The merger prints the `@Todo`s that remain.
 
@@ -202,6 +216,9 @@ Every test tree is compiled twice and always run against the patched jars:
 ```
 ./gradlew check
 ```
+
+`delegationTest` (part of check) runs every generated delegation (OpenGL, OpenAL, OpenCL) and LWJGL 2's own method
+with the same arguments, both with their natives rewritten to record calls, and requires the same native calls.
 
 CI (`.github/workflows/ci.yml`) runs the same on Linux x64, macOS arm64 and Windows x64.
 

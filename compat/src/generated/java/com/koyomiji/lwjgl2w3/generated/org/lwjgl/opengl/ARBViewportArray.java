@@ -36,7 +36,7 @@ public final class ARBViewportArray {
 		return org.lwjgl.opengl.ARBViewportArray.glGetDoublei(target, index);
 	}
 	public static void glGetIntegerIndexedEXT(int target, int index, IntBuffer v) {
-		org.lwjgl.opengl.EXTDirectStateAccess.nglGetIntegerIndexedvEXT(target, index, org.lwjgl.system.MemoryUtil.memAddressSafe(v));
+		org.lwjgl.opengl.EXTDirectStateAccess.glGetIntegerIndexedvEXT(target, index, v);
 	}
 	public static int glGetIntegerIndexedEXT(int target, int index) {
 		return org.lwjgl.opengl.EXTDirectStateAccess.glGetIntegerIndexedEXT(target, index);
