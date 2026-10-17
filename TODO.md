@@ -22,7 +22,7 @@
 - [x] CL bindings whose arrays LWJGL 2's C made (program sources and binaries, `clCompileProgram`, `clGetProgramInfo`
   binaries, `clEnqueueMapImage`, `clEnqueueNativeKernel`, `clGetSupportedImageFormats`): hand-written
 - [x] An LWJGL 2 program's OpenCL lifecycle end to end (lwjgl2Test, macOS)
-- [ ] `clSetMemObjectDestructorAPPLE`: LWJGL 3 has no APPLE_SetMemObjectDestructor
+- [x] `clSetMemObjectDestructorAPPLE`: out of scope, as where the extension is missing (LWJGL 3 has none)
 - [x] Functions LWJGL 3 also has that LWJGL 2 registers objects in (`clGetPlatformIDs`, ...)
 - [x] `CLFunctionAddress`
 - [x] `APPLEContextLoggingUtil`, `CLPrintfCallback`: out of scope, as where the extension is missing
