@@ -3,9 +3,14 @@ package org.lwjgl.opengl;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.opencl.APPLEGLSharing;
+import org.lwjgl.opencl.KHRGLSharing;
+import org.lwjgl.system.JNI;
+import org.lwjgl.system.macosx.ObjCRuntime;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.sdl.SDLError.SDL_GetError;
+import static org.lwjgl.sdl.SDLProperties.SDL_GetPointerProperty;
 import static org.lwjgl.sdl.SDLVideo.*;
 
 /**
@@ -241,9 +246,57 @@ final class ContextGL implements Context {
 		}
 	}
 
+	/**
+	 * As LWJGL 2: the cl_context_properties that share this context with OpenCL, from SDL's handles. The context needs
+	 * not be current. SDL's SDL_GLContext is the platform's context: an HGLRC (WGL), a GLXContext (GLX), an
+	 * NSOpenGLContext (macOS), or an EGLContext.
+	 *
+	 * <p>EGL is an extension: LWJGL 2 had no EGL (Wayland, or SDL's EGL hints), and writes cl_khr_gl_sharing's EGL
+	 * properties, CL_GL_CONTEXT_KHR with the EGLContext and CL_EGL_DISPLAY_KHR with the EGLDisplay. Whether an OpenCL
+	 * implementation takes them is its own (CL_INVALID_OPERATION otherwise).</p>
+	 *
+	 * <p>TODO(verify): WGL, GLX and EGL; only CGL is checked (displayInputCheck).</p>
+	 */
 	public synchronized void setCLSharingProperties(final PointerBuffer properties) throws LWJGLException {
-		// TODO(cl): CL/GL sharing (CL_GL_CONTEXT_KHR and the platform's display or share group, from SDL's properties)
-		throw new LWJGLException("CL/GL sharing is not supported yet");
+		if (destroyed) {
+			throw new IllegalStateException("Context is destroyed");
+		}
+		long egl_display = SDL_EGL_GetCurrentDisplay();
+		if (egl_display != 0L) {
+			properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR).put(handle);
+			properties.put(KHRGLSharing.CL_EGL_DISPLAY_KHR).put(egl_display);
+			return;
+		}
+		switch (LWJGLUtil.getPlatform()) {
+			case LWJGLUtil.PLATFORM_WINDOWS:
+				properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR).put(handle);
+				properties.put(KHRGLSharing.CL_WGL_HDC_KHR).put(windowPointer(SDL_PROP_WINDOW_WIN32_HDC_POINTER));
+				break;
+			case LWJGLUtil.PLATFORM_LINUX:
+				properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR).put(handle);
+				properties.put(KHRGLSharing.CL_GLX_DISPLAY_KHR).put(windowPointer(SDL_PROP_WINDOW_X11_DISPLAY_POINTER));
+				break;
+			case LWJGLUtil.PLATFORM_MACOSX:
+				properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE).put(CGL.CGLGetShareGroup(cglContext()));
+				break;
+			default:
+				throw new UnsupportedOperationException("CL/GL context sharing is not supported on this platform.");
+		}
+	}
+
+	/** A pointer property of this context's window, which SDL sets for its video driver. */
+	private long windowPointer(String name) {
+		long pointer = SDL_GetPointerProperty(SDL_GetWindowProperties(window()), name, 0L);
+		if (pointer == 0L) {
+			throw new UnsupportedOperationException("CL/GL context sharing is not supported on this platform.");
+		}
+		return pointer;
+	}
+
+	/** The CGLContextObj under SDL's NSOpenGLContext: [context CGLContextObj]. */
+	private long cglContext() {
+		long objc_msgSend = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend");
+		return JNI.invokePPP(handle, ObjCRuntime.sel_getUid("CGLContextObj"), objc_msgSend);
 	}
 
 }

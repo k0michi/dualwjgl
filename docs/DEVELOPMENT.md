@@ -126,6 +126,15 @@ lwjgl_util is LWJGL 2's sources, unchanged but for `WaveData`, filtered as it is
 through the JDK-internal `com.sun.media.sound.WaveFileReader`, and reads through `javax.sound.sampled.AudioSystem`, as its
 other `create` methods do. `org.lwjgl.util.mapped` is not supported (`DEVIATION(out-of-scope)`).
 
+### CL/GL sharing
+
+`Drawable.setCLSharingProperties` (`ContextGL`) writes LWJGL 2's cl_context_properties from SDL's handles: SDL's GL
+context is the platform's (HGLRC, GLXContext, NSOpenGLContext or EGLContext), the HDC and the X11 display are window
+properties, and on macOS the CGL share group comes from the NSOpenGLContext's `CGLContextObj`. Where SDL uses EGL
+(Wayland, or its EGL hints) it writes cl_khr_gl_sharing's EGL properties, an extension LWJGL 2 did not have; whether an
+OpenCL implementation accepts them is its own. `:verify:displayInputCheck` creates a CL context with the share group
+and a CL buffer from a GL buffer on macOS; WGL, GLX and EGL are unchecked.
+
 ### Debug output callbacks
 
 `KHRDebugCallback`, `ARBDebugOutputCallback` and `AMDDebugOutputCallback` are LWJGL 2's sources. Their pointer is a fixed

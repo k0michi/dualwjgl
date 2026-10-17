@@ -4,11 +4,17 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.opencl.APPLEGLSharing;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CL10GL;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.Pbuffer;
@@ -223,6 +229,40 @@ public final class DisplayInputCheck {
 		check("destroyed SharedDrawable: no context", destroyed && Display.isCurrent());
 	}
 
+	/**
+	 * Drawable.setCLSharingProperties: on macOS the context's CGL share group, with which LWJGL 3's clCreateContext makes
+	 * a CL context that sees the GL buffers (LWJGL 2's CL bindings are not there yet).
+	 */
+	static void checkCLSharing() throws Exception {
+		PointerBuffer properties = BufferUtils.createPointerBuffer(8);
+		Display.getDrawable().setCLSharingProperties(properties);
+		if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
+			check("CL sharing properties written", properties.position() == 4 && properties.get(1) != 0 && properties.get(3) != 0);
+			return;
+		}
+		check("CL sharing: the CGL share group", properties.position() == 2
+			&& properties.get(0) == APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE && properties.get(1) != 0);
+		properties.put(0L).flip();
+		IntBuffer error = BufferUtils.createIntBuffer(1);
+		long context = CL10.nclCreateContext(org.lwjgl.system.MemoryUtil.memAddress(properties), 0, 0L, 0L, 0L,
+			org.lwjgl.system.MemoryUtil.memAddress(error));
+		check("clCreateContext with it: " + error.get(0), context != 0L && error.get(0) == CL10.CL_SUCCESS);
+		if (context == 0L) {
+			return;
+		}
+		int buffer = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, buffer);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, 64, GL15.GL_STATIC_DRAW);
+		GL11.glFinish();
+		long mem = CL10GL.clCreateFromGLBuffer(context, CL10.CL_MEM_READ_WRITE, buffer, error);
+		check("clCreateFromGLBuffer: " + error.get(0), mem != 0L && error.get(0) == CL10.CL_SUCCESS);
+		if (mem != 0L) {
+			CL10.clReleaseMemObject(mem);
+		}
+		GL15.glDeleteBuffers(buffer);
+		CL10.clReleaseContext(context);
+	}
+
 	/** DEVIATION(pbuffer): no capabilities, and the constructors throw. */
 	static void checkPbuffer() {
 		String unsupported = null;
@@ -348,6 +388,7 @@ public final class DisplayInputCheck {
 		checkSharedDrawable();
 		checkGLError();
 		checkPbuffer();
+		checkCLSharing();
 		checkDisplayConfiguration();
 
 		Display.destroy();

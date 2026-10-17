@@ -44,7 +44,8 @@
 - [x] `Pbuffer`: not supported, throws
 - [x] `setParent` / AWT embedding, `AWTGLCanvas`: not supported, throws
 - [x] `setDisplayConfiguration`: not supported, throws
-- [ ] `Drawable.setCLSharingProperties`
+- [x] `Drawable.setCLSharingProperties` (WGL, GLX, CGL; EGL as an extension)
+- [ ] `Drawable.setCLSharingProperties` on Windows and Linux (WGL, GLX, EGL)
 - [ ] `XRandR` (8; LWJGL 2's Linux display internals, public): decide, e.g. not supported
 
 ## Input
