@@ -31,7 +31,9 @@ import java.util.stream.*;
  * hand-written code takes over from stubgen without editing generated files. Members of generated code still marked
  * {@code @Todo} after that are reported per area.</p>
  *
- * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --classes DIR ... --util OUT}</p>
+ * <p>Files from {@code --resource NAME=PATH} (the license and notice) are added to every jar written.</p>
+ *
+ * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --classes DIR ... --util OUT [--resource NAME=PATH ...]}</p>
  */
 public final class Merger {
 
@@ -80,6 +82,7 @@ public final class Merger {
 	public static void main(String[] args) throws IOException {
 		Merger m = new Merger();
 		List<Path> classDirs = new ArrayList<>(), replaceDirs = new ArrayList<>();
+		Map<String, byte[]> resources = new LinkedHashMap<>();
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
 				case "--jar": {
@@ -96,6 +99,11 @@ public final class Merger {
 				case "--util":
 					m.utilJar = new JarImage(Paths.get(args[++i]));
 					break;
+				case "--resource": {
+					String[] np = args[++i].split("=", 2);
+					resources.put(np[0], Files.readAllBytes(Paths.get(np[1])));
+					break;
+				}
 				default:
 					throw new IllegalArgumentException("Unknown argument: " + args[i]);
 			}
@@ -142,9 +150,11 @@ public final class Merger {
 		}
 		m.instrument();
 		for (JarImage j : m.jars) {
+			j.entries.putAll(resources);
 			write(j);
 		}
 		if (!m.utilJar.entries.isEmpty()) {
+			m.utilJar.entries.putAll(resources);
 			write(m.utilJar);
 		}
 		m.log.forEach(System.out::println);

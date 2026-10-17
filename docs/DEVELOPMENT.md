@@ -15,7 +15,8 @@ Internal notes on how DuaLWJGL is built. For what the project is, see the [READM
 
 `dist/build/patched/` keeps the LWJGL 3 module suffixes and versions, replaces the leading `lwjgl` with `dualwjgl`,
 then appends the project version from `git describe` with a hyphen. Unowned LWJGL 2 classes go into the patched core jar,
-which is the `dualwjgl` main module. The `org.lwjgl.util` classes go into `dualwjgl-util-<git describe>.jar`.
+which is the `dualwjgl` main module. The `org.lwjgl.util` classes go into `dualwjgl-util-<git describe>.jar`. Every jar
+carries `META-INF/LICENSE` and `META-INF/NOTICE` (the merger's `--resource`), as LWJGL's license asks of binaries.
 
 `dist` also publishes them with `maven-publish` (`./gradlew :dist:publishToMavenLocal`): each patched module as
 `dualwjgl-<module>` depending on `dualwjgl` (the core), as LWJGL 3's modules depend on `org.lwjgl:lwjgl`; the core

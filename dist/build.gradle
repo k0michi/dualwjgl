@@ -26,6 +26,8 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
     def outDir = layout.buildDirectory.dir('patched')
     inputs.files(configurations.lwjgl3, compatMain, compatInject, compatLwjgl2, compatReplace)
     inputs.property('version', project.version) // in the jar names
+    def legal = [LICENSE: rootProject.file('LICENSE'), NOTICE: rootProject.file('NOTICE')]
+    inputs.files(legal.values())
     outputs.dir(outDir)
 
     classpath = configurations.mergerTool
@@ -41,6 +43,8 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
         compatReplace.files.each { args += ['--replace', it.absolutePath] }
         (compatMain.files + compatInject.files + compatLwjgl2.files).each { args += ['--classes', it.absolutePath] }
         args += ['--util', new File(out, "dualwjgl-util-${project.version}.jar").absolutePath]
+        // BSD: binary redistributions reproduce the notices, LWJGL's included
+        legal.each { name, file -> args += ['--resource', "META-INF/${name}=${file.absolutePath}".toString()] }
         args
     } as CommandLineArgumentProvider)
     doFirst { outDir.get().asFile.deleteDir() }
