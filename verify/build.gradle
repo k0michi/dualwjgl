@@ -52,7 +52,7 @@ def registerSuite = { String suite, String sources, FileCollection compileAgains
         classpath = ss.runtimeClasspath
         useJUnitPlatform()
         // where the few tests that differ between binaries and source (a hidden LWJGL 2 overload) look
-        systemProperty 'dualwjgl.compiledAgainst', compiledAgainst
+        systemProperty 'com.koyomiji.dualwjgl.compiledAgainst', compiledAgainst
         // OpenAL Soft's null backend: a device to open without sound hardware
         environment 'ALSOFT_DRIVERS', 'null'
         systemProperties properties
@@ -102,10 +102,10 @@ def delegationTest = tasks.register('delegationTest', Test) {
     outputs.file(report)
     testLogging { showStandardStreams = true }
     doFirst {
-        systemProperty 'dualwjgl.lwjgl2.jars', configurations.lwjgl2Api.files.join(File.pathSeparator)
-        systemProperty 'dualwjgl.patched.jars', (patched.files + configurations.natives.files).join(File.pathSeparator)
-        systemProperty 'dualwjgl.compat.classes', compatClasses.files.join(File.pathSeparator)
-        systemProperty 'dualwjgl.report', report.get().asFile.path
+        systemProperty 'com.koyomiji.dualwjgl.lwjgl2.jars', configurations.lwjgl2Api.files.join(File.pathSeparator)
+        systemProperty 'com.koyomiji.dualwjgl.patched.jars', (patched.files + configurations.natives.files).join(File.pathSeparator)
+        systemProperty 'com.koyomiji.dualwjgl.compat.classes', compatClasses.files.join(File.pathSeparator)
+        systemProperty 'com.koyomiji.dualwjgl.report', report.get().asFile.path
     }
 }
 tasks.named('check') { dependsOn delegationTest }

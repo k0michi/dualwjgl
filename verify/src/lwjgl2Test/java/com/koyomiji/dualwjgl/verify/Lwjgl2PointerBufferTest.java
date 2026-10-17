@@ -74,7 +74,7 @@ class Lwjgl2PointerBufferTest {
 		assertSame(dst, dst.put(src));
 		// An LWJGL 2 binary calls LWJGL 2's put (hidden overload), which advances the source as LWJGL 2 and NIO do.
 		// Source compiled against the patched jars only sees LWJGL 3's put, which has the same signature and wins.
-		boolean binary = "original".equals(System.getProperty("dualwjgl.compiledAgainst"));
+		boolean binary = "original".equals(System.getProperty("com.koyomiji.dualwjgl.compiledAgainst"));
 		assertEquals(binary ? 3 : 1, src.position());
 		assertEquals(3, dst.position());
 		assertEquals(2L, dst.get(1));
@@ -138,7 +138,7 @@ class Lwjgl2PointerBufferTest {
 		assertEquals(21L, d.get(1));
 
 		// duplicate() and the mark: LWJGL 2's does not copy it (binaries); recompiled, LWJGL 3's is called and does
-		boolean binary = "original".equals(System.getProperty("dualwjgl.compiledAgainst"));
+		boolean binary = "original".equals(System.getProperty("com.koyomiji.dualwjgl.compiledAgainst"));
 		p.position(1).mark().position(2);
 		PointerBuffer dm = p.duplicate();
 		assertInstanceOf(Tagged.class, dm);

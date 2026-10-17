@@ -15,8 +15,9 @@ import static org.lwjgl.sdl.SDLHints.SDL_SetHint;
 import static org.lwjgl.sdl.SDLInit.*;
 
 /**
- * Runs a program with SDL owning the macOS main thread: {@code java -XstartOnFirstThread -Ddualwjgl.main=<main class>
- * com.koyomiji.dualwjgl.Launcher <args...>}. The main thread initializes SDL's video first, so that SDL creates the
+ * Runs a program with SDL owning the macOS main thread:
+ * {@code java -XstartOnFirstThread -Dcom.koyomiji.dualwjgl.main=<main class> com.koyomiji.dualwjgl.Launcher <args...>}.
+ * The main thread initializes SDL's video first, so that SDL creates the
  * application (NSApp) before anything else can (AWT, as soon as ImageIO or the toolkit loads), starts the program's
  * main on a thread named "main", and then runs the application ([NSApp run]): SDL handles every event there, and AWT,
  * which needs a running application, works beside it. SDL's calls from the program reach it through
@@ -31,10 +32,10 @@ public final class Launcher {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		String name = System.getProperty("dualwjgl.main");
+		String name = System.getProperty("com.koyomiji.dualwjgl.main");
 		if (name == null) {
 			if (args.length == 0) {
-				System.err.println("Usage: java -Ddualwjgl.main=<main class> " + Launcher.class.getName() + " <args...>");
+				System.err.println("Usage: java -Dcom.koyomiji.dualwjgl.main=<main class> " + Launcher.class.getName() + " <args...>");
 				System.exit(1);
 			}
 			name = args[0];

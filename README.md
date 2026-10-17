@@ -37,7 +37,7 @@ module split is preserved, with only the `lwjgl` filename prefix changed; the Gi
 hyphen. The util API is separate. LWJGL 2's `Display` and `Controllers` also need LWJGL 3's `lwjgl-sdl` module and its
 natives (JInput is not needed). On macOS, start the program through DuaLWJGL's launcher, which keeps the first thread
 for SDL and runs the program's `main` on another thread:
-`java -XstartOnFirstThread -Ddualwjgl.main=<main class> com.koyomiji.dualwjgl.Launcher <args...>`.
+`java -XstartOnFirstThread -Dcom.koyomiji.dualwjgl.main=<main class> com.koyomiji.dualwjgl.Launcher <args...>`.
 Programs that use LWJGL 2's OpenCL need `-Dorg.lwjgl.opencl.explicitInit=true`: otherwise LWJGL 3 loads OpenCL on its
 own and their `CL.create()` throws.
 

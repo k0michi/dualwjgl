@@ -100,7 +100,7 @@ class DelegationTest {
 
 	@Test
 	void delegationsMakeTheSameNativeCalls() throws Exception {
-		List<Target> targets = targets(paths("dualwjgl.compat.classes"));
+		List<Target> targets = targets(paths("com.koyomiji.dualwjgl.compat.classes"));
 		Side two = lwjgl2();
 		Side three = lwjgl3();
 		// pointers either side allocated itself: big, and not one of the fake function addresses
@@ -151,7 +151,7 @@ class DelegationTest {
 			}
 		}
 
-		Path report = Paths.get(System.getProperty("dualwjgl.report"));
+		Path report = Paths.get(System.getProperty("com.koyomiji.dualwjgl.report"));
 		Files.createDirectories(report.getParent());
 		Files.write(report, mismatches);
 		System.out.println("Delegations: " + targets.size() + ", same native calls: " + compared + ", mismatches: "
@@ -163,7 +163,7 @@ class DelegationTest {
 	// ---- sides
 
 	private static Side lwjgl2() throws Exception {
-		RewritingLoader l = new RewritingLoader(urls("dualwjgl.lwjgl2.jars"), cls -> cls.startsWith("org/lwjgl/"),
+		RewritingLoader l = new RewritingLoader(urls("com.koyomiji.dualwjgl.lwjgl2.jars"), cls -> cls.startsWith("org/lwjgl/"),
 			Map.of("org/lwjgl/opengl/GLContext.getCapabilities", "lwjgl2GL", "org/lwjgl/opencl/CL.getFunctionAddress", "#clFunction"),
 			// state checks (e.g. "Cannot use offsets when Array Buffer Object is disabled"), not argument mapping; and
 			// Sys's check that liblwjgl matches the jar
@@ -183,7 +183,7 @@ class DelegationTest {
 	}
 
 	private static Side lwjgl3() throws Exception {
-		RewritingLoader l = new RewritingLoader(urls("dualwjgl.patched.jars"),
+		RewritingLoader l = new RewritingLoader(urls("com.koyomiji.dualwjgl.patched.jars"),
 			cls -> cls.equals("org/lwjgl/system/JNI") || PACKAGES.stream().anyMatch(cls::startsWith),
 			Map.of("org/lwjgl/opengl/GL.getICD", "lwjgl3GL", "org/lwjgl/opengl/GL.getCapabilities", "lwjgl3GL",
 				"org/lwjgl/openal/AL.getICD", "lwjgl3AL", "org/lwjgl/openal/AL.getCapabilities", "lwjgl3AL",
