@@ -28,6 +28,7 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.sdl.SDLKeycode.SDL_KMOD_LCTRL;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLMouse.*;
@@ -133,6 +134,18 @@ public final class DisplayInputCheck {
 		memFree(a);
 		memFree(a2);
 		memFree(accent);
+
+		// Ctrl-V: SDL's text input gives no character; LWJGL 2's was the control character (22)
+		SDL_Event ctrlV = SDL_Event.calloc();
+		ctrlV.key().type(SDL_EVENT_KEY_DOWN).scancode(SDL_SCANCODE_V).key('v').mod((short)SDL_KMOD_LCTRL).down(true);
+		push(ctrlV);
+		ctrlV.key().type(SDL_EVENT_KEY_UP).down(false);
+		push(ctrlV);
+		ctrlV.free();
+		Display.update();
+		check("Ctrl-V: V down with the control character 22", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_V
+			&& Keyboard.getEventKeyState() && Keyboard.getEventCharacter() == 22);
+		check("Ctrl-V: V up", Keyboard.next() && Keyboard.getEventKey() == Keyboard.KEY_V && !Keyboard.getEventKeyState());
 		check("key names", "A".equals(Keyboard.getKeyName(Keyboard.KEY_A)) && Keyboard.getKeyIndex("RETURN") == Keyboard.KEY_RETURN);
 	}
 

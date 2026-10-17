@@ -21,6 +21,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.sdl.SDLError.SDL_GetError;
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLKeyboard.SDL_StartTextInput;
+import static org.lwjgl.sdl.SDLKeycode.SDL_KMOD_CTRL;
 import static org.lwjgl.sdl.SDLKeyboard.SDL_StopTextInput;
 import static org.lwjgl.sdl.SDLMouse.*;
 import static org.lwjgl.sdl.SDLPixels.SDL_PIXELFORMAT_ABGR8888;
@@ -130,7 +131,10 @@ final class SDLInput implements InputImplementation {
 			keys[key] = k.down();
 			if (k.down()) {
 				pendingKey = key;
-				pendingCharacter = 0;
+				// SDL's text input has no characters for Ctrl-letter: LWJGL 2 had its control character (Ctrl-V: 22),
+				// which LWJGL 2 programs take for their shortcuts (text fields that paste on 22)
+				int letter = k.key();
+				pendingCharacter = (k.mod() & SDL_KMOD_CTRL) != 0 && letter >= 'a' && letter <= 'z' ? letter - 'a' + 1 : 0;
 				pendingNanos = k.timestamp();
 				pendingRepeat = k.repeat();
 			} else {
