@@ -17,6 +17,25 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
 then appends the project version from `git describe` with a hyphen. Unowned LWJGL 2 classes go into the patched core jar,
 which is the `lwjgl2w3` main module. The `org.lwjgl.util` classes go into `lwjgl2w3-util-<git describe>.jar`.
 
+### LWJGL 2's builds and what is covered
+
+lwjgl2w3 targets the jars LWJGL 2.9.3 published to Maven Central, `org.lwjgl.lwjgl:lwjgl` and
+`org.lwjgl.lwjgl:lwjgl_util`: the API an LWJGL 2 binary links against. LWJGL 2's build (`build.xml`,
+`platform_build/`) made more than those:
+
+| Build | Jars | Differs by | Covered |
+|---|---|---|---|
+| `jars` (the release) | `lwjgl.jar`, `lwjgl_util.jar` | `lwjgl.jar` has every package but `org.lwjgl.util`, the tests and `org.lwjgl.opengles` (only its `ContextAttribs`) | Yes: the Maven artifacts |
+| `jars` | `lwjgl_util_applet.jar` (Maven: `org.lwjgl.lwjgl:lwjgl_util_applet`) | `org.lwjgl.util.applet.AppletLoader` only | No, out of scope: applets no longer run on current Java |
+| `jars` | `lwjgl_test.jar` | LWJGL 2's tests and examples, not API | No |
+| `release`, debug pass | `lwjgl-debug.jar` | The same classes generated with `-Ageneratechecks`: every binding checks for errors after the call (`Util.checkGLError` and the like) | No: not published to Maven; the patched bindings check as the release ones did |
+| `jars_es` (natives: `compile_native_es`, Windows and Linux) | `lwjgl.jar` | `org.lwjgl.opengles` (GLES20 and the other ES bindings, EGL, `opengles.GLContext`, `opengles.PixelFormat`) in place of the desktop OpenGL bindings | No: not published |
+| `applet`, `webstart`, `maven` | Repackaged jars, natives | Only the packaging of the `jars` build | Through the `jars` build |
+
+The published `lwjgl.jar` keeps only `opengles.ContextAttribs` and `Display.create(PixelFormatLWJGL, ...,
+opengles.ContextAttribs)` from the ES build: the ES runtime they need (`DrawableGLES`'s `opengles.PixelFormat`, EGL) is not
+in it, so that path did not work in LWJGL 2.9.3 itself.
+
 ### Writing compat code
 
 - **LWJGL 2-only classes** (`Sys`, `LWJGLException`, later `Display`, `Keyboard`, ...) go in `compat/src/main/java`, in their
