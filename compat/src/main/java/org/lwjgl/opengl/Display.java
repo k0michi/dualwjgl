@@ -34,8 +34,8 @@ import static org.lwjgl.sdl.SDLVideo.*;
  * <p>Input goes through {@link SDLInput}, LWJGL 2's InputImplementation, which LWJGL 2's Mouse and Keyboard (compiled
  * unchanged) reach through getImplementation(), as in LWJGL 2.</p>
  *
- * <p>Not there yet: OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt)), Pbuffers (DEVIATION(pbuffer))
- * and setDisplayConfiguration (gamma, DEVIATION(display-configuration)).</p>
+ * <p>Not there yet: OpenGL ES. Not supported: setParent (AWT embedding, DEVIATION(awt)), Pbuffers (DEVIATION(pbuffer)),
+ * setDisplayConfiguration (gamma, DEVIATION(display-configuration)) and auxiliary buffers (DEVIATION(aux-buffers)).</p>
  *
  * <p>DEVIATION(macos-first-thread): on macOS, SDL's video needs the process's first thread, so the JVM must run with
  * -XstartOnFirstThread and the Display be used from main(); without it, the Display fails with "No available video
@@ -545,7 +545,8 @@ public final class Display {
 		SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, format.isSRGB() ? 1 : 0);
 		SDL_GL_SetAttribute(SDL_GL_FLOATBUFFERS, format.isFloatingPoint() ? 1 : 0);
 		if (format.getAuxBuffers() > 0) {
-			// TODO(sdl): auxiliary buffers, which SDL does not request
+			// DEVIATION(aux-buffers): SDL cannot request auxiliary buffers, so a format asking for them fails, as LWJGL 2
+			// did where no pixel format had them
 			throw new LWJGLException("Auxiliary buffers are not supported");
 		}
 		if (attribs != null) {

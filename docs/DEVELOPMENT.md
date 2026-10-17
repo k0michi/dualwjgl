@@ -106,6 +106,10 @@ marks every place that decision affects.
     cursor; LWJGL 2 animated natively only on Linux and switched single images from Java elsewhere.
   - `controllers-sdl`: Controllers are SDL's gamepads (standard layout) and joysticks, not JInput's, whose names, order
     and ranges varied by platform; JInput is not needed.
+  - `aux-buffers`: a `PixelFormat` asking for auxiliary buffers makes `Display.create` throw `LWJGLException`, as LWJGL 2
+    did where no pixel format had them; SDL cannot request them.
+  - `bool-arguments`: a `cl_bool` LWJGL 2 took as an int (`blocking_read`) LWJGL 3 takes as a boolean, so any non-zero
+    value reaches the function as 1.
   - `display-configuration`: `Display.setDisplayConfiguration` (gamma) throws "Display configuration not supported", as
     LWJGL 2 did on platforms without a gamma ramp; SDL 3 has no gamma API.
   - `shared-context`: SDL shares a new context only with the current one, so creating a context shared with one current
@@ -142,7 +146,8 @@ its platform context implementations; the peer (`SDLPeerInfo`) is an SDL window.
 unchanged. Input goes through `SDLInput`, LWJGL 2's `InputImplementation` (what its platform display
 classes implemented), which Display feeds SDL's events; `Mouse`, `Keyboard` and their helpers are LWJGL 2's sources, and
 `Cursor` is LWJGL 2's with animations handed over whole. Keys map SDL scancodes to LWJGL 2's key codes (`SDLKeys`), characters come from SDL's text input. OpenGL ES
-is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embedding is not supported (`DEVIATION(awt)`).
+is still TODO(sdl); Pbuffers are not supported (`DEVIATION(pbuffer)`); AWT embedding is not supported (`DEVIATION(awt)`); nor are auxiliary
+buffers (`DEVIATION(aux-buffers)`).
 
 `Controllers` is written on SDL's gamepad and joystick API (`Controller` and `ControllerEvent` are LWJGL 2's sources).
 `./gradlew :verify:controllersCheck` drives an SDL virtual gamepad and joystick through it.

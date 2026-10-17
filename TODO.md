@@ -34,7 +34,7 @@
 - [ ] Debug output callbacks with a real driver (Windows or Linux)
 - [x] `OpenGLException`, `Util.checkGLError`
 - [x] Remaining constructors (`ARBProgram`, `NVProgram`, `ARBBufferObject`)
-- [ ] `glMapTexture2DINTEL`, `glPathTexGenNV`: hand-written
+- [x] `glMapTexture2DINTEL`, `glPathTexGenNV`: hand-written
 - [x] `glCreateSyncFromCLeventARB`: generated (`new GLSync` around the delegation; no object-model update in LWJGL 2)
 - [x] Internal classes: `DrawableGL`, `ContextGL`, `PeerInfo`
 
@@ -47,6 +47,7 @@
 - [x] `Pbuffer`: not supported, throws
 - [x] `setParent` / AWT embedding, `AWTGLCanvas`: not supported, throws
 - [x] `setDisplayConfiguration`: not supported, throws
+- [x] Auxiliary buffers: not supported, `Display.create` throws
 - [x] `Drawable.setCLSharingProperties` (WGL, GLX, CGL; EGL as an extension)
 - [ ] `Drawable.setCLSharingProperties` on Windows and Linux (WGL, GLX, EGL)
 - [x] `XRandR`: not supported; every member throws (generated)
