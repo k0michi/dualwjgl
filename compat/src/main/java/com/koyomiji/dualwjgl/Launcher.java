@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+import static org.lwjgl.sdl.SDLHints.SDL_HINT_MAC_PRESS_AND_HOLD;
+import static org.lwjgl.sdl.SDLHints.SDL_SetHint;
 import static org.lwjgl.sdl.SDLInit.*;
 
 /**
@@ -41,6 +43,10 @@ public final class Launcher {
 		Method main = Class.forName(name, false, Launcher.class.getClassLoader()).getMethod("main", String[].class);
 		if (!Modifier.isStatic(main.getModifiers())) {
 			throw new NoSuchMethodException(name + ".main(String[]) is not static");
+		}
+		if (Platform.get() == Platform.MACOSX) {
+			// as LWJGL 2: holding a key repeats it, rather than opening the accents menu; read as SDL creates NSApp
+			SDL_SetHint(SDL_HINT_MAC_PRESS_AND_HOLD, "0");
 		}
 		if (Platform.get() != Platform.MACOSX || !isMainThread() || !SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 			if (Platform.get() == Platform.MACOSX && isMainThread()) {

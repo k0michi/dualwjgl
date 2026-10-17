@@ -21,6 +21,8 @@ import java.util.Set;
 
 import static org.lwjgl.sdl.SDLError.SDL_GetError;
 import static org.lwjgl.sdl.SDLEvents.*;
+import static org.lwjgl.sdl.SDLHints.SDL_HINT_MAC_PRESS_AND_HOLD;
+import static org.lwjgl.sdl.SDLHints.SDL_SetHint;
 import static org.lwjgl.sdl.SDLInit.*;
 import static org.lwjgl.sdl.SDLPixels.SDL_BITSPERPIXEL;
 import static org.lwjgl.sdl.SDLPixels.SDL_PIXELFORMAT_RGBA32;
@@ -78,7 +80,14 @@ public final class Display {
 
 	/** The video subsystem, on first use: LWJGL 2 initialized the display in its static initializer. */
 	private static void video() throws LWJGLException {
-		String error = MainThread.call(() -> SDL_WasInit(SDL_INIT_VIDEO) != 0 || SDL_InitSubSystem(SDL_INIT_VIDEO) ? null : SDL_GetError());
+		String error = MainThread.call(() -> {
+			if (SDL_WasInit(SDL_INIT_VIDEO) != 0) {
+				return null;
+			}
+			// as LWJGL 2 on macOS: holding a key repeats it, rather than opening the accents menu (SDL's text input)
+			SDL_SetHint(SDL_HINT_MAC_PRESS_AND_HOLD, "0");
+			return SDL_InitSubSystem(SDL_INIT_VIDEO) ? null : SDL_GetError();
+		});
 		if (error != null) {
 			throw new LWJGLException("Could not initialize SDL video: " + error
 				+ (LWJGLUtil.getPlatform() == LWJGLUtil.PLATFORM_MACOSX ? " (on macOS, run the program through com.koyomiji.dualwjgl.Launcher,"
