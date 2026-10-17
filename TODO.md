@@ -35,7 +35,7 @@
 - [x] `OpenGLException`, `Util.checkGLError`
 - [x] Remaining constructors (`ARBProgram`, `NVProgram`, `ARBBufferObject`)
 - [ ] `glMapTexture2DINTEL`, `glPathTexGenNV`: hand-written
-- [ ] `glCreateSyncFromCLeventARB`: hand-written, after the CL bindings (takes `CLEvent`)
+- [x] `glCreateSyncFromCLeventARB`: generated (`new GLSync` around the delegation; no object-model update in LWJGL 2)
 - [x] Internal classes: `DrawableGL`, `ContextGL`, `PeerInfo`
 
 ## OpenGL ES
