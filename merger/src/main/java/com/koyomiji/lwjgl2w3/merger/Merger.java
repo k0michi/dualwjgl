@@ -14,7 +14,7 @@ import java.util.jar.*;
 import java.util.stream.*;
 
 /**
- * Produces LWJGL 3 jars that also carry the LWJGL 2 API.
+ * Produces LWJGL 3 jars that also carry the LWJGL 2 API, with the core jar serving as lwjgl2w3's main module.
  *
  * <p>Classes from {@code --classes} are sorted by what they are:</p>
  * <ul>
@@ -22,7 +22,8 @@ import java.util.stream.*;
  * {@code com/koyomiji/lwjgl2w3/generated/<pkg>/<Name>} written by stubgen; {@code @Into} overrides the target) are
  * merged into {@code <pkg>/<Name>}: their members are copied in and references to the fragment are remapped.</li>
  * <li>Other classes (LWJGL 2-only classes in their real package; {@code @Generated} if stubgen wrote them) are added
- * to the LWJGL 3 jar that owns the package, or to the extra jar when no LWJGL 3 jar does.</li>
+ * to the LWJGL 3 jar that owns the package, or to the core jar (the lwjgl2w3 main module) when no LWJGL 3 jar does.
+ * Classes in {@code org/lwjgl/util} go to the separate util jar.</li>
  * </ul>
  * <p>Classes from {@code --replace} replace the LWJGL 3 class of the same name wholesale.</p>
  *
@@ -30,7 +31,7 @@ import java.util.stream.*;
  * hand-written code takes over from stubgen without editing generated files. Members of generated code still marked
  * {@code @Todo} after that are reported per area.</p>
  *
- * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --classes DIR ... --extra OUT}</p>
+ * <p>Usage: {@code Merger --jar IN=OUT ... --replace DIR --classes DIR ... --util OUT}</p>
  */
 public final class Merger {
 
@@ -60,6 +61,8 @@ public final class Merger {
 	}
 
 	final List<JarImage> jars = new ArrayList<>();
+	JarImage mainJar;
+	JarImage utilJar;
 	final Map<String, JarImage> packageOwner = new HashMap<>();
 	final Map<String, JarImage> classOwner = new HashMap<>();
 	final List<String> log = new ArrayList<>();
@@ -77,7 +80,6 @@ public final class Merger {
 	public static void main(String[] args) throws IOException {
 		Merger m = new Merger();
 		List<Path> classDirs = new ArrayList<>(), replaceDirs = new ArrayList<>();
-		Path extra = null;
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
 				case "--jar": {
@@ -91,14 +93,15 @@ public final class Merger {
 				case "--replace":
 					replaceDirs.add(Paths.get(args[++i]));
 					break;
-				case "--extra":
-					extra = Paths.get(args[++i]);
+				case "--util":
+					m.utilJar = new JarImage(Paths.get(args[++i]));
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown argument: " + args[i]);
 			}
 		}
-		JarImage extraJar = new JarImage(Objects.requireNonNull(extra, "--extra is required"));
+		Objects.requireNonNull(m.utilJar, "--util is required");
+		m.mainJar = Objects.requireNonNull(m.packageOwner.get("org/lwjgl"), "LWJGL core jar (org/lwjgl package) is required");
 		List<byte[]> replacements = new ArrayList<>();
 		for (Path dir : replaceDirs) {
 			for (Path f : classFiles(dir)) {
@@ -124,10 +127,10 @@ public final class Merger {
 			}
 		}
 		for (byte[] b : generatedClasses) {
-			m.add(b, extraJar, true);
+			m.add(b, true);
 		}
 		for (byte[] b : manualClasses) {
-			m.add(b, extraJar, false);
+			m.add(b, false);
 		}
 		for (byte[] b : generatedFragments) {
 			m.inject(b, true);
@@ -139,8 +142,8 @@ public final class Merger {
 		for (JarImage j : m.jars) {
 			write(j);
 		}
-		if (!extraJar.entries.isEmpty()) {
-			write(extraJar);
+		if (!m.utilJar.entries.isEmpty()) {
+			write(m.utilJar);
 		}
 		m.log.forEach(System.out::println);
 		m.report();
@@ -676,7 +679,7 @@ public final class Merger {
 			+ ((a & Opcodes.ACC_SYNTHETIC) != 0 ? " synthetic" : "");
 	}
 
-	void add(byte[] bytes, JarImage extra, boolean generated) {
+	void add(byte[] bytes, boolean generated) {
 		ClassNode cn = new ClassNode();
 		new ClassReader(bytes).accept(cn, 0);
 		if (classOwner.containsKey(cn.name)) {
@@ -695,7 +698,9 @@ public final class Merger {
 		}
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cn.accept(cw);
-		JarImage owner = packageOwner.getOrDefault(packageOf(cn.name), extra);
+		JarImage owner = cn.name.startsWith("org/lwjgl/util/")
+			? utilJar
+			: packageOwner.getOrDefault(packageOf(cn.name), mainJar);
 		owner.entries.put(cn.name + ".class", cw.toByteArray());
 		classOwner.put(cn.name, owner);
 		log.add(owner.out.getFileName() + ": + class " + cn.name);

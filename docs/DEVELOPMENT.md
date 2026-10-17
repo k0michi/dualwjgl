@@ -9,9 +9,13 @@ Internal notes on how lwjgl2w3 is built. For what the project is, see the [READM
 | `inject-api` | Annotations read by the merger (`@Widen`, `@Wrap`, `@Around`, `@Hidden`, `@Into`, `@Generated`, `@Todo`). Build-time only. |
 | `compat` | The LWJGL 2 implementation, written against LWJGL 3 (and SDL). |
 | `merger` | ASM tool that merges `compat` into the LWJGL 3 jars. |
-| `dist` | Runs the merger: `build/patched/*.jar`. |
+| `dist` | Runs the merger: patched LWJGL 3 module jars plus `lwjgl2w3` main and util jars in `build/patched/`; each filename ends in `-<git describe>`. |
 | `verify` | Link tests (see below). |
 | `stubgen` | Writes `compat/src/generated/java`: an implementation or a `@Todo` stub for every LWJGL 2 member LWJGL 3 lacks. |
+
+`dist/build/patched/` keeps the LWJGL 3 module suffixes and versions, replaces the leading `lwjgl` with `lwjgl2w3`,
+then appends the project version from `git describe` with a hyphen. Unowned LWJGL 2 classes go into the patched core jar,
+which is the `lwjgl2w3` main module. The `org.lwjgl.util` classes go into `lwjgl2w3-util-<git describe>.jar`.
 
 ### Writing compat code
 

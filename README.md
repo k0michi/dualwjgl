@@ -30,9 +30,12 @@ Building requires JDK 21. The jars it produces run on Java 8 or later.
 ./gradlew :dist:assemble
 ```
 
-The merged jars are written to `dist/build/patched/`. To use them, put them in place of the LWJGL 3 jars of the same
-name, and add `lwjgl2w3-extra.jar` along with the usual LWJGL 3 natives. LWJGL 2's `Display` and `Controllers` also need
-LWJGL 3's `lwjgl-sdl` module and its natives (JInput is not needed); on macOS, run the JVM with `-XstartOnFirstThread`.
+The merged jars are written to `dist/build/patched/`. With LWJGL 3 version `3.4.3` and Git description `<tag>`, the
+output includes `lwjgl2w3-3.4.3-<tag>.jar` (the main module, including classes that have no LWJGL 3 module owner),
+`lwjgl2w3-util-<tag>.jar`, and patched LWJGL 3 modules such as `lwjgl2w3-opengl-3.4.3-<tag>.jar`. The official LWJGL 3
+module split is preserved, with only the `lwjgl` filename prefix changed; the Git description is appended with a
+hyphen. The util API is separate. LWJGL 2's `Display` and `Controllers` also need LWJGL 3's `lwjgl-sdl` module and its
+natives (JInput is not needed); on macOS, run the JVM with `-XstartOnFirstThread`.
 Programs that use LWJGL 2's OpenCL need `-Dorg.lwjgl.opencl.explicitInit=true`: otherwise LWJGL 3 loads OpenCL on its
 own and their `CL.create()` throws.
 

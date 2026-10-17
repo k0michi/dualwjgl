@@ -32,10 +32,14 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
     argumentProviders.add({
         File out = outDir.get().asFile
         List<String> args = []
-        configurations.lwjgl3.files.each { args += ['--jar', "${it.absolutePath}=${new File(out, it.name).absolutePath}".toString()] }
+        configurations.lwjgl3.files.each {
+            String outputName = it.name.replaceFirst(/^lwjgl(?=-)/, 'lwjgl2w3')
+                .replaceFirst(/\.jar$/, "-${project.version}.jar")
+            args += ['--jar', "${it.absolutePath}=${new File(out, outputName).absolutePath}".toString()]
+        }
         compatReplace.files.each { args += ['--replace', it.absolutePath] }
         (compatMain.files + compatInject.files + compatLwjgl2.files).each { args += ['--classes', it.absolutePath] }
-        args += ['--extra', new File(out, 'lwjgl2w3-extra.jar').absolutePath]
+        args += ['--util', new File(out, "lwjgl2w3-util-${project.version}.jar").absolutePath]
         args
     } as CommandLineArgumentProvider)
     doFirst { outDir.get().asFile.deleteDir() }
