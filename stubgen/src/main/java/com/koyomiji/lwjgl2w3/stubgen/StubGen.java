@@ -100,6 +100,7 @@ public final class StubGen {
 			return;
 		}
 		StubWriter w = new StubWriter(lwjgl2, lwjgl2.forcePublic, pkg, area, delegator);
+		w.unsupportedFor(fqn);
 		w.type(te);
 		write(generatedDir.resolve(pkg.replace('.', '/')).resolve(simple + ".java"), w.file());
 		report.count(w);

@@ -13,11 +13,14 @@ final class StubWriter {
 	private static final String THROW = "throw new UnsupportedOperationException();";
 
 	/**
-	 * Packages compat does not support (DEVIATION(out-of-scope)): their members are generated throwing, without @Todo.
-	 * org.lwjgl.util.mapped rewrites classes at run time with an ASM prerelease and reaches memory through
-	 * sun.misc.Unsafe.
+	 * Packages and whole classes compat does not support (DEVIATION(out-of-scope)): their members are generated
+	 * throwing, without @Todo. org.lwjgl.util.mapped rewrites classes at run time with an ASM prerelease and reaches
+	 * memory through sun.misc.Unsafe; XRandR is LWJGL 2's Linux display internals, over the xrandr command.
 	 */
-	static final Set<String> UNSUPPORTED_PACKAGES = Set.of("org.lwjgl.util.mapped");
+	static final Set<String> UNSUPPORTED = Set.of("org.lwjgl.util.mapped", "org.lwjgl.opengl.XRandR");
+
+	/** What the current whole class is unsupported as (its package, or its own name), or null. */
+	private String unsupportedAs;
 
 	private final Lwjgl2Api lwjgl2;
 	private final Set<String> forcePublic;
@@ -63,12 +66,17 @@ final class StubWriter {
 	}
 
 	private boolean unsupportedPackage() {
-		return UNSUPPORTED_PACKAGES.contains(pkg);
+		return unsupportedAs != null;
+	}
+
+	/** The LWJGL 2 class whose stubs come next, nested classes included. */
+	void unsupportedFor(String qualifiedName) {
+		unsupportedAs = UNSUPPORTED.contains(pkg) ? pkg : UNSUPPORTED.contains(qualifiedName) ? qualifiedName : null;
 	}
 
 	/** The body of a member left unimplemented: @Todo, or for an unsupported package a throw saying so. */
 	private String unimplemented() {
-		return unsupportedPackage() ? "throw new UnsupportedOperationException(\"" + pkg + " is not supported\");" : THROW;
+		return unsupportedPackage() ? "throw new UnsupportedOperationException(\"" + unsupportedAs + " is not supported\");" : THROW;
 	}
 
 	private void todo() {

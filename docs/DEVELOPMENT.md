@@ -66,8 +66,10 @@ marks every place that decision affects.
     false; `CLPrintfCallback` can be created but `clSetPrintfCallback` throws "Function is not supported".
     `org.lwjgl.util.mapped` (lwjgl_util) is not supported at all: stubgen generates every member throwing
     `UnsupportedOperationException` ("org.lwjgl.util.mapped is not supported"), as listed in
-    `StubWriter.UNSUPPORTED_PACKAGES`. It rewrote classes at run time with an ASM prerelease (4.0_RC1) the program had
+    `StubWriter.UNSUPPORTED`. It rewrote classes at run time with an ASM prerelease (4.0_RC1) the program had
     to bring, and reached memory through `sun.misc.Unsafe`.
+    `org.lwjgl.opengl.XRandR`, LWJGL 2's Linux display internals over the `xrandr` command (public, but no API), is not
+    supported the same way: every member throws "org.lwjgl.opengl.XRandR is not supported".
   - `awt`: AWT embedding (`AWTGLCanvas`, `Display.setParent` with a parent) throws `LWJGLException`.
   - `pbuffer`: `Pbuffer.getCapabilities()` is 0 and its constructors throw `LWJGLException`, as LWJGL 2 did where the
     platform had no pbuffers; SDL has no off-screen drawable. `RenderTexture` is LWJGL 2's, unchanged.

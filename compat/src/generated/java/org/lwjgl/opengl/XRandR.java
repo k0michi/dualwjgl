@@ -1,41 +1,34 @@
 package org.lwjgl.opengl;
 
 import com.koyomiji.lwjgl2w3.inject.Generated;
-import com.koyomiji.lwjgl2w3.inject.Todo;
 
 @Generated
 public class XRandR {
 	public XRandR() {
 	}
 
-	@Todo("sdl")
 	public static XRandR.Screen[] getConfiguration() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 	}
 
-	@Todo("sdl")
 	public static void setConfiguration(boolean disableOthers, XRandR.Screen... screens) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 	}
 
-	@Todo("sdl")
 	public static void saveConfiguration() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 	}
 
-	@Todo("sdl")
 	public static void restoreConfiguration() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 	}
 
-	@Todo("sdl")
 	public static String[] getScreenNames() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 	}
 
-	@Todo("sdl")
 	public static XRandR.Screen[] getResolutions(String name) {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 	}
 
 	@Generated
@@ -47,14 +40,12 @@ public class XRandR {
 		public int xPos;
 		public int yPos;
 
-		@Todo("sdl")
 		Screen(String name, int width, int height, int freq, int xPos, int yPos) {
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 		}
 
-		@Todo("sdl")
 		public String toString() {
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException("org.lwjgl.opengl.XRandR is not supported");
 		}
 	}
 }

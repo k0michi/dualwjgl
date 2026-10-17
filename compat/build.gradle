@@ -14,7 +14,7 @@ configurations {
     lwjgl2CoreSources { transitive = false }
 }
 
-// mapped is not supported (generated throwing, see StubWriter.UNSUPPORTED_PACKAGES)
+// mapped is not supported (generated throwing, see StubWriter.UNSUPPORTED)
 def extractLwjgl2Sources = tasks.register('extractLwjgl2Sources', Sync) {
     from({ zipTree(configurations.lwjgl2UtilSources.singleFile) }) {
         include 'org/lwjgl/util/**/*.java'

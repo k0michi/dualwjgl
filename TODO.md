@@ -46,7 +46,7 @@
 - [x] `setDisplayConfiguration`: not supported, throws
 - [x] `Drawable.setCLSharingProperties` (WGL, GLX, CGL; EGL as an extension)
 - [ ] `Drawable.setCLSharingProperties` on Windows and Linux (WGL, GLX, EGL)
-- [ ] `XRandR` (8; LWJGL 2's Linux display internals, public): decide, e.g. not supported
+- [x] `XRandR`: not supported; every member throws (generated)
 
 ## Input
 - [x] Controllers: on SDL instead of JInput
