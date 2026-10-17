@@ -17,6 +17,11 @@ Internal notes on how DuaLWJGL is built. For what the project is, see the [READM
 then appends the project version from `git describe` with a hyphen. Unowned LWJGL 2 classes go into the patched core jar,
 which is the `dualwjgl` main module. The `org.lwjgl.util` classes go into `dualwjgl-util-<git describe>.jar`.
 
+`dist` also publishes them with `maven-publish` (`./gradlew :dist:publishToMavenLocal`): each patched module as
+`dualwjgl-<module>` depending on `dualwjgl` (the core), as LWJGL 3's modules depend on `org.lwjgl:lwjgl`; the core
+depends on `org.lwjgl:lwjgl-sdl` with `org.lwjgl:lwjgl` excluded, as its classes are the core's. JitPack runs that task
+(`jitpack.yml`) with `JITPACK`, `GROUP` and `VERSION` set, which become the group and version.
+
 ### LWJGL 2's builds and what is covered
 
 DuaLWJGL targets the jars LWJGL 2.9.3 published to Maven Central, `org.lwjgl.lwjgl:lwjgl` and

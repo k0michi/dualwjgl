@@ -25,6 +25,7 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
 
     def outDir = layout.buildDirectory.dir('patched')
     inputs.files(configurations.lwjgl3, compatMain, compatInject, compatLwjgl2, compatReplace)
+    inputs.property('version', project.version) // in the jar names
     outputs.dir(outDir)
 
     classpath = configurations.mergerTool
@@ -46,3 +47,75 @@ def mergeJars = tasks.register('mergeJars', JavaExec) {
 }
 
 tasks.named('assemble') { dependsOn mergeJars }
+
+// Maven publications of the merged jars (JitPack runs publishToMavenLocal, see jitpack.yml). Each patched module is
+// its LWJGL 3 module's artifact under the dualwjgl name and depends on the patched core, as LWJGL 3's modules depend on
+// org.lwjgl:lwjgl; the core brings lwjgl-sdl, which Display and Controllers need. Natives stay LWJGL 3's own.
+apply plugin: 'maven-publish'
+
+def lwjgl3Version = libs.versions.lwjgl3.get()
+def patchedModules = ['', 'opengl', 'opengles', 'openal', 'opencl']
+
+publishing {
+    publications {
+        patchedModules.each { String module ->
+            String artifactName = module.isEmpty() ? 'dualwjgl' : "dualwjgl-${module}"
+            create(module.isEmpty() ? 'core' : module, MavenPublication) {
+                artifactId = artifactName
+                artifact(layout.buildDirectory.file("patched/${artifactName}-${lwjgl3Version}-${project.version}.jar")) {
+                    builtBy mergeJars
+                }
+                pom {
+                    name = artifactName
+                    description = module.isEmpty()
+                        ? "LWJGL ${lwjgl3Version} core with the LWJGL 2 API merged in"
+                        : "LWJGL ${lwjgl3Version} ${module} with the LWJGL 2 API merged in"
+                    withXml {
+                        def deps = asNode().appendNode('dependencies')
+                        def dep = module.isEmpty()
+                            ? [groupId: 'org.lwjgl', artifactId: 'lwjgl-sdl', version: lwjgl3Version]
+                            : [groupId: project.group, artifactId: 'dualwjgl', version: project.version]
+                        def node = deps.appendNode('dependency')
+                        dep.each { k, v -> node.appendNode(k, v) }
+                        node.appendNode('scope', module.isEmpty() ? 'runtime' : 'compile')
+                        if (module.isEmpty()) {
+                            // lwjgl-sdl depends on org.lwjgl:lwjgl, whose classes this jar replaces
+                            def exclusion = node.appendNode('exclusions').appendNode('exclusion')
+                            exclusion.appendNode('groupId', 'org.lwjgl')
+                            exclusion.appendNode('artifactId', 'lwjgl')
+                        }
+                    }
+                }
+            }
+        }
+        create('util', MavenPublication) {
+            artifactId = 'dualwjgl-util'
+            artifact(layout.buildDirectory.file("patched/dualwjgl-util-${project.version}.jar")) {
+                builtBy mergeJars
+            }
+            pom {
+                name = 'dualwjgl-util'
+                description = 'LWJGL 2 lwjgl_util on dualwjgl'
+                withXml {
+                    def node = asNode().appendNode('dependencies').appendNode('dependency')
+                    [groupId: project.group, artifactId: 'dualwjgl', version: project.version].each { k, v -> node.appendNode(k, v) }
+                    node.appendNode('scope', 'compile')
+                }
+            }
+        }
+    }
+    publications.withType(MavenPublication).configureEach {
+        pom {
+            url = 'https://github.com/k0michi/dualwjgl'
+            licenses {
+                license {
+                    name = 'BSD-3-Clause'
+                    url = 'https://opensource.org/license/bsd-3-clause'
+                }
+            }
+            scm {
+                url = 'https://github.com/k0michi/dualwjgl'
+            }
+        }
+    }
+}

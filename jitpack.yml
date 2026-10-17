@@ -1,0 +1,5 @@
+# JitPack: build the merged jars and install them into the local Maven repository it serves from.
+jdk:
+  - openjdk21
+install:
+  - ./gradlew :dist:publishToMavenLocal --no-daemon

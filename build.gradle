@@ -6,9 +6,10 @@ def gitVersion = gitDescribe.result.get().exitValue == 0
         ? gitDescribe.standardOutput.asText.get().trim()
         : 'unspecified'
 
+// JitPack sets GROUP and VERSION (com.github.<user>.<repo>, the requested tag or commit)
 allprojects {
-    group = 'com.koyomiji.dualwjgl'
-    version = gitVersion
+    group = System.getenv('JITPACK') ? System.getenv('GROUP') : 'com.koyomiji.dualwjgl'
+    version = System.getenv('JITPACK') ? System.getenv('VERSION') : gitVersion
 }
 
 subprojects {
