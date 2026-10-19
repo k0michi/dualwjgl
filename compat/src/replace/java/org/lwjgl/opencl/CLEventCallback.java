@@ -1,13 +1,12 @@
 package org.lwjgl.opencl;
 
-import org.lwjgl.PointerWrapper;
+import org.lwjgl.PointerWrapperAbstract;
 import org.lwjgl.system.Callback;
-import org.lwjgl.system.Checks;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
 /** LWJGL 2 and LWJGL 3 {@code CLEventCallback} in one class; see {@link CLContextCallback} for how they are combined. */
-public abstract class CLEventCallback extends Callback implements CLEventCallbackI, PointerWrapper {
+public abstract class CLEventCallback extends PointerWrapperAbstract implements CLEventCallbackI {
 
 	public static CLEventCallback create(long functionPointer) {
 		return create(Callback.get(functionPointer), functionPointer);
@@ -34,31 +33,11 @@ public abstract class CLEventCallback extends Callback implements CLEventCallbac
 
 	protected CLEventCallback() {
 		super(DESCRIPTOR);
-		this.pointer = address();
 		CallbackUtil.markOwned(this);
 	}
 
 	CLEventCallback(long functionPointer) {
 		super(functionPointer);
-		this.pointer = functionPointer;
-	}
-
-	protected final long pointer;
-
-	public boolean isValid() {
-		return pointer != NULL;
-	}
-
-	public final void checkValid() {
-		if (Checks.DEBUG && !isValid()) {
-			throw new IllegalStateException("This " + getClass().getSimpleName() + " pointer is not valid.");
-		}
-	}
-
-	@Override
-	public final long getPointer() {
-		checkValid();
-		return pointer;
 	}
 
 	/** LWJGL 2: where the CLEvent wrappers are; set by clSetEventCallback, which knows the event. */

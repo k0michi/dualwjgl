@@ -3,9 +3,11 @@ package com.koyomiji.dualwjgl.verify;
 import org.junit.jupiter.api.Test;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.PointerWrapperAbstract;
 import org.lwjgl.opencl.CL;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CLCommandQueue;
+import org.lwjgl.opencl.CLContextCallback;
 import org.lwjgl.opencl.CLContext;
 import org.lwjgl.opencl.CLDevice;
 import org.lwjgl.opencl.CLEvent;
@@ -55,6 +57,41 @@ class Lwjgl2OpenCLTest {
 		assertSame(obj, getObject(ref), "kept on success");
 		callbackUtil("checkCallback", int.class, long.class).invoke(null, -1, ref);
 		assertNull(getObject(ref), "deleted on error");
+	}
+
+	/** As in LWJGL 2, the CL callbacks are PointerWrapperAbstracts: assigned and cast as such. They are LWJGL 3 Callbacks too. */
+	@Test
+	void callbacksArePointerWrappers() throws Exception {
+		CLContextCallback cb = new CLContextCallback() {
+			@Override
+			protected void handleMessage(String errinfo, ByteBuffer private_info) {
+			}
+		};
+		PointerWrapperAbstract wrapper = cb;
+		Object o = wrapper;
+		assertSame(cb, (CLContextCallback)o);
+		assertTrue(wrapper.isValid() && wrapper.getPointer() != 0L);
+		assertEquals(cb, cb);
+		assertTrue(cb.toString().startsWith(cb.getClass().getSimpleName() + " pointer (0x"));
+		assertTrue(Class.forName("org.lwjgl.system.Callback").isInstance(cb));
+	}
+
+	/** A wrapped pointer, NULL included, as LWJGL 2's CL objects hold; Callback's free leaves it alone. */
+	@Test
+	void wrappedPointers() throws Exception {
+		PointerWrapperAbstract nul = new PointerWrapperAbstract(0L) {
+		};
+		assertFalse(nul.isValid());
+		PointerWrapperAbstract some = new PointerWrapperAbstract(0x1234L) {
+		};
+		assertEquals(0x1234L, some.getPointer());
+		assertEquals(new PointerWrapperAbstract(0x1234L) {
+		}, some);
+		Method address = some.getClass().getMethod("address");
+		assertEquals(0x1234L, address.invoke(some));
+		assertEquals(0L, address.invoke(nul));
+		some.getClass().getMethod("free").invoke(some); // nothing to release: not this object's
+		nul.getClass().getMethod("free").invoke(nul);
 	}
 
 	@Test

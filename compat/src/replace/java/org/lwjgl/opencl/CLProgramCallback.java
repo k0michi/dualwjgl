@@ -1,8 +1,7 @@
 package org.lwjgl.opencl;
 
-import org.lwjgl.PointerWrapper;
+import org.lwjgl.PointerWrapperAbstract;
 import org.lwjgl.system.Callback;
-import org.lwjgl.system.Checks;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -10,7 +9,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * LWJGL 2 and LWJGL 3 {@code CLProgramCallback} in one class; see {@link CLContextCallback} for how they are combined.
  * Package-private in LWJGL 2, where it is the superclass of {@code CLBuildProgramCallback} and friends.
  */
-public abstract class CLProgramCallback extends Callback implements CLProgramCallbackI, PointerWrapper {
+public abstract class CLProgramCallback extends PointerWrapperAbstract implements CLProgramCallbackI {
 
 	public static CLProgramCallback create(long functionPointer) {
 		return create(Callback.get(functionPointer), functionPointer);
@@ -37,31 +36,11 @@ public abstract class CLProgramCallback extends Callback implements CLProgramCal
 
 	protected CLProgramCallback() {
 		super(DESCRIPTOR);
-		this.pointer = address();
 		CallbackUtil.markOwned(this);
 	}
 
 	CLProgramCallback(long functionPointer) {
 		super(functionPointer);
-		this.pointer = functionPointer;
-	}
-
-	protected final long pointer;
-
-	public boolean isValid() {
-		return pointer != NULL;
-	}
-
-	public final void checkValid() {
-		if (Checks.DEBUG && !isValid()) {
-			throw new IllegalStateException("This " + getClass().getSimpleName() + " pointer is not valid.");
-		}
-	}
-
-	@Override
-	public final long getPointer() {
-		checkValid();
-		return pointer;
 	}
 
 	/** LWJGL 2: where the CLProgram wrappers are; set by the functions that take the callback, which know the program. */

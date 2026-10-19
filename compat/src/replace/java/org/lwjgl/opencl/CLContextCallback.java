@@ -1,8 +1,7 @@
 package org.lwjgl.opencl;
 
-import org.lwjgl.PointerWrapper;
+import org.lwjgl.PointerWrapperAbstract;
 import org.lwjgl.system.Callback;
-import org.lwjgl.system.Checks;
 
 import java.nio.ByteBuffer;
 
@@ -11,14 +10,14 @@ import static org.lwjgl.system.MemoryUtil.*;
 /**
  * LWJGL 2 and LWJGL 3 {@code CLContextCallback} in one class.
  *
- * <p>The superclass is LWJGL 3's {@link Callback}, which owns the native upcall. LWJGL 2's superclass
- * ({@code PointerWrapperAbstract}) cannot also be a superclass, so this implements {@link PointerWrapper} and
- * re-declares its members; no LWJGL 2 API takes {@code PointerWrapperAbstract} itself.</p>
+ * <p>The superclass is LWJGL 2's {@link PointerWrapperAbstract}, whose own superclass in DuaLWJGL is LWJGL 3's
+ * {@link Callback}: this is both, and is assigned to or cast to either, as LWJGL 2 or LWJGL 3 code does. The no-argument
+ * constructor makes the native upcall (Callback's descriptor constructor); the other wraps a native function.</p>
  *
  * <p>Neither callback method is abstract: LWJGL 3 code overrides {@code invoke}, LWJGL 2 code overrides
  * {@code handleMessage}, and the default {@code invoke} forwards to {@code handleMessage}.</p>
  */
-public abstract class CLContextCallback extends Callback implements CLContextCallbackI, PointerWrapper {
+public abstract class CLContextCallback extends PointerWrapperAbstract implements CLContextCallbackI {
 
 	public static CLContextCallback create(long functionPointer) {
 		return create(Callback.get(functionPointer), functionPointer);
@@ -45,7 +44,6 @@ public abstract class CLContextCallback extends Callback implements CLContextCal
 
 	protected CLContextCallback() {
 		super(DESCRIPTOR);
-		this.pointer = address();
 		CallbackUtil.markOwned(this);
 		this.custom = false;
 	}
@@ -56,26 +54,7 @@ public abstract class CLContextCallback extends Callback implements CLContextCal
 		if (functionPointer == NULL) {
 			throw new RuntimeException("Invalid callback function pointer specified.");
 		}
-		this.pointer = functionPointer;
 		this.custom = true;
-	}
-
-	protected final long pointer;
-
-	public boolean isValid() {
-		return pointer != NULL;
-	}
-
-	public final void checkValid() {
-		if (Checks.DEBUG && !isValid()) {
-			throw new IllegalStateException("This " + getClass().getSimpleName() + " pointer is not valid.");
-		}
-	}
-
-	@Override
-	public final long getPointer() {
-		checkValid();
-		return pointer;
 	}
 
 	private final boolean custom;

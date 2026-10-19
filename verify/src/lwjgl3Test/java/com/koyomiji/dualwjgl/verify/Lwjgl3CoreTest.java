@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
+import org.lwjgl.opencl.CLContextCallback;
+import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -79,4 +81,16 @@ class Lwjgl3CoreTest {
 		assertTrue(Version.getVersion().startsWith("3.4.3"), Version.getVersion());
 	}
 
+	/** LWJGL 3's CL callbacks stay Callbacks (in DuaLWJGL they are LWJGL 2's PointerWrapperAbstracts too). */
+	@Test
+	void clCallbacksAreCallbacks() throws Exception {
+		CLContextCallback cb = CLContextCallback.create((errinfo, private_info, size, user_data) -> {
+		});
+		Callback callback = cb;
+		assertNotEquals(0L, callback.address());
+		assertSame(cb, (CLContextCallback)(Object)callback);
+		Class<?> wrapper = Class.forName("org.lwjgl.PointerWrapperAbstract");
+		assertTrue(wrapper.isInstance(cb));
+		callback.free();
+	}
 }

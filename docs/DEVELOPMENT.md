@@ -235,6 +235,14 @@ and calls `CL.getFunctionAddress` instead. Around it:
   references. The callback classes (`compat/src/replace`) are LWJGL 3 Callbacks, so they are their own native functions;
   the one-shot ones (event, program, memory object destructor, native kernel) delete their reference after the call,
   as LWJGL 2's trampolines did. A closure given to `createGlobalRef` is freed once its callback object is collected.
+- The callback classes are LWJGL 2's `PointerWrapperAbstract`s and LWJGL 3's `Callback`s at once, so LWJGL 2 and LWJGL 3
+  code alike assign and cast them as they expect: `PointerWrapperAbstract` (`compat/src/main`, LWJGL 2's otherwise)
+  extends `Callback`, with a second constructor for the callbacks, which makes their native function (Callback's
+  descriptor constructor). Every other `PointerWrapperAbstract` (the CL objects, `GLSync`, the debug callbacks, ...)
+  is then a `Callback` that wraps its pointer: Callback's `address`, `free` and `close` are there, but `free` and
+  `close` release nothing unless the object made a native function, and `address` is the pointer, NULL included (it
+  stands in a non-NULL value for Callback, which refuses NULL). `equals`, `hashCode` and `toString` are LWJGL 2's,
+  for LWJGL 3 code too.
 - `clGetPlatformIDs` and `clGetGLContextInfoKHR` have LWJGL 2's signatures, so LWJGL 3's are used; they are wrapped to
   add LWJGL 2's side effect, registering the CLPlatform and CLDevice wrappers the object model looks up.
 - `CLCapabilities` gets LWJGL 2's static extension flags (whether the library exports the extension's functions) and

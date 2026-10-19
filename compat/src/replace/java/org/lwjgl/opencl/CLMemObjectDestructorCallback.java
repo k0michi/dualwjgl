@@ -1,13 +1,12 @@
 package org.lwjgl.opencl;
 
-import org.lwjgl.PointerWrapper;
+import org.lwjgl.PointerWrapperAbstract;
 import org.lwjgl.system.Callback;
-import org.lwjgl.system.Checks;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
 /** LWJGL 2 and LWJGL 3 {@code CLMemObjectDestructorCallback} in one class; see {@link CLContextCallback} for how they are combined. */
-public abstract class CLMemObjectDestructorCallback extends Callback implements CLMemObjectDestructorCallbackI, PointerWrapper {
+public abstract class CLMemObjectDestructorCallback extends PointerWrapperAbstract implements CLMemObjectDestructorCallbackI {
 
 	public static CLMemObjectDestructorCallback create(long functionPointer) {
 		return create(Callback.get(functionPointer), functionPointer);
@@ -34,31 +33,11 @@ public abstract class CLMemObjectDestructorCallback extends Callback implements 
 
 	protected CLMemObjectDestructorCallback() {
 		super(DESCRIPTOR);
-		this.pointer = address();
 		CallbackUtil.markOwned(this);
 	}
 
 	CLMemObjectDestructorCallback(long functionPointer) {
 		super(functionPointer);
-		this.pointer = functionPointer;
-	}
-
-	protected final long pointer;
-
-	public boolean isValid() {
-		return pointer != NULL;
-	}
-
-	public final void checkValid() {
-		if (Checks.DEBUG && !isValid()) {
-			throw new IllegalStateException("This " + getClass().getSimpleName() + " pointer is not valid.");
-		}
-	}
-
-	@Override
-	public final long getPointer() {
-		checkValid();
-		return pointer;
 	}
 
 	/** LWJGL 2's trampoline: the call, then the one-shot reference deleted (see CallbackUtil). */
