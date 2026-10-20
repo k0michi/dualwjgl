@@ -491,6 +491,10 @@ public final class Display {
 	}
 
 	/** RGBA icons, square; SDL takes the largest, and the others as alternatives for other sizes. */
+	/**
+	 * As LWJGL 2 on macOS, where windows have no icon: nothing is set there (0). SDL would make the icon the Dock's,
+	 * over the application's own (-Xdock:icon, or the bundle's).
+	 */
 	public static int setIcon(ByteBuffer[] icons) {
 		synchronized (lock) {
 			// a deep copy, as LWJGL 2: the caller's buffers may change after this returns
@@ -501,7 +505,7 @@ public final class Display {
 					cachedIcons[i].put(icons[i].duplicate()).flip();
 				}
 			}
-			return isCreated() ? applyIcons() : 0;
+			return isCreated() && LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_MACOSX ? applyIcons() : 0;
 		}
 	}
 
