@@ -171,8 +171,13 @@ SDL's own event loop there instead, AWT's native code loaded after the window ha
 (Java 9 and later); and with AWT's application running, SDL misses key events, which it only sees through its own
 `NSApplication`. So `com.koyomiji.dualwjgl.Launcher` owns the first thread: it initializes SDL's video before the
 program can touch AWT (SDL then creates the application), starts the program's `main` on a thread named `main`, and
-runs the application (`[NSApplication sharedApplication]`, `run`: the only AppKit calls). SDL then sees every event, and
-AWT works beside it. The program's SDL calls go through `com.koyomiji.dualwjgl.MainThread`, which hands them to the
+runs the application (`[NSApplication sharedApplication]`, `run`). SDL then sees every event, and AWT works beside
+it. AWT also applied `-Xdock:name` and `-Xdock:icon` (the java launcher hands them over as `APP_NAME_<pid>` and
+`APP_ICON_<pid>`) as it created the application, which it no longer does; the launcher applies them as AWT did
+(`com.koyomiji.dualwjgl.Dock`, the other AppKit and Foundation calls): the name as the bundle's and the process's
+before SDL starts, as SDL names its menus from it then, and the icon as the application's once SDL created it. The
+Dock's label stays `java`, as it did with LWJGL 2. On
+macOS, `Display.setIcon` sets nothing, as LWJGL 2's did (macOS windows have no icon): SDL would make it the Dock's. The program's SDL calls go through `com.koyomiji.dualwjgl.MainThread`, which hands them to the
 first thread (libdispatch's main queue, which the application's run loop serves) and waits; GL context calls (create,
 make current, swap, destroy) stay on the program's thread, where the context is current. Calls run where they are made
 without the launcher, and off macOS. When the program's `main` returns, the launcher waits for the other non-daemon

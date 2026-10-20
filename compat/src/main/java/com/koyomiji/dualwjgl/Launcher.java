@@ -23,6 +23,8 @@ import static org.lwjgl.sdl.SDLInit.*;
  * which needs a running application, works beside it. SDL's calls from the program reach it through
  * {@link MainThread}.
  *
+ * <p>-Xdock:name and -Xdock:icon, which AWT applied as it created the application, are applied by {@link Dock}.</p>
+ *
  * <p>The main class may also be given as the first argument. Off macOS, or not on the main thread (no
  * -XstartOnFirstThread), the launcher only calls the program's main.</p>
  */
@@ -49,6 +51,9 @@ public final class Launcher {
 			// as LWJGL 2: holding a key repeats it, rather than opening the accents menu; read as SDL creates NSApp
 			SDL_SetHint(SDL_HINT_MAC_PRESS_AND_HOLD, "0");
 		}
+		if (Platform.get() == Platform.MACOSX && isMainThread()) {
+			Dock.applyName(); // -Xdock:name, before SDL names its menus
+		}
 		if (Platform.get() != Platform.MACOSX || !isMainThread() || !SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 			if (Platform.get() == Platform.MACOSX && isMainThread()) {
 				System.err.println("[DuaLWJGL] Could not initialize SDL video (" + SDLError.SDL_GetError() + "); running " + name + " here");
@@ -56,6 +61,7 @@ public final class Launcher {
 			invoke(main, args);
 			return;
 		}
+		Dock.applyIcon(); // -Xdock:icon, now that SDL created the application
 		Thread mainThread = Thread.currentThread();
 		MainThread.bridge(mainThread);
 		final Method program = main;

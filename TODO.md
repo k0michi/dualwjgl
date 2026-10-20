@@ -55,6 +55,8 @@
 - [x] `XRandR`: not supported; every member throws (generated)
 - [x] macOS: `com.koyomiji.dualwjgl.Launcher` keeps the first thread for SDL (`[NSApp run]`), the program runs on another;
   AWT (ImageIO, the clipboard) works beside SDL on Java 8 and 21
+- [x] macOS launcher: `-Xdock:name` and `-Xdock:icon`, which AWT no longer applies; `Display.setIcon` sets nothing, as
+  LWJGL 2's
 - [ ] macOS launcher: live resize, menus and Cmd-Q in a real program by hand
 
 ## Input
